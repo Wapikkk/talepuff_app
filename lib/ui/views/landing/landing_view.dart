@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:talepuff_app/core/app_assets.dart';
-import 'package:talepuff_app/core/app_colors.dart';
+import '../../../core/app_assets.dart';
+import '../../../core/app_colors.dart';
 import '../../widgets/get_started_btn.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
+import 'package:provider/provider.dart';
+import '../../view_models/landing_view_model.dart';
 
 class LandingView extends StatelessWidget{
   const LandingView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<LandingViewModel>(context, listen: false);
+
     return Scaffold(
       body: AppBackground(
           child: Stack(
@@ -51,6 +55,7 @@ class LandingView extends StatelessWidget{
 
                       GetStartedBtn(
                         onPressed: () {
+                          Navigator.pushNamed(context, '/child_info');
                         },
                       ),
 

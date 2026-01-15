@@ -24,4 +24,16 @@ class AppAssets {
 
   // icon stars
   static const String iconStars = 'assets/icon_stars/stars.png';
+
+  // icon child information
+  static const String iconSports = 'assets/icon_child_info/sports.png';
+  static const String iconMusicNote = 'assets/icon_child_info/music_note.png';
+  static const String iconArt = 'assets/icon_child_info/art.png';
+  static const String iconScience = 'assets/icon_child_info/science.png';
+  static const String iconNature = 'assets/icon_child_info/nature.png';
+  static const String iconSpace = 'assets/icon_child_info/space.png';
+  static const String iconMagic = 'assets/icon_child_info/magic.png';
+  static const String iconReading = 'assets/icon_child_info/reading.png';
+  static const String iconDancing = 'assets/icon_child_info/dancing.png';
+  static const String iconGames = 'assets/icon_child_info/games.png';
 }
