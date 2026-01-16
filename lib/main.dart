@@ -11,6 +11,9 @@ import 'ui/view_models/child_info_view_model.dart';
 import 'ui/views/sign_up/signup_view.dart';
 import 'ui/view_models/signup_view_model.dart';
 
+import 'ui/views/login/login_view.dart';
+import 'ui/view_models/login_view_model.dart';
+
 void main() {
   runApp(
     MultiProvider(
@@ -18,6 +21,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => ChildInfoViewModel()),
         ChangeNotifierProvider(create: (_) => SignUpViewModel()),
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -37,7 +41,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LandingView(),
         '/child_info': (context) => const ChildInfoView(),
         '/signup': (context) => const SignUpView(),
-        '/main_nav': (context) => const MainNavigationView(),
+        '/login': (context) => const LoginView(),
+        '/main_nav': (context) => MainNavigationView(),
       },
     );
   }
