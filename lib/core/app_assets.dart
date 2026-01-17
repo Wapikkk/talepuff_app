@@ -36,4 +36,10 @@ class AppAssets {
   static const String iconReading = 'assets/icon_child_info/reading.png';
   static const String iconDancing = 'assets/icon_child_info/dancing.png';
   static const String iconGames = 'assets/icon_child_info/games.png';
+
+  // design mascot
+  static const String mascotHarimauSumatera = 'assets/design_mascot/mascot_harimau_sumatera.png';
+  static const String mascotBadak = 'assets/design_mascot/mascot_badak.png';
+  static const String mascotBurung = 'assets/design_mascot/mascot_burung.png';
+  static const String mascotOrangUtan = 'assets/design_mascot/mascot_orangutan.png';
 }

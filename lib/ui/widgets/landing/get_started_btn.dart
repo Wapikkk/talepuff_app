@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_colors.dart';
-import '../../../core/app_assets.dart';
+import '../../../../core/app_colors.dart';
+import '../../../../core/app_assets.dart';
 
 class GetStartedBtn extends StatelessWidget{
   final VoidCallback onPressed;

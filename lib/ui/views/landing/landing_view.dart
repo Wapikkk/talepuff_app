@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
-import '../../widgets/get_started_btn.dart';
+import '../../widgets/landing/get_started_btn.dart';
+import '../../widgets/landing/mascot_pager.dart';
+import '../../widgets/landing/landing_header.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
-import 'package:provider/provider.dart';
 import '../../view_models/landing_view_model.dart';
 
 class LandingView extends StatelessWidget{
@@ -19,76 +21,56 @@ class LandingView extends StatelessWidget{
           child: Stack(
             children: [
               const StarsOverlay(),
-
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 60),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 70),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
+                      child: LandingHeader(),
+                    ),
 
-                      const Text(
-                        "Create your own story",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: AppAssets.fontFamily, // Quicksand
-                        ),
-                      ),
+                    const Spacer(),
+                    const MascotPager(),
+                    const Spacer(),
 
-                      const SizedBox(height: 12),
-
-                      const Text(
-                        "Help your child learn English through stories they love",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: AppAssets.fontFamily,
-                          height: 1.5,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      GetStartedBtn(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/child_info');
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      RichText(
-                        text: const TextSpan(
-                          style: TextStyle(
-                            fontFamily: AppAssets.fontFamily,
-                            fontSize: 16,
-                            color: AppColors.darkPurple,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Column(
+                        children: [
+                          GetStartedBtn(
+                            onPressed: () => Navigator.pushNamed(context, '/child_info'),
                           ),
-                          children: [
-                            TextSpan(
-                              text: "Already have an account ? ",
+                          const SizedBox(height: 20),
+                          RichText(
+                            text: const TextSpan(
                               style: TextStyle(
-                                fontWeight: FontWeight.w500
+                                fontFamily: AppAssets.fontFamily,
+                                fontSize: 16,
+                                color: AppColors.darkPurple,
                               ),
+                              children: [
+                                TextSpan(
+                                  text: "Already have an account ? ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "Login",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextSpan(
-                              text: "Login",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-
-                      const SizedBox(height: 70),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 80),
+                  ],
                 ),
               ),
             ],
