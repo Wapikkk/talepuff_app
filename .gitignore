@@ -10,7 +10,7 @@
 .history
 .svn/
 .swiftpm/
-.google-services.json
+google-services.json
 migrate_working_dir/
 
 # IntelliJ related
