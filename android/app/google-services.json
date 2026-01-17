@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "523503572036",
+    "project_id": "talepuff-2026",
+    "storage_bucket": "talepuff-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523503572036:android:fb78ba3f74d927d1655811",
+        "android_client_info": {
+          "package_name": "com.example.talepuff_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "523503572036-bjsbeujckfsu0as28n78ah3vrmgmd8l7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.talepuff_app",
+            "certificate_hash": "275a42ad306a6bf1623eb0631928f4c51aef915d"
+          }
+        },
+        {
+          "client_id": "523503572036-012dl0uqemee7asu42shubfuck9tljif.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrvOHrozBmS7O21UGxwB4ezIas27n16i0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "523503572036-012dl0uqemee7asu42shubfuck9tljif.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
