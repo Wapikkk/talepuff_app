@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../widgets/create_new_story_btn.dart';
-import '../../widgets/play_last_story_btn.dart';
+import '../../widgets/home/create_new_story_btn.dart';
+import '../../widgets/home/play_last_story_btn.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/cloud_overlay.dart';
 import '../../widgets/stars_overlay.dart';
-import '../../widgets/home_greeting.dart';
-import '../../widgets/home_search_bar.dart';
+import '../../widgets/home/home_greeting.dart';
+import '../../widgets/home/home_search_bar.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
