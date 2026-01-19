@@ -8,6 +8,8 @@ class ChildInfoViewModel extends ChangeNotifier {
   String selectedGender = '';
   List<String> selectedInterests = [];
 
+  String get childName => name.trim().isEmpty ? "Friend" : name;
+
   final List<Map<String, String>> allInterestData = [
     {'name': 'Sports', 'icon': AppAssets.iconSports},
     {'name': 'Music', 'icon': AppAssets.iconMusicNote},

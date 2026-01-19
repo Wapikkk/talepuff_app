@@ -1,21 +1,45 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:talepuff_app/core/app_assets.dart';
+import 'package:provider/provider.dart';
+import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
 
 class HomeGreeting extends StatelessWidget{
-  final String userName;
+  const HomeGreeting({super.key});
 
-  const HomeGreeting({super.key, required this.userName});
+  Map<String, dynamic> _getTimeTheme() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return {
+        'text': 'Good Morning',
+        'icon': AppAssets.iconMoonStars, // ini nanti diganti dengan icon matahari
+      };
+    } else if (hour >= 12 && hour < 17) {
+      return {
+        'text': 'Good Afternoon',
+        'icon': AppAssets.iconMoonStars, // ini nanti diganti dengan icon matahari
+      };
+    } else {
+      return {
+        'text': 'Good Evening',
+        'icon': AppAssets.iconMoonStars,
+      };
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final childName = context.watch<ChildInfoViewModel>().childName;
+    final theme = _getTimeTheme();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(
-              "Good Evening, $userName",
+            "${theme['text']}, $childName",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -30,38 +54,40 @@ class HomeGreeting extends StatelessWidget{
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 8),
+
             Stack(
               alignment: Alignment.center,
               children: [
                 ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                   child: Image.asset(
-                    AppAssets.iconMoonStars,
+                    theme['icon'],
                     color: Colors.white54,
                     width: 26,
                     height: 26,
                   ),
                 ),
                 Image.asset(
-                  AppAssets.iconMoonStars,
+                  theme['icon'],
                   color: Colors.white,
                   width: 22,
                   height: 22,
                 ),
               ],
             ),
+            const SizedBox(height: 4),
+
+            const Text(
+              "What story do you want to hear today?",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: AppAssets.fontFamily,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
           ],
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          "What story do you want to hear today?",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontFamily: AppAssets.fontFamily,
-            fontWeight: FontWeight.normal,
-          ),
         ),
       ],
     );

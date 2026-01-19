@@ -35,7 +35,7 @@ class HomeView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const HomeGreeting(userName: "Aira"),
+                            const HomeGreeting(),
                             const SizedBox(height: 16),
                             const HomeSearchBar(),
                           ],
