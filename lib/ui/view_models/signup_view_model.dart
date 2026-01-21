@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart' as auth;
 
 class SignUpViewModel extends ChangeNotifier {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final auth.GoogleSignIn _googleSignIn = auth.GoogleSignIn();
 
   String email = '';
   String password = '';
@@ -24,8 +24,8 @@ class SignUpViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void signUpManual(BuildContext context){
-    if(email.isNotEmpty && password.isNotEmpty && isAccepted) {
+  void signUpManual(BuildContext context) {
+    if (email.isNotEmpty && password.isNotEmpty && isAccepted) {
       debugPrint("Trying Manual Sign-Up: $email");
       Navigator.pushReplacementNamed(context, '/login');
     } else {
@@ -34,15 +34,15 @@ class SignUpViewModel extends ChangeNotifier {
   }
 
   Future<void> signUpWithGoogle(BuildContext context) async {
-    try{
+    try {
       isLoading = true;
       notifyListeners();
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final auth.GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (!context.mounted) return;
 
-      if(googleUser != null) {
+      if (googleUser != null) {
         debugPrint("Sign-Up Success: ${googleUser.email}");
         Navigator.pushReplacementNamed(context, '/main_nav');
       }
