@@ -55,6 +55,16 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
           controller: passwordController,
           hint: "Enter your password",
           onChanged: (v) => viewModel.updatePassword(v),
+          obscureText: viewModel.isPasswordObscured,
+          suffixIcon: IconButton(
+            icon: Icon(
+              viewModel.isPasswordObscured
+                  ? Icons.visibility_off
+                  : Icons.visibility,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+            onPressed: () => viewModel.togglePasswordVisibility(),
+          ),
         ),
 
         const SizedBox(height: 10),
