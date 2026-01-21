@@ -8,9 +8,16 @@ class SignUpViewModel extends ChangeNotifier {
   String password = '';
   bool isAccepted = false;
   bool isLoading = false;
+  bool _isPasswordObscured = true;
+  bool get isPasswordObscured => _isPasswordObscured;
 
   void updateEmail(String value) {
     email = value;
+    notifyListeners();
+  }
+
+  void togglePasswordVisibility() {
+    _isPasswordObscured = !_isPasswordObscured;
     notifyListeners();
   }
 

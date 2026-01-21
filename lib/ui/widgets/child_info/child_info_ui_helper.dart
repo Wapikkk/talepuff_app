@@ -56,10 +56,13 @@ class ChildInfoUIHelper {
     required String hint,
     required Function(String) onChanged,
     TextEditingController? controller,
+    bool obscureText = false,
+    Widget? suffixIcon,
   }) {
     return TextField(
       controller: controller,
       onChanged: onChanged,
+      obscureText: obscureText,
       autofocus: false,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
@@ -70,6 +73,7 @@ class ChildInfoUIHelper {
         ),
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.5),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
