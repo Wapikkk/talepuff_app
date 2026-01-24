@@ -1,14 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import '../../data/services/auth_service.dart';
 
 class ChildInfoViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+
+  String _childName = "Friend";
+  String get childName => _childName;
   String? errorMessage;
   String name = '';
   String age = '';
   String selectedGender = '';
   List<String> selectedInterests = [];
-
-  String get childName => name.trim().isEmpty ? "Friend" : name;
 
   final List<Map<String, String>> allInterestData = [
     {'name': 'Sports', 'icon': AppAssets.iconSports},
@@ -58,6 +62,17 @@ class ChildInfoViewModel extends ChangeNotifier {
         errorMessage = null;
         notifyListeners();
       });
+    }
+  }
+
+  Future<void> syncChildData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final data = await _authService.getChildInfo(user.uid);
+      if (data != null && data['name'] != null) {
+        _childName = data['name'];
+        notifyListeners();
+      }
     }
   }
 }

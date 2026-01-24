@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
-import 'child_info_ui_helper.dart';
+import '../shared/app_ui_helper.dart';
 
 class InterestPicker extends StatelessWidget{
   const InterestPicker ({super.key});
@@ -15,7 +15,7 @@ class InterestPicker extends StatelessWidget{
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ChildInfoUIHelper.buildLabel("Interest", isRequired: true),
+            AppUIHelper.buildLabel("Interest", isRequired: true),
             Text(
               "${3 - viewModel.selectedInterests.length} slots remaining",
               style: const TextStyle(
@@ -33,7 +33,7 @@ class InterestPicker extends StatelessWidget{
             final interestName = interest['name']!;
             final iconPath = interest['icon']!;
 
-            return ChildInfoUIHelper.buildInterestChip(
+            return AppUIHelper.buildInterestChip(
               label: interestName,
               iconPath: iconPath,
               isSelected: viewModel.selectedInterests.contains(interestName),

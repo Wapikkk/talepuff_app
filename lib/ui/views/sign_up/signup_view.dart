@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
-import 'package:talepuff_app/ui/widgets/signup/signup_header.dart';
+import 'package:talepuff_app/ui/view_models/signup_view_model.dart';
+import 'package:provider/provider.dart';
+import '../../widgets/signup/signup_header.dart';
 import '../../widgets/signup/signup_input_form.dart';
 import '../../widgets/signup/signup_btn.dart';
 import 'package:talepuff_app/core/app_colors.dart';
@@ -10,6 +12,7 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<SignUpViewModel>();
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -25,6 +28,28 @@ class SignUpView extends StatelessWidget {
               const SizedBox(height: 30),
 
               const SignUpBtn(),
+              const SizedBox(height: 12),
+
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
+                curve: Curves.easeInOut,
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  child: Text(
+                    viewModel.errorMessage ?? "",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppAssets.fontFamily,
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 28),
 
               Center(

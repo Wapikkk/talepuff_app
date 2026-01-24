@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import '../../../core/app_assets.dart';
 
-class ChildInfoUIHelper {
+class AppUIHelper {
   static Widget buildLabel(String text, {bool isRequired = false}) {
     return RichText(
       text: TextSpan(

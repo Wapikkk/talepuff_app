@@ -12,6 +12,8 @@ class AppAssets {
   static const String iconPlayArrow = 'assets/icon_home/play_arrow.png';
   static const String iconWandStarsHome = 'assets/icon_home/wand_stars_home.png';
   static const String iconMoonStars = 'assets/icon_home/moon_stars.png';
+  static const String iconSun = 'assets/icon_home/sun.png';
+  static const String iconCloudSun = 'assets/icon_home/cloud_sun.png';
   static const String iconSearchBar = 'assets/icon_home/search_bar.png';
 
   // icon cloud
