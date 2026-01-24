@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/login_view_model.dart';
-import '../child_info/child_info_ui_helper.dart';
+import '../shared/app_ui_helper.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 
@@ -38,21 +38,33 @@ class _LoginInputFormState extends State<LoginInputForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ChildInfoUIHelper.buildLabel("Email", isRequired: true),
+        AppUIHelper.buildLabel("Email", isRequired: true),
         const SizedBox(height: 8),
-        ChildInfoUIHelper.buildTextField(
+        AppUIHelper.buildTextField(
           controller: emailController,
           hint: "Enter your email",
           onChanged: (v) => viewModel.updateEmail(v),
         ),
         const SizedBox(height: 20),
-        ChildInfoUIHelper.buildLabel("Password", isRequired: true),
+
+        AppUIHelper.buildLabel("Password", isRequired: true),
         const SizedBox(height: 8),
-        ChildInfoUIHelper.buildTextField(
+        AppUIHelper.buildTextField(
           controller: passwordController,
           hint: "Enter your password",
           onChanged: (v) => viewModel.updatePassword(v),
+          obscureText: viewModel.isPasswordObscured,
+          suffixIcon: IconButton(
+            icon: Icon(
+              viewModel.isPasswordObscured
+                  ? Icons.visibility_off
+                  : Icons.visibility,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+            onPressed: () => viewModel.togglePasswordVisibility(),
+          ),
         ),
+
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

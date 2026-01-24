@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
 import 'package:provider/provider.dart';
-import 'child_info_ui_helper.dart';
+import '../shared/app_ui_helper.dart';
 
 class NameAgeInput extends StatefulWidget {
   const NameAgeInput({super.key});
@@ -36,17 +36,17 @@ class _NameAgeInputState extends State<NameAgeInput> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ChildInfoUIHelper.buildLabel("Child’s Name", isRequired: true),
+        AppUIHelper.buildLabel("Child’s Name", isRequired: true),
         const SizedBox(height: 8),
-        ChildInfoUIHelper.buildTextField(
+        AppUIHelper.buildTextField(
           controller: nameController,
           hint: "Enter the name of your child",
           onChanged: (value) => viewModel.updateName(value),
         ),
         const SizedBox(height: 20),
-        ChildInfoUIHelper.buildLabel("Age", isRequired: false),
+        AppUIHelper.buildLabel("Age", isRequired: false),
         const SizedBox(height: 8),
-        ChildInfoUIHelper.buildTextField(
+        AppUIHelper.buildTextField(
           controller: ageController,
           hint: "Enter age (optional)",
           onChanged: (value) => viewModel.age = value,

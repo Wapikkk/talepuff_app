@@ -43,4 +43,7 @@ class AppColors {
 
   // Color
   static const Color underline = Color.fromRGBO(255, 125, 49, 1);
+  
+  // Color Shadow Mascot
+  static const Color shadowMascot = Color.fromRGBO(66, 54, 84, 1);
 }

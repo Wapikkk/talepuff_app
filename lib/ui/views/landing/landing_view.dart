@@ -8,6 +8,7 @@ import '../../widgets/landing/landing_header.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
 import '../../view_models/landing_view_model.dart';
+import 'package:flutter/gestures.dart';
 
 class LandingView extends StatelessWidget{
   const LandingView({super.key});
@@ -43,7 +44,7 @@ class LandingView extends StatelessWidget{
                           ),
                           const SizedBox(height: 20),
                           RichText(
-                            text: const TextSpan(
+                            text: TextSpan(
                               style: TextStyle(
                                 fontFamily: AppAssets.fontFamily,
                                 fontSize: 16,
@@ -62,6 +63,10 @@ class LandingView extends StatelessWidget{
                                     fontWeight: FontWeight.bold,
                                     decoration: TextDecoration.underline,
                                   ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.pushNamed(context, '/login');
+                                    },
                                 ),
                               ],
                             ),

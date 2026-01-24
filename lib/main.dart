@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:talepuff_app/ui/view_models/home_view_model.dart';
+import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
 import 'ui/views/main_navigation_view.dart';
 
 import 'ui/views/landing/landing_view.dart';
@@ -14,13 +17,24 @@ import 'ui/view_models/signup_view_model.dart';
 import 'ui/views/login/login_view.dart';
 import 'ui/view_models/login_view_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => ChildInfoViewModel()),
-        ChangeNotifierProvider(create: (_) => SignUpViewModel()),
+        ChangeNotifierProxyProvider<ChildInfoViewModel, SignUpViewModel>(
+          create: (context) => SignUpViewModel(
+            childInfoViewModel: Provider.of<ChildInfoViewModel>(context, listen: false),
+          ),
+          update: (context, childInfo, signUp){
+            return SignUpViewModel(childInfoViewModel: childInfo);
+          },
+        ),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ],
       child: const MyApp(),
