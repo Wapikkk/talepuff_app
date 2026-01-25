@@ -41,7 +41,6 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
         AppUIHelper.buildLabel("Email", isRequired: true),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
-          controller: emailController,
           hint: "Enter your email",
           onChanged: (v) => viewModel.updateEmail(v),
         ),
@@ -51,7 +50,6 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
         AppUIHelper.buildLabel("Password", isRequired: true),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
-          controller: passwordController,
           hint: "Enter your password",
           onChanged: (v) => viewModel.updatePassword(v),
           obscureText: viewModel.isPasswordObscured,

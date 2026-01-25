@@ -17,7 +17,7 @@ class SignUpHeader extends StatelessWidget{
           ),
           onPressed: () {
             FocusManager.instance.primaryFocus?.unfocus();
-            Navigator.pop(context);
+            Navigator.pushReplacementNamed(context, '/child_info');
           }
         ),
         const SizedBox(width: 16),

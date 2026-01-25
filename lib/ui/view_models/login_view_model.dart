@@ -59,7 +59,7 @@ class LoginViewModel extends ChangeNotifier{
       isLoading = true;
       notifyListeners();
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
@@ -75,11 +75,15 @@ class LoginViewModel extends ChangeNotifier{
         Navigator.pushReplacementNamed(context, '/main_nav');
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+
+      if (e.code == 'user-not-found') {
+        _setErrorMessage("Don't have an account, please sign up first!");
+      } else if ( e.code == 'wrong-password' || e.code == 'invalid-credential') {
         _setErrorMessage("Incorrect Email and Password, Please Try Again!");
       } else {
         _setErrorMessage(e.message ?? "An error occurred during login");
       }
+
     } catch (e) {
       _setErrorMessage("An unexpected error occurred");
     } finally {

@@ -7,9 +7,9 @@ class ChildInfoViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
   String _childName = "Friend";
-  String get childName => _childName;
-  String? errorMessage;
+  String get childName => name.trim().isNotEmpty ? name : _childName;
   String name = '';
+  String? errorMessage;
   String age = '';
   String selectedGender = '';
   List<String> selectedInterests = [];
