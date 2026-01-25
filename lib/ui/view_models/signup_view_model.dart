@@ -33,6 +33,7 @@ class SignUpViewModel extends ChangeNotifier {
 
   void updatePassword(String value) {
     password = value;
+    errorMessage = null;
     notifyListeners();
   }
 
@@ -42,6 +43,7 @@ class SignUpViewModel extends ChangeNotifier {
   }
 
   Future<void> signUpManual(BuildContext context) async{
+
     if (email.trim().isEmpty || password.trim().isEmpty) {
       _setErrorMessage("Email and Password are required!");
       return;
@@ -64,56 +66,46 @@ class SignUpViewModel extends ChangeNotifier {
       return;
     }
 
+    if (childInfoViewModel.childName.isEmpty || childInfoViewModel.childName == "Friend") {
+      _setErrorMessage("Please fill child's information first");
+      return;
+    }
+
     try {
       isLoading = true;
       notifyListeners();
 
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
 
-      if (credential.user != null) {
-        await _registerAndNavigate(credential.user!, context);
+      if (_auth.currentUser != null) {
+        debugPrint("Firebase Sukses (via currentUser), lanjut ke Backend...");
+        await _registerAndNavigate(_auth.currentUser!, context);
       }
+
     } on FirebaseAuthException catch (e) {
+
       if (e.code == 'email-already-in-use') {
         _setErrorMessage("This email is already registered. Please login.");
       } else {
         _setErrorMessage(e.message ?? "An error occurred during sign up");
       }
+
+    } catch (e) {
+      debugPrint("Terdeteksi bug sistem (Pigeon), mengecek status login...");
+
+      if (_auth.currentUser != null) {
+        debugPrint("User ditemukan di sistem, lanjut ke backend...");
+        await _registerAndNavigate(_auth.currentUser!, context);
+      } else {
+        _setErrorMessage("Unexpected error: $e");
+      }
     } finally {
       isLoading = false;
       notifyListeners();
     }
-    // if (email.isNotEmpty && password.isNotEmpty && isAccepted) {
-    //   try {
-    //     isLoading = true;
-    //     notifyListeners();
-    //
-    //     UserCredential credential = await _auth.createUserWithEmailAndPassword(
-    //       email: email,
-    //       password: password,
-    //     );
-    //
-    //     if (credential.user != null) {
-    //       await _registerAndNavigate(credential.user!, context);
-    //     }
-    //   } on FirebaseAuthException catch (e) {
-    //     debugPrint("Firebase Auth Error: ${e.code} - ${e.message}");
-    //   } catch (e) {
-    //     debugPrint("Sistem Error (kemungkinan bug Pigeon): $e");
-    //
-    //     User? currentUser = _auth.currentUser;
-    //     if (currentUser != null) {
-    //       debugPrint("User terdeteksi sudah dibuat, melanjutkan ke backend...");
-    //       await _registerAndNavigate(currentUser, context);
-    //     }
-    //   } finally {
-    //     isLoading = false;
-    //     notifyListeners();
-    //   }
-    // }
   }
 
   Future<void> signUpWithGoogle(BuildContext context) async {
@@ -149,19 +141,22 @@ class SignUpViewModel extends ChangeNotifier {
   }
 
   Future<void> _registerAndNavigate(User user, BuildContext context) async{
-    await _authService.registerToBackend(
-      firebaseUid: user.uid,
-      email: user.email ?? "",
-      childName: childInfoViewModel.childName,
-      age: childInfoViewModel.age.isEmpty
-          ? null
-          : int.tryParse(childInfoViewModel.age),
-      gender: childInfoViewModel.selectedGender,
-      interests: childInfoViewModel.selectedInterests,
-    );
+    try {
+      await _authService.registerToBackend(
+        firebaseUid: user.uid,
+        email: user.email ?? "",
+        childName: childInfoViewModel.childName,
+        age: childInfoViewModel.age.isEmpty ? null : int.tryParse(childInfoViewModel.age),
+        gender: childInfoViewModel.selectedGender,
+        interests: childInfoViewModel.selectedInterests,
+      );
 
-    if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, '/main_nav');
+      if (!context.mounted) return;
+      Navigator.pushReplacementNamed(context, '/main_nav');
+    } catch (e) {
+      debugPrint("Backend Error: $e");
+      _setErrorMessage("Account created, but server sync failed. Please check your connection.");
+    }
   }
 
   void _setErrorMessage(String message) {
