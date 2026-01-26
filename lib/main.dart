@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:talepuff_app/ui/view_models/home_view_model.dart';
 import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
+import 'package:talepuff_app/ui/views/parent/parent_view.dart';
 import 'ui/views/main_navigation_view.dart';
 
 import 'ui/views/landing/landing_view.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpView(),
         '/login': (context) => const LoginView(),
         '/main_nav': (context) => MainNavigationView(),
+        '/parent': (context) => const ParentView(),
       },
     );
   }

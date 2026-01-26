@@ -46,4 +46,11 @@ class AppColors {
   
   // Color Shadow Mascot
   static const Color shadowMascot = Color.fromRGBO(66, 54, 84, 1);
+
+  // Color Background Overview
+  static const Color backgroundOverview = Color.fromRGBO(226, 226, 226, 1);
+  static const Color storiesCount = Color.fromRGBO(191, 39, 66, 1);
+
+  // Color Divider
+  static const Color dividerLine = Color.fromRGBO(217, 217, 217, 1);
 }

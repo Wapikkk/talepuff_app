@@ -12,7 +12,8 @@ class ChildInfoViewModel extends ChangeNotifier {
   String? errorMessage;
   String age = '';
   String selectedGender = '';
-  List<String> selectedInterests = [];
+  final List<String> _selectedInterests = [];
+  List<String> get selectedInterests => _selectedInterests;
 
   final List<Map<String, String>> allInterestData = [
     {'name': 'Sports', 'icon': AppAssets.iconSports},
@@ -69,8 +70,20 @@ class ChildInfoViewModel extends ChangeNotifier {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final data = await _authService.getChildInfo(user.uid);
-      if (data != null && data['name'] != null) {
-        _childName = data['name'];
+      if(data != null) {
+        if (data['name'] != null) {
+          _childName = data['name'];
+        }
+
+        if (data['age'] != null) {
+          age = data['age'].toString();
+        }
+
+        if (data['interests'] != null) {
+          _selectedInterests.clear();
+          _selectedInterests.addAll(List<String>.from(data['interests']));
+        }
+
         notifyListeners();
       }
     }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
-import 'package:talepuff_app/ui/views/home/home_view.dart';
-import 'package:talepuff_app/ui/widgets/bottom_navbar.dart';
+import '../../../ui/view_models/navbar_view_model.dart';
+import '../../../ui/views/home/home_view.dart';
+import '../../../ui/views/parent/parent_view.dart';
+import '../../../ui/widgets/bottom_navbar.dart';
 
 class MainNavigationView extends StatelessWidget{
   const MainNavigationView ({super.key});
@@ -13,7 +14,7 @@ class MainNavigationView extends StatelessWidget{
       const HomeView(),
       const Center(child: Text("Story Page")),
       const Center(child: Text("Create Page")),
-      const Center(child: Text("Parents Page")),
+      const ParentView(),
     ];
 
     return Consumer<NavbarViewModel>(

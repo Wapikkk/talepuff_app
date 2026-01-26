@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talepuff_app/data/services/auth_service.dart';
 
 class LoginViewModel extends ChangeNotifier{
+  final AuthService _authService = AuthService();
   String email = '';
   String password = '';
   bool rememberMe = false;
@@ -59,10 +61,12 @@ class LoginViewModel extends ChangeNotifier{
       isLoading = true;
       notifyListeners();
 
-      UserCredential credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
+
+      await _handleSuccessfulLogin(context);
 
       final prefs = await SharedPreferences.getInstance();
       if (rememberMe) {
@@ -71,21 +75,22 @@ class LoginViewModel extends ChangeNotifier{
         await prefs.remove('saved_email');
       }
 
-      if (context.mounted) {
-        Navigator.pushReplacementNamed(context, '/main_nav');
-      }
     } on FirebaseAuthException catch (e) {
 
       if (e.code == 'user-not-found') {
         _setErrorMessage("Don't have an account, please sign up first!");
-      } else if ( e.code == 'wrong-password' || e.code == 'invalid-credential') {
-        _setErrorMessage("Incorrect Email and Password, Please Try Again!");
       } else {
-        _setErrorMessage(e.message ?? "An error occurred during login");
+        _setErrorMessage("Incorrect Email and Password, Please Try Again!");
       }
 
     } catch (e) {
-      _setErrorMessage("An unexpected error occurred");
+      debugPrint("ERROR SISTEM: $e");
+      if (FirebaseAuth.instance.currentUser != null) {
+        debugPrint("User sukses login di background, melanjutkan ke backend...");
+        await _handleSuccessfulLogin(context);
+      } else {
+        _setErrorMessage("An unexpected error occurred");
+      }
     } finally {
       isLoading = false;
       notifyListeners();
@@ -99,5 +104,20 @@ class LoginViewModel extends ChangeNotifier{
       errorMessage = null;
       notifyListeners();
     });
+  }
+
+  Future<void> _handleSuccessfulLogin(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final childData = await _authService.getChildInfo(user.uid);
+    if (childData == null) {
+      _setErrorMessage("Please fill child's information first");
+      return;
+    }
+
+    if (context.mounted) {
+      Navigator.pushReplacementNamed(context, '/main_nav');
+    }
   }
 }
