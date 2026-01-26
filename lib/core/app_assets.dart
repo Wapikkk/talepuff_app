@@ -44,4 +44,13 @@ class AppAssets {
   static const String mascotBadak = 'assets/design_mascot/mascot_badak.png';
   static const String mascotBurung = 'assets/design_mascot/mascot_burung.png';
   static const String mascotOrangUtan = 'assets/design_mascot/mascot_orangutan.png';
+
+  // icon_parent
+  static const String iconStylus = 'assets/icon_parent/stylus.png';
+  static const String iconSettingsHeart = 'assets/icon_parent/settings_heart.png';
+  static const String iconSentimentBored = 'assets/icon_parent/sentiment_bored.png';
+  static const String iconSentimentDissatisfied = 'assets/icon_parent/sentiment_dissatisfied.png';
+  static const String iconSentimentNeutral = 'assets/icon_parent/sentiment_neutral.png';
+  static const String iconSentimentSatisfied = 'assets/icon_parent/sentiment_satisfied.png';
+  static const String iconSentimentExcited = 'assets/icon_parent/sentiment_excited.png';
 }

@@ -70,6 +70,7 @@ flutter:
     - assets/icon_stars/
     - assets/icon_child_info/
     - assets/design_mascot/
+    - assets/icon_parent/
 
   fonts:
     - family: Quicksand
