@@ -53,4 +53,17 @@ class AppAssets {
   static const String iconSentimentNeutral = 'assets/icon_parent/sentiment_neutral.png';
   static const String iconSentimentSatisfied = 'assets/icon_parent/sentiment_satisfied.png';
   static const String iconSentimentExcited = 'assets/icon_parent/sentiment_excited.png';
+
+  // icon_edit_photo
+  static const String iconAddAPhoto = 'assets/icon_edit_photo/add_a_photo.png';
+  static const String iconEditAPhoto = 'assets/icon_edit_photo/choose_a_photo.png';
+  static const String iconRemovePhoto = 'assets/icon_edit_photo/remove_photo.png';
+
+  // icon_voice
+  static const String iconWarm = 'assets/icon_voice/warm.png';
+  static const String iconGentle = 'assets/icon_voice/gentle.png';
+  static const String iconFriendly = 'assets/icon_voice/friendly.png';
+  static const String iconBrave = 'assets/icon_voice/brave.png';
+  static const String iconCharacter = 'assets/icon_voice/character.png';
+  static const String iconNeutral = 'assets/icon_voice/neutral.png';
 }

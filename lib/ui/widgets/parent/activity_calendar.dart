@@ -71,8 +71,9 @@ class ActivityCalendar extends StatelessWidget {
           data['day'],
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
             color: AppColors.darkPurple,
+            fontFamily: AppAssets.fontFamily,
           ),
         ),
         const SizedBox(height: 12),
@@ -89,6 +90,7 @@ class ActivityCalendar extends StatelessWidget {
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                fontFamily: AppAssets.fontFamily,
                 color: isToday ? Colors.white : AppColors.darkPurple,
             ),
           ),

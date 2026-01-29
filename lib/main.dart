@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:talepuff_app/ui/view_models/home_view_model.dart';
-import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
-import 'package:talepuff_app/ui/views/parent/parent_view.dart';
+import '/ui/view_models/home_view_model.dart';
+import '/ui/view_models/navbar_view_model.dart';
+import '/ui/views/parent/parent_view.dart';
+import '/ui/view_models/parent_view_model.dart';
 import 'ui/views/main_navigation_view.dart';
 
 import 'ui/views/landing/landing_view.dart';
@@ -37,6 +38,7 @@ void main() async {
           },
         ),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => ParentViewModel()),
       ],
       child: const MyApp(),
     ),

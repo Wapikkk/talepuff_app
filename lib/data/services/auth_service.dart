@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 
 class AuthService {
-  final String baseUrl = "http://192.168.1.12:8080/api";
+  final String baseUrl = "http://172.19.202.227:8080/api";
 
   Future<void> registerToBackend({
     required String firebaseUid,

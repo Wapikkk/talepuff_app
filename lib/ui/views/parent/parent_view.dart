@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talepuff_app/ui/widgets/parent/divider_line.dart';
 import '../../../core/app_colors.dart';
 import '../../../ui/view_models/child_info_view_model.dart';
 import '../../../ui/view_models/login_view_model.dart';
@@ -57,23 +58,16 @@ class ParentView extends StatelessWidget {
                             interests: childVM.selectedInterests,
                           ),
 
-                          const SizedBox(height: 20),
-                          const Divider(
-                            thickness: 3,
-                            color: AppColors.dividerLine,
+                          const DividerLine(),
+
+                          DailyMoodSelector(
+                            childName: childVM.childName,
                           ),
-                          const SizedBox(height: 20),
-                          DailyMoodSelector(childName: childVM.childName),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
 
                           const ActivityCalendar(),
 
-                          const SizedBox(height: 20),
-                          const Divider(
-                            thickness: 3,
-                            color: AppColors.dividerLine,
-                          ),
-                          const SizedBox(height: 20),
+                          const DividerLine(),
 
                           UsageStatisticCard(
                             childName: childVM.childName,

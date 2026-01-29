@@ -41,6 +41,8 @@ dependencies:
   google_sign_in: ^6.2.1
   http: ^1.2.0
   shared_preferences: ^2.5.3
+  image_picker: ^1.0.7
+  image_cropper: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,8 @@ flutter:
     - assets/icon_child_info/
     - assets/design_mascot/
     - assets/icon_parent/
+    - assets/icon_edit_photo/
+    - assets/icon_voice/
 
   fonts:
     - family: Quicksand

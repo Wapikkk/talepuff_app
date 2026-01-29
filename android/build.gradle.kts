@@ -1,3 +1,15 @@
+buildscript {
+    val kotlin_version by extra("1.9.22") // Definisikan versi Kotlin di sini
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Tambahkan classpath untuk Kotlin plugin
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+    }
+}
+
 allprojects {
     repositories {
         google()

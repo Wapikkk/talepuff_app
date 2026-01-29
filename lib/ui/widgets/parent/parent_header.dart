@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../ui/view_models/navbar_view_model.dart';
 import '../../../core/app_assets.dart';
 
 class ParentHeader extends StatelessWidget {
@@ -15,7 +17,10 @@ class ParentHeader extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              context.read<NavbarViewModel>().changeIndex(0);
+            },
           ),
           IconButton(
             padding: EdgeInsets.zero,
@@ -25,7 +30,9 @@ class ParentHeader extends StatelessWidget {
               width: 35,
               height: 35,
             ),
-            onPressed: (){},
+            onPressed: () {
+
+            },
           ),
         ],
       ),
