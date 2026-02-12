@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
+import 'package:talepuff_app/ui/view_models/parent_view_model.dart';
 
 class LoginViewModel extends ChangeNotifier{
   final AuthService _authService = AuthService();
+  String? _currentChildId;
+  String? get currentChildId => _currentChildId;
+  String? _currentPhotoUrl;
+  String? get currentPhotoUrl => _currentPhotoUrl;
+  String? errorMessage;
   String email = '';
   String password = '';
   bool rememberMe = false;
-  String? errorMessage;
   bool isLoading = false;
   bool _isPasswordObscured = true;
   bool get isPasswordObscured => _isPasswordObscured;
@@ -116,8 +122,32 @@ class LoginViewModel extends ChangeNotifier{
       return;
     }
 
+    _currentChildId = childData['ID']?.toString() ?? childData['id']?.toString();
+    _currentPhotoUrl = childData['profile_photo_url'];
+    notifyListeners();
+
     if (context.mounted) {
+      Provider.of<ParentViewModel>(context, listen: false)
+        .setInitiateData(_currentPhotoUrl);
       Navigator.pushReplacementNamed(context, '/main_nav');
+    }
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      _currentChildId = null;
+      _currentPhotoUrl = null;
+      email = '';
+      password = '';
+      notifyListeners();
+
+      if (context.mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    } catch (e) {
+      debugPrint("Error saat logout: $e");
     }
   }
 }

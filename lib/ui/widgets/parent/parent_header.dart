@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../ui/view_models/navbar_view_model.dart';
 import '../../../core/app_assets.dart';
+import '../../views/settings/settings_view.dart';
 
 class ParentHeader extends StatelessWidget {
   const ParentHeader({super.key});
@@ -31,7 +32,7 @@ class ParentHeader extends StatelessWidget {
               height: 35,
             ),
             onPressed: () {
-
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsView()));
             },
           ),
         ],

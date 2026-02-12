@@ -19,6 +19,9 @@ import 'ui/view_models/signup_view_model.dart';
 import 'ui/views/login/login_view.dart';
 import 'ui/view_models/login_view_model.dart';
 
+import 'ui/views/settings/settings_view.dart';
+import 'ui/view_models/settings_view_model.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -39,6 +42,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => ParentViewModel()),
+        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -61,6 +65,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginView(),
         '/main_nav': (context) => MainNavigationView(),
         '/parent': (context) => const ParentView(),
+        '/settings': (context) => const SettingsView(),
       },
     );
   }

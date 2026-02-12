@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/app_colors.dart';
 import '../../../ui/view_models/parent_view_model.dart';
 import '../../../core/app_assets.dart';
+import '../../view_models/login_view_model.dart';
 
 class ChildProfilePhoto extends StatelessWidget {
   const ChildProfilePhoto({super.key});
@@ -34,7 +35,7 @@ class ChildProfilePhoto extends StatelessWidget {
                   backgroundImage: parentVM.imagePreview != null
                       ? FileImage(parentVM.imagePreview!) as ImageProvider
                       : (parentVM.currentPhotoUrl != null
-                          ? NetworkImage("http://172.19.202.227:8080${parentVM.currentPhotoUrl}")
+                          ? NetworkImage("http://192.168.99.218:8080${parentVM.currentPhotoUrl}")
                           : const AssetImage(AppAssets.mascotHarimauSumatera)),
                 ),
               ),
@@ -72,6 +73,15 @@ class ChildProfilePhoto extends StatelessWidget {
   }
 
   void _showPickerMenu(BuildContext context, ParentViewModel parentVM) {
+    final loginVM = Provider.of<LoginViewModel>(context, listen: false);
+    final childId = loginVM.currentChildId;
+
+    if (childId == null || childId == "null") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Data anak belum dimuat!")),
+      );
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -116,7 +126,7 @@ class ChildProfilePhoto extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                parentVM.handleImageSelection(ImageSource.camera);
+                parentVM.handleImageSelection(ImageSource.camera, childId);
                 Navigator.pop(context);
               },
             ),
@@ -133,12 +143,12 @@ class ChildProfilePhoto extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                parentVM.handleImageSelection(ImageSource.gallery);
+                parentVM.handleImageSelection(ImageSource.gallery, childId);
                 Navigator.pop(context);
               },
             ),
 
-            if(parentVM.imagePreview != null)
+            if(parentVM.imagePreview != null || parentVM.currentPhotoUrl != null)
               ListTile(
                 leading: Image.asset(AppAssets.iconRemovePhoto),
                 title: const Text(

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talepuff_app/ui/widgets/parent/divider_line.dart';
-import '../../../core/app_colors.dart';
+import '../../../ui/widgets/parent/bedtime_story.dart';
+import '../../../ui/widgets/parent/divider_line.dart';
 import '../../../ui/view_models/child_info_view_model.dart';
 import '../../../ui/view_models/login_view_model.dart';
 import '../../../ui/widgets/app_background.dart';
 import '../../../ui/widgets/stars_overlay.dart';
 import '../../../ui/widgets/cloud_overlay.dart';
-import '../../../ui/widgets/parent/activity_calendar.dart';
 import '../../../ui/widgets/parent/child_profile_info.dart';
-import '../../../ui/widgets/parent/daily_mood_selector.dart';
 import '../../../ui/widgets/parent/parent_header.dart';
 import '../../../ui/widgets/parent/usage_statistic_card.dart';
 import '../../../ui/widgets/parent/child_profile_photo.dart';
@@ -60,12 +58,7 @@ class ParentView extends StatelessWidget {
 
                           const DividerLine(),
 
-                          DailyMoodSelector(
-                            childName: childVM.childName,
-                          ),
-                          const SizedBox(height: 10),
-
-                          const ActivityCalendar(),
+                          const BedtimeStory(),
 
                           const DividerLine(),
 

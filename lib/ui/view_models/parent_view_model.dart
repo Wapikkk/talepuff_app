@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,12 +9,18 @@ import 'package:http/http.dart' as http;
 class ParentViewModel extends ChangeNotifier{
   File? _imagePreview;
   File? get imagePreview => _imagePreview;
-
   String? _currentPhotoUrl;
   String? get currentPhotoUrl => _currentPhotoUrl;
-
   bool _isUploading = false;
   bool get isUploading => _isUploading;
+  bool _isAutoStoryEnabled = false;
+  bool get isAutoStoryEnabled => _isAutoStoryEnabled;
+  String _selectedHour = "08";
+  String get selectedHour => _selectedHour;
+  String _selectedMinute = "30";
+  String get selectedMinute => _selectedMinute;
+  bool _isAM = true;
+  bool get isAM => _isAM;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -42,6 +49,7 @@ class ParentViewModel extends ChangeNotifier{
 
   void setInitiateData(String? photoUrl) {
     _currentPhotoUrl = photoUrl;
+    _imagePreview = null;
     notifyListeners();
   }
 
@@ -74,6 +82,7 @@ class ParentViewModel extends ChangeNotifier{
 
   void removePhoto() {
     _imagePreview = null;
+    _currentPhotoUrl = null;
     notifyListeners();
   }
 
@@ -86,18 +95,20 @@ class ParentViewModel extends ChangeNotifier{
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://172.19.202.227:8080/api/child/upload-photo/$childId'),
+        Uri.parse('http://192.168.99.218:8080/api/child/upload-photo/$childId'),
       );
 
-      request.files.add(await http.MultipartFile.fromPath(
-        'photo',
-        _imagePreview!.path,
-      ));
-
+      request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
       var response = await request.send();
 
       if (response.statusCode == 200) {
         debugPrint("Upload Berhasil!");
+        final respStr = await response.stream.bytesToString();
+        final Map<String, dynamic> data = json.decode(respStr);
+
+        _currentPhotoUrl = data['url'];
+        _imagePreview = null;
+        notifyListeners();
       } else {
         debugPrint("Upload Gagal: ${response.statusCode}");
       }
@@ -107,5 +118,17 @@ class ParentViewModel extends ChangeNotifier{
       _isUploading = false;
       notifyListeners();
     }
+  }
+
+  void toggleAutoStory(bool value) {
+    _isAutoStoryEnabled = value;
+    notifyListeners();
+  }
+
+  void updateTime(String hour, String minute, bool am) {
+    _selectedHour = hour;
+    _selectedMinute = minute;
+    _isAM = am;
+    notifyListeners();
   }
 }

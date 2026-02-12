@@ -53,4 +53,10 @@ class AppColors {
 
   // Color Divider
   static const Color dividerLine = Color.fromRGBO(217, 217, 217, 1);
+  
+  // Color Volume Limit
+  static const Color inactiveVolumeLimit = Color.fromRGBO(190, 186, 197, 1);
+
+  // Color AM/PM Selection
+  static const Color timeSelection = Color.fromRGBO(197, 188, 213, 1);
 }
