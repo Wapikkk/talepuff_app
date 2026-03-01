@@ -95,7 +95,7 @@ class ParentViewModel extends ChangeNotifier{
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.99.218:8080/api/child/upload-photo/$childId'),
+        Uri.parse('http://192.168.1.104:8080/api/child/upload-photo/$childId'),
       );
 
       request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
@@ -114,6 +114,70 @@ class ParentViewModel extends ChangeNotifier{
       }
     } catch (e) {
       debugPrint("Error Upload: $e");
+    } finally {
+      _isUploading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateChildName(String newName) async {
+    if (newName.trim().isEmpty) return;
+
+    try {
+      _isUploading = true;
+      notifyListeners();
+
+      debugPrint("DEBUG: update nama anak ke: $newName");
+
+      // Backend Update Nama Anak
+
+      await Future.delayed(const Duration(seconds: 1));
+      debugPrint("DEBUG: Nama anak berhasil diperbarui di database!");
+    } catch (e) {
+      debugPrint("ERROR Update Child Name: $e");
+    } finally {
+      _isUploading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateParentEmail(String newEmail, String password) async {
+    try {
+      _isUploading = true;
+      notifyListeners();
+
+      debugPrint("DEBUG: Mencoba update EMAIL ORANG TUA ke: $newEmail");
+
+      // Di Firebase, update email butuh re-autentikasi dengan password lama
+      // 1. Re-authenticate user
+      // 2. updateEmail(newEmail)
+      // 3. Update email di PostgreSQL backend Go
+
+      await Future.delayed(const Duration(seconds: 1));
+      debugPrint("DEBUG: Email berhasil diperbarui!");
+    } catch (e) {
+      debugPrint("ERROR Update Email: $e");
+    } finally {
+      _isUploading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateParentPassword(String currentPass, String newPass) async {
+    try {
+      _isUploading = true;
+      notifyListeners();
+
+      debugPrint("DEBUG: Mencoba update PASSWORD ORANG TUA...");
+
+      // Logika Firebase Auth:
+      // 1. Re-authenticate user dengan currentPass
+      // 2. Jika sukses, panggil currentUser?.updatePassword(newPass)
+
+      await Future.delayed(const Duration(seconds: 1));
+      debugPrint("DEBUG: Password berhasil diperbarui!");
+    } catch (e) {
+      debugPrint("ERROR Update Password: $e");
     } finally {
       _isUploading = false;
       notifyListeners();

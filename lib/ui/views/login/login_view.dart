@@ -15,11 +15,23 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 class _LoginViewState extends State<LoginView> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoginViewModel>().loadSavedEmail();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final loginVM = Provider.of<LoginViewModel>(context, listen: false);
+
+      await loginVM.loadSavedEmail();
+
+      if (loginVM.email.isNotEmpty && mounted) {
+        setState(() {
+          _emailController.text = loginVM.email;
+        });
+        debugPrint("DEBUG UI: Email dipasang ke controller: ${loginVM.email}");
+      }
     });
   }
 
@@ -38,7 +50,10 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 const LoginHeader(),
                 const SizedBox(height: 40),
-                const LoginInputForm(),
+                LoginInputForm(
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                ),
                 const SizedBox(height: 30),
                 const LoginButton(),
                 const SizedBox(height: 12),

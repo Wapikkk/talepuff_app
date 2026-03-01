@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:talepuff_app/core/app_colors.dart';
+import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
 
 class AppUIHelper {

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/app_colors.dart';
-import '../../../ui/view_models/parent_view_model.dart';
 import '../../../core/app_assets.dart';
+import '../../../ui/view_models/parent_view_model.dart';
 import '../../view_models/login_view_model.dart';
 
 class ChildProfilePhoto extends StatelessWidget {
@@ -35,7 +35,7 @@ class ChildProfilePhoto extends StatelessWidget {
                   backgroundImage: parentVM.imagePreview != null
                       ? FileImage(parentVM.imagePreview!) as ImageProvider
                       : (parentVM.currentPhotoUrl != null
-                          ? NetworkImage("http://192.168.99.218:8080${parentVM.currentPhotoUrl}")
+                          ? NetworkImage("http://192.168.1.104:8080${parentVM.currentPhotoUrl}")
                           : const AssetImage(AppAssets.mascotHarimauSumatera)),
                 ),
               ),

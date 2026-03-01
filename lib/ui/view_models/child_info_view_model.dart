@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:talepuff_app/core/app_assets.dart';
+import '../../../core/app_assets.dart';
 import '../../data/services/auth_service.dart';
 
 class ChildInfoViewModel extends ChangeNotifier {

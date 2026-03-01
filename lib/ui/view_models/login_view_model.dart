@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talepuff_app/data/services/auth_service.dart';
-import 'package:talepuff_app/ui/view_models/parent_view_model.dart';
+import '../../../data/services/auth_service.dart';
+import '../../../ui/view_models/parent_view_model.dart';
 
 class LoginViewModel extends ChangeNotifier{
   final AuthService _authService = AuthService();
@@ -22,7 +22,10 @@ class LoginViewModel extends ChangeNotifier{
   Future<void> loadSavedEmail() async {
     final prefs = await SharedPreferences.getInstance();
     final savedEmail = prefs.getString('saved_email');
-    if (savedEmail != null) {
+
+    debugPrint("DEBUG VM: Email yang ditemukan di SharedPreferences: '$savedEmail'");
+
+    if (savedEmail != null && savedEmail.isNotEmpty) {
       email = savedEmail;
       rememberMe = true;
       notifyListeners();
@@ -72,14 +75,9 @@ class LoginViewModel extends ChangeNotifier{
         password: password.trim(),
       );
 
-      await _handleSuccessfulLogin(context);
 
-      final prefs = await SharedPreferences.getInstance();
-      if (rememberMe) {
-        await prefs.setString('saved_email', email.trim());
-      } else {
-        await prefs.remove('saved_email');
-      }
+
+      await _handleSuccessfulLogin(context);
 
     } on FirebaseAuthException catch (e) {
 
@@ -116,6 +114,14 @@ class LoginViewModel extends ChangeNotifier{
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString('saved_email', email.trim());
+      debugPrint("DEBUG: BERHASIL SIMPAN ke prefs: ${email.trim()}");
+    } else {
+      await prefs.remove('saved_email');
+    }
+
     final childData = await _authService.getChildInfo(user.uid);
     if (childData == null) {
       _setErrorMessage("Please fill child's information first");
@@ -141,6 +147,7 @@ class LoginViewModel extends ChangeNotifier{
       _currentPhotoUrl = null;
       email = '';
       password = '';
+      rememberMe = false;
       notifyListeners();
 
       if (context.mounted) {

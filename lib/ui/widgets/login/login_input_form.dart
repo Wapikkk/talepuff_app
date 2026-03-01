@@ -5,31 +5,15 @@ import '../shared/app_ui_helper.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 
-class LoginInputForm extends StatefulWidget {
-  const LoginInputForm({super.key});
+class LoginInputForm extends StatelessWidget {
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
 
-  @override
-  State<LoginInputForm> createState() => _LoginInputFormState();
-}
-
-class _LoginInputFormState extends State<LoginInputForm> {
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
-
-  @override
-  void initState() {
-    super.initState();
-    final viewModel = context.read<LoginViewModel>();
-    emailController = TextEditingController(text: viewModel.email);
-    passwordController = TextEditingController(text: viewModel.password);
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  const LoginInputForm({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +57,7 @@ class _LoginInputFormState extends State<LoginInputForm> {
               children: [
                 Checkbox(
                   value: viewModel.rememberMe,
-                  onChanged: (val) => viewModel.toggleRememberMe(val!),
+                  onChanged: (val) => viewModel.toggleRememberMe(val ?? false),
                   side: const BorderSide(
                     color: Colors.white,
                   ),

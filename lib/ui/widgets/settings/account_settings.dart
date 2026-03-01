@@ -24,23 +24,17 @@ class AccountSettings extends StatelessWidget{
         _buildSettingItem(
           context: context,
           title: 'Username',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/update_child_name'),
         ),
         _buildSettingItem(
           context: context,
           title: 'Email',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/update_email'),
         ),
         _buildSettingItem(
           context: context,
           title: 'Update Password',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/update_password'),
         ),
       ],
     );
