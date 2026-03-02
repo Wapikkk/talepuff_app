@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+import '../../../ui/view_models/parent_view_model.dart';
 
 class UpdateSettingsViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   // 1. Update Nama Anak
-  Future<void> updateChildName(String childId, String newName) async {
+  Future<void> updateChildName(BuildContext context, String childId, String newName) async {
     if (newName.trim().isEmpty) return;
     _setLoading(true);
 
@@ -20,7 +22,13 @@ class UpdateSettingsViewModel extends ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
       );
 
+      if(!context.mounted)return;
+
       if (response.statusCode == 200) {
+        Provider.of<ParentViewModel>(context, listen: false).updateLocalChildName(newName.trim());
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Name updated successfully!"), backgroundColor: Colors.green),
+        );
         debugPrint("DEBUG: Nama anak berhasil diubah di database Go");
       }
     } catch (e) {

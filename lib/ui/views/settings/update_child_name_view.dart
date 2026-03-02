@@ -51,6 +51,7 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
                 onPressed: () {
                   if (_nameController.text.isNotEmpty && parentVM.currentChildId != null) {
                     updateVM.updateChildName(
+                      context,
                       parentVM.currentChildId!,
                       _nameController.text.trim(),
                     );

@@ -11,6 +11,8 @@ class LoginViewModel extends ChangeNotifier{
   String? get currentChildId => _currentChildId;
   String? _currentPhotoUrl;
   String? get currentPhotoUrl => _currentPhotoUrl;
+  String? _childName;
+  String? get childName => _childName;
   String? errorMessage;
   String email = '';
   String password = '';
@@ -131,11 +133,12 @@ class LoginViewModel extends ChangeNotifier{
 
     _currentChildId = childData['ID']?.toString() ?? childData['id']?.toString();
     _currentPhotoUrl = childData['profile_photo_url'];
+    _childName = childData['name'];
     notifyListeners();
 
     if (context.mounted) {
       Provider.of<ParentViewModel>(context, listen: false)
-        .setInitiateData(_currentChildId, _currentPhotoUrl);
+        .setInitiateData(_currentChildId, _currentPhotoUrl, _childName);
       Navigator.pushReplacementNamed(context, '/main_nav');
     }
   }

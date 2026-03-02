@@ -11,6 +11,8 @@ class ParentViewModel extends ChangeNotifier{
   File? get imagePreview => _imagePreview;
   String? _currentChildId;
   String? get currentChildId => _currentChildId;
+  String? _currentChildName;
+  String? get currentChildName => _currentChildName;
   String? _currentPhotoUrl;
   String? get currentPhotoUrl => _currentPhotoUrl;
   bool _isUploading = false;
@@ -25,6 +27,19 @@ class ParentViewModel extends ChangeNotifier{
   bool get isAM => _isAM;
 
   final ImagePicker _picker = ImagePicker();
+
+  void setInitiateData(String? childId, String? photoUrl, String? name) {
+    _currentChildId = childId;
+    _currentChildName = name;
+    _currentPhotoUrl = photoUrl;
+    _imagePreview = null;
+    notifyListeners();
+  }
+
+  void updateLocalChildName(String newName) {
+    _currentChildName = newName;
+    notifyListeners();
+  }
 
   Future<void> handleImageSelection(ImageSource source, String childId) async{
     try {
@@ -49,12 +64,7 @@ class ParentViewModel extends ChangeNotifier{
     }
   }
 
-  void setInitiateData(String? childId, String? photoUrl) {
-    _currentChildId = childId;
-    _currentPhotoUrl = photoUrl;
-    _imagePreview = null;
-    notifyListeners();
-  }
+
 
   Future<CroppedFile?> _cropImage(String path) async {
     return await ImageCropper().cropImage(
@@ -134,4 +144,6 @@ class ParentViewModel extends ChangeNotifier{
     _isAM = am;
     notifyListeners();
   }
+
+
 }
