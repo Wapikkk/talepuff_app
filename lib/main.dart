@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:talepuff_app/ui/views/settings/update_password_view.dart';
 import '/ui/view_models/home_view_model.dart';
 import '/ui/view_models/navbar_view_model.dart';
 import '/ui/views/parent/parent_view.dart';
@@ -23,9 +22,10 @@ import 'ui/view_models/login_view_model.dart';
 import 'ui/views/settings/settings_view.dart';
 import 'ui/view_models/settings_view_model.dart';
 
+import 'ui/view_models/update_settings_view_model.dart';
+import 'ui/views/settings/update_password_view.dart';
 import 'ui/views/settings/update_child_name_view.dart';
 import 'ui/views/settings/update_email_view.dart';
-import 'ui/views/settings/update_password_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +48,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => ParentViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
       ],
       child: const MyApp(),
     ),

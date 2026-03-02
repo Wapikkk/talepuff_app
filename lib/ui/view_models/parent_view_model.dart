@@ -9,6 +9,8 @@ import 'package:http/http.dart' as http;
 class ParentViewModel extends ChangeNotifier{
   File? _imagePreview;
   File? get imagePreview => _imagePreview;
+  String? _currentChildId;
+  String? get currentChildId => _currentChildId;
   String? _currentPhotoUrl;
   String? get currentPhotoUrl => _currentPhotoUrl;
   bool _isUploading = false;
@@ -47,7 +49,8 @@ class ParentViewModel extends ChangeNotifier{
     }
   }
 
-  void setInitiateData(String? photoUrl) {
+  void setInitiateData(String? childId, String? photoUrl) {
+    _currentChildId = childId;
     _currentPhotoUrl = photoUrl;
     _imagePreview = null;
     notifyListeners();
@@ -114,70 +117,6 @@ class ParentViewModel extends ChangeNotifier{
       }
     } catch (e) {
       debugPrint("Error Upload: $e");
-    } finally {
-      _isUploading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateChildName(String newName) async {
-    if (newName.trim().isEmpty) return;
-
-    try {
-      _isUploading = true;
-      notifyListeners();
-
-      debugPrint("DEBUG: update nama anak ke: $newName");
-
-      // Backend Update Nama Anak
-
-      await Future.delayed(const Duration(seconds: 1));
-      debugPrint("DEBUG: Nama anak berhasil diperbarui di database!");
-    } catch (e) {
-      debugPrint("ERROR Update Child Name: $e");
-    } finally {
-      _isUploading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateParentEmail(String newEmail, String password) async {
-    try {
-      _isUploading = true;
-      notifyListeners();
-
-      debugPrint("DEBUG: Mencoba update EMAIL ORANG TUA ke: $newEmail");
-
-      // Di Firebase, update email butuh re-autentikasi dengan password lama
-      // 1. Re-authenticate user
-      // 2. updateEmail(newEmail)
-      // 3. Update email di PostgreSQL backend Go
-
-      await Future.delayed(const Duration(seconds: 1));
-      debugPrint("DEBUG: Email berhasil diperbarui!");
-    } catch (e) {
-      debugPrint("ERROR Update Email: $e");
-    } finally {
-      _isUploading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateParentPassword(String currentPass, String newPass) async {
-    try {
-      _isUploading = true;
-      notifyListeners();
-
-      debugPrint("DEBUG: Mencoba update PASSWORD ORANG TUA...");
-
-      // Logika Firebase Auth:
-      // 1. Re-authenticate user dengan currentPass
-      // 2. Jika sukses, panggil currentUser?.updatePassword(newPass)
-
-      await Future.delayed(const Duration(seconds: 1));
-      debugPrint("DEBUG: Password berhasil diperbarui!");
-    } catch (e) {
-      debugPrint("ERROR Update Password: $e");
     } finally {
       _isUploading = false;
       notifyListeners();

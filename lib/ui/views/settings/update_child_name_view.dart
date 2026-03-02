@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/update_settings/update_header_settings.dart';
 import '../../widgets/update_settings/update_input_settings.dart';
 import '../../widgets/update_settings/update_btn_settings.dart';
+import '../../../ui/view_models/update_settings_view_model.dart';
 import '../../../ui/view_models/parent_view_model.dart';
 
 class UpdateChildNameView extends StatefulWidget {
@@ -23,6 +24,7 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
 
   @override
   Widget build(BuildContext context) {
+    final updateVM = context.watch<UpdateSettingsViewModel>();
     final parentVM = context.watch<ParentViewModel>();
 
     return Scaffold(
@@ -47,8 +49,11 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
               UpdateBtnSettings(
                 text: "Update Name",
                 onPressed: () {
-                  if (_nameController.text.isNotEmpty) {
-                    parentVM.updateChildName(_nameController.text);
+                  if (_nameController.text.isNotEmpty && parentVM.currentChildId != null) {
+                    updateVM.updateChildName(
+                      parentVM.currentChildId!,
+                      _nameController.text.trim(),
+                    );
                   }
                 },
               ),

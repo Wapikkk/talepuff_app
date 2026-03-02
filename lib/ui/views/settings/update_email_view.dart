@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/update_settings/update_header_settings.dart';
 import '../../widgets/update_settings/update_input_settings.dart';
 import '../../widgets/update_settings/update_btn_settings.dart';
-import '../../../ui/view_models/parent_view_model.dart';
+import '../../../ui/view_models/update_settings_view_model.dart';
 
 class UpdateEmailView extends StatefulWidget {
   const UpdateEmailView({super.key});
@@ -26,7 +26,7 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
 
   @override
   Widget build(BuildContext context) {
-    final parentVM = context.watch<ParentViewModel>();
+    final updateVM = context.watch<UpdateSettingsViewModel>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -71,7 +71,7 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
                 text: "Update Email",
                 onPressed: () {
                   if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-                    parentVM.updateParentEmail(
+                    updateVM.updateEmail(
                       _emailController.text,
                       _passwordController.text,
                     );

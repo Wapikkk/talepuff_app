@@ -112,6 +112,7 @@ class LoginViewModel extends ChangeNotifier{
 
   Future<void> _handleSuccessfulLogin(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
+
     if (user == null) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -134,7 +135,7 @@ class LoginViewModel extends ChangeNotifier{
 
     if (context.mounted) {
       Provider.of<ParentViewModel>(context, listen: false)
-        .setInitiateData(_currentPhotoUrl);
+        .setInitiateData(_currentChildId, _currentPhotoUrl);
       Navigator.pushReplacementNamed(context, '/main_nav');
     }
   }
