@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../widgets/landing/get_started_btn.dart';
@@ -7,7 +6,6 @@ import '../../widgets/landing/mascot_pager.dart';
 import '../../widgets/landing/landing_header.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
-import '../../view_models/landing_view_model.dart';
 import 'package:flutter/gestures.dart';
 
 class LandingView extends StatelessWidget{
@@ -15,7 +13,6 @@ class LandingView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    // final viewModel = Provider.of<LandingViewModel>(context, listen: false);
 
     return Scaffold(
       body: AppBackground(
