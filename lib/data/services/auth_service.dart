@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 
 class AuthService {
-  final String baseUrl = "http://192.168.1.104:8080/api";
+  final String baseUrl = "http://192.168.100.56:8080/api";
 
   Future<void> registerToBackend({
     required String firebaseUid,
@@ -27,9 +27,9 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      print("Data berhasil disimpan ke PostgreSQL!");
+      print("Data has been saved in Database!");
     } else {
-      throw Exception("Gagal menyimpan data ke backend");
+      throw Exception("Failed save data to backend");
     }
   }
 
@@ -41,7 +41,7 @@ class AuthService {
 
       if (response.statusCode == 200) return jsonDecode(response.body);
     } catch (e) {
-      debugPrint("Gagal ambil data: $e");
+      debugPrint("Failed fetch data: $e");
     }
     return null;
   }

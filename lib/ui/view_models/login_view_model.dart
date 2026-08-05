@@ -7,18 +7,10 @@ import '../../../ui/view_models/parent_view_model.dart';
 
 class LoginViewModel extends ChangeNotifier{
   final AuthService _authService = AuthService();
-  String? _currentChildId;
-  String? get currentChildId => _currentChildId;
-  String? _currentPhotoUrl;
-  String? get currentPhotoUrl => _currentPhotoUrl;
-  String? _childName;
-  String? get childName => _childName;
-  String? errorMessage;
-  String email = '';
-  String password = '';
-  bool rememberMe = false;
-  bool isLoading = false;
-  bool _isPasswordObscured = true;
+  String? _currentChildId, _currentPhotoUrl, _childName, errorMessage;
+  String? get currentChildId => _currentChildId; get currentPhotoUrl => _currentPhotoUrl; get childName => _childName;
+  String email = '', password = '';
+  bool rememberMe = false, isLoading = false, _isPasswordObscured = true;
   bool get isPasswordObscured => _isPasswordObscured;
 
   Future<void> loadSavedEmail() async {

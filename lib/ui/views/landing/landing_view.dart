@@ -15,7 +15,7 @@ class LandingView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<LandingViewModel>(context, listen: false);
+    // final viewModel = Provider.of<LandingViewModel>(context, listen: false);
 
     return Scaffold(
       body: AppBackground(

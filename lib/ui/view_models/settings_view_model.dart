@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsViewModel extends ChangeNotifier{
-  double _volumeLimit = 0.5;
-  double get volumeLimit => _volumeLimit;
+  double _volumeLimit = 0.5; get volumeLimit => _volumeLimit;
   static const String _volumeKey = 'volume_limit_pref';
 
   SettingsViewModel() {

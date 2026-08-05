@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
+import '../../../data/services/auth_service.dart';
+import '../../../ui/view_models/child_info_view_model.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -12,13 +12,10 @@ class SignUpViewModel extends ChangeNotifier {
 
   SignUpViewModel({required this.childInfoViewModel});
 
-  String email = '';
-  String password = '';
-  bool isAccepted = false;
-  bool isLoading = false;
+  String email = '', password = '';
+  bool isAccepted = false, isLoading = false;
   String? errorMessage;
-  bool _isPasswordObscured = true;
-  bool get isPasswordObscured => _isPasswordObscured;
+  bool _isPasswordObscured = true; get isPasswordObscured => _isPasswordObscured;
 
   void updateEmail(String value) {
     email = value;
@@ -79,9 +76,10 @@ class SignUpViewModel extends ChangeNotifier {
         email: email.trim(),
         password: password.trim(),
       );
+      if (!context.mounted) return;
 
       if (_auth.currentUser != null) {
-        debugPrint("Firebase Sukses (via currentUser), lanjut ke Backend...");
+        debugPrint("Firebase success in current user");
         await _registerAndNavigate(_auth.currentUser!, context);
       }
 
@@ -94,10 +92,11 @@ class SignUpViewModel extends ChangeNotifier {
       }
 
     } catch (e) {
-      debugPrint("Terdeteksi bug sistem (Pigeon), mengecek status login...");
+      debugPrint("System bug detection (Pigeon), check login status...");
 
+      if (!context.mounted) return;
       if (_auth.currentUser != null) {
-        debugPrint("User ditemukan di sistem, lanjut ke backend...");
+        debugPrint("User find in system, next to backend...");
         await _registerAndNavigate(_auth.currentUser!, context);
       } else {
         _setErrorMessage("Unexpected error: $e");
@@ -123,6 +122,7 @@ class SignUpViewModel extends ChangeNotifier {
       );
 
       UserCredential userCredential = await _auth.signInWithCredential(credential);
+      if (!context.mounted) return;
 
       if (userCredential.user != null) {
         await _registerAndNavigate(userCredential.user!, context);
@@ -131,6 +131,7 @@ class SignUpViewModel extends ChangeNotifier {
       debugPrint("Firebase Auth Error: ${e.message}");
     } catch (e) {
       User? currentUser = _auth.currentUser;
+      if (!context.mounted) return;
       if (currentUser != null) {
         await _registerAndNavigate(currentUser, context);
       }

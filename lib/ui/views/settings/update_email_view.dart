@@ -72,7 +72,8 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
                 onPressed: () {
                   if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
                     updateVM.updateEmail(
-                      _emailController.text,
+                      context,
+                      _emailController.text.trim(),
                       _passwordController.text,
                     );
                   }

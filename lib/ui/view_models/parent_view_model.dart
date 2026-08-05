@@ -7,24 +7,14 @@ import '/core/app_colors.dart';
 import 'package:http/http.dart' as http;
 
 class ParentViewModel extends ChangeNotifier{
-  File? _imagePreview;
-  File? get imagePreview => _imagePreview;
-  String? _currentChildId;
-  String? get currentChildId => _currentChildId;
-  String? _currentChildName;
-  String? get currentChildName => _currentChildName;
-  String? _currentPhotoUrl;
-  String? get currentPhotoUrl => _currentPhotoUrl;
-  bool _isUploading = false;
-  bool get isUploading => _isUploading;
-  bool _isAutoStoryEnabled = false;
-  bool get isAutoStoryEnabled => _isAutoStoryEnabled;
-  String _selectedHour = "08";
-  String get selectedHour => _selectedHour;
-  String _selectedMinute = "30";
-  String get selectedMinute => _selectedMinute;
-  bool _isAM = true;
-  bool get isAM => _isAM;
+  File? _imagePreview; get imagePreview => _imagePreview;
+  String? _currentChildId, _currentChildName, _currentPhotoUrl;
+  String? get currentChildId => _currentChildId; get currentChildName => _currentChildName; get currentPhotoUrl => _currentPhotoUrl;
+  bool _isUploading = false, _isAutoStoryEnabled = false;
+  bool get isUploading => _isUploading; get isAutoStoryEnabled => _isAutoStoryEnabled;
+  String _selectedHour = "08", _selectedMinute = "30";
+  String get selectedHour => _selectedHour; get selectedMinute => _selectedMinute;
+  bool _isAM = true; get isAM => _isAM;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -108,7 +98,7 @@ class ParentViewModel extends ChangeNotifier{
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.1.104:8080/api/child/upload-photo/$childId'),
+        Uri.parse('http://192.168.100.56:8080/api/child/upload-photo/$childId'),
       );
 
       request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));

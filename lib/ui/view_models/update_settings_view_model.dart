@@ -6,16 +6,14 @@ import 'package:provider/provider.dart';
 import '../../../ui/view_models/parent_view_model.dart';
 
 class UpdateSettingsViewModel extends ChangeNotifier {
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool _isLoading = false; get isLoading => _isLoading;
 
-  // 1. Update Nama Anak
   Future<void> updateChildName(BuildContext context, String childId, String newName) async {
     if (newName.trim().isEmpty) return;
     _setLoading(true);
 
     try {
-      final url = Uri.parse('http://192.168.1.104:8080/api/child/update-name/$childId');
+      final url = Uri.parse('http://192.168.100.56:8080/api/child/update-name/$childId');
       final response = await http.put(
         url,
         body: jsonEncode({'name': newName.trim()}),
@@ -29,7 +27,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Name updated successfully!"), backgroundColor: Colors.green),
         );
-        debugPrint("DEBUG: Nama anak berhasil diubah di database Go");
+        debugPrint("DEBUG: Child's name has been changed in database");
       }
     } catch (e) {
       debugPrint("ERROR Update Name: $e");
@@ -38,29 +36,61 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     }
   }
 
-  // 2. Update Email
-  Future<void> updateEmail(String newEmail, String currentPassword) async {
+  Future<void> updateEmail(BuildContext context, String newEmail, String currentPassword) async {
+    if (newEmail.trim().isEmpty || currentPassword.isEmpty) return;
     _setLoading(true);
+
     try {
       User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
       AuthCredential credential = EmailAuthProvider.credential(
-        email: user!.email!,
+        email: user.email!,
         password: currentPassword,
       );
-
+      debugPrint("DEBUG: Starting re-authentication");
       await user.reauthenticateWithCredential(credential);
-      await user.verifyBeforeUpdateEmail(newEmail);
+      debugPrint("DEBUG: Re-authentication success!");
 
-      debugPrint("DEBUG: Email verifikasi dikirim ke $newEmail");
+      await user.verifyBeforeUpdateEmail(newEmail);
+      await user.reload();
+
+      final url = Uri.parse('http://192.168.100.56:8080/api/user/update-email/${user.uid}');
+      final response = await http.put(
+        url,
+        body: jsonEncode({'email': newEmail.trim()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (!context.mounted) return;
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Email updated successfully! please check your new email"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
     } catch (e) {
-      debugPrint("ERROR Update Email: $e");
+      debugPrint("CATCH ERROR Update Email: $e");
+
+      if (context.mounted) {
+        String msg = "Failed to update email. Please try logging out and in again.";
+        if (e.toString().contains('PigeonUserDetails')) {
+          msg = "System Sync Error. Please perform a 'flutter clean' and restart.";
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       _setLoading(false);
     }
   }
 
-  // 3. Update Password
   Future<void> updatePassword(String oldPass, String newPass) async {
     _setLoading(true);
     try {
@@ -74,7 +104,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
       await user.reauthenticateWithCredential(credential);
       await user.updatePassword(newPass);
 
-      debugPrint("DEBUG: Password berhasil diperbarui di Firebase");
+      debugPrint("DEBUG: Password has been updated in Firebase");
     } catch (e) {
       debugPrint("ERROR Update Password: $e");
     } finally {

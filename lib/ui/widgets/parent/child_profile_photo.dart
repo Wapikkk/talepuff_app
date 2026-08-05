@@ -35,7 +35,7 @@ class ChildProfilePhoto extends StatelessWidget {
                   backgroundImage: parentVM.imagePreview != null
                       ? FileImage(parentVM.imagePreview!) as ImageProvider
                       : (parentVM.currentPhotoUrl != null
-                          ? NetworkImage("http://192.168.1.104:8080${parentVM.currentPhotoUrl}")
+                          ? NetworkImage("http://192.168.100.56:8080${parentVM.currentPhotoUrl}")
                           : const AssetImage(AppAssets.mascotHarimauSumatera)),
                 ),
               ),

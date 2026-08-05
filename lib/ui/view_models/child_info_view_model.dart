@@ -6,12 +6,9 @@ import '../../data/services/auth_service.dart';
 class ChildInfoViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
 
-  String _childName = "Friend";
+  String _childName = "Friend", name = '', age = '', selectedGender = '';
   String get childName => name.trim().isNotEmpty ? name : _childName;
-  String name = '';
   String? errorMessage;
-  String age = '';
-  String selectedGender = '';
   final List<String> _selectedInterests = [];
   List<String> get selectedInterests => _selectedInterests;
 
