@@ -4,6 +4,7 @@ import '../../../ui/view_models/navbar_view_model.dart';
 import '../../../ui/views/home/home_view.dart';
 import '../../../ui/views/parent/parent_view.dart';
 import '../../../ui/widgets/bottom_navbar.dart';
+import '../../../ui/views/create_story/create_story_view.dart';
 
 class MainNavigationView extends StatelessWidget{
   const MainNavigationView ({super.key});
@@ -13,7 +14,7 @@ class MainNavigationView extends StatelessWidget{
     final List<Widget> pages = [
       const HomeView(),
       const Center(child: Text("Story Page")),
-      const Center(child: Text("Create Page")),
+      const CreateStoryView(),
       const ParentView(),
     ];
 

@@ -69,8 +69,7 @@ class LoginViewModel extends ChangeNotifier{
         password: password.trim(),
       );
 
-
-
+      if(!context.mounted) return;
       await _handleSuccessfulLogin(context);
 
     } on FirebaseAuthException catch (e) {
@@ -83,6 +82,7 @@ class LoginViewModel extends ChangeNotifier{
 
     } catch (e) {
       debugPrint("ERROR SISTEM: $e");
+      if(!context.mounted) return;
       if (FirebaseAuth.instance.currentUser != null) {
         debugPrint("User sukses login di background, melanjutkan ke backend...");
         await _handleSuccessfulLogin(context);

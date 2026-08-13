@@ -66,4 +66,10 @@ class AppAssets {
   static const String iconBrave = 'assets/icon_voice/brave.png';
   static const String iconCharacter = 'assets/icon_voice/character.png';
   static const String iconNeutral = 'assets/icon_voice/neutral.png';
+
+  // icon_create_story
+  static const String iconClearDay = 'assets/icon_create_story/clear_day.png';
+  static const String iconPets = 'assets/icon_create_story/pets.png';
+  static const String iconRocketLaunch = 'assets/icon_create_story/rocket_launch.png';
+  static const String iconExcited = 'assets/icon_create_story/sentiment_excited.png';
 }

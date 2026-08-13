@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
+import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
+import 'package:provider/provider.dart';
 
 class CreateNewStoryBtn extends StatelessWidget{
   final VoidCallback onPressed;
@@ -19,7 +21,7 @@ class CreateNewStoryBtn extends StatelessWidget{
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkPurple.withOpacity(0.2),
+            color: AppColors.darkPurple.withValues(alpha: 0.2),
             spreadRadius: -4,
             blurRadius: 8,
             offset: const Offset(0, 4),
@@ -27,7 +29,10 @@ class CreateNewStoryBtn extends StatelessWidget{
         ],
       ),
         child: ElevatedButton.icon(
-          onPressed: onPressed,
+          onPressed: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+            context.read<NavbarViewModel>().changeIndex(2);
+          },
           icon: Image.asset(
             AppAssets.iconWandStarsHome,
             color: Colors.white,

@@ -75,6 +75,7 @@ flutter:
     - assets/icon_parent/
     - assets/icon_edit_photo/
     - assets/icon_voice/
+    - assets/icon_create_story/
 
   fonts:
     - family: Quicksand

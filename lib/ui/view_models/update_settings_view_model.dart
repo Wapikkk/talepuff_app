@@ -13,7 +13,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      final url = Uri.parse('http://192.168.100.56:8080/api/child/update-name/$childId');
+      final url = Uri.parse('http://192.168.0.104:8080/api/child/update-name/$childId');
       final response = await http.put(
         url,
         body: jsonEncode({'name': newName.trim()}),

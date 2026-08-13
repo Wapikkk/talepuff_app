@@ -27,6 +27,9 @@ import 'ui/views/settings/update_password_view.dart';
 import 'ui/views/settings/update_child_name_view.dart';
 import 'ui/views/settings/update_email_view.dart';
 
+import 'ui/views/create_story/create_story_view.dart';
+import 'ui/view_models/create_story_view_model.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -49,6 +52,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ParentViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
+        ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
       ],
       child: const MyApp(),
     ),

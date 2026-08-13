@@ -59,4 +59,7 @@ class AppColors {
 
   // Color AM/PM Selection
   static const Color timeSelection = Color.fromRGBO(197, 188, 213, 1);
+  
+  // Color Linear Button
+  static const Color linearButton = Color.fromRGBO(26, 11, 51, 1);
 }
