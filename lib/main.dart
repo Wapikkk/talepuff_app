@@ -30,6 +30,9 @@ import 'ui/views/settings/update_email_view.dart';
 import 'ui/views/create_story/create_story_view.dart';
 import 'ui/view_models/create_story_view_model.dart';
 
+import 'ui/views/story/story_view.dart';
+import 'ui/view_models/story_view_model.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -53,6 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
+        ChangeNotifierProvider(create: (_) => StoryViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -79,6 +83,8 @@ class MyApp extends StatelessWidget {
         '/update_child_name': (context) => const UpdateChildNameView(),
         '/update_email': (context) => const UpdateEmailView(),
         '/update_password': (context) => const UpdatePasswordView(),
+        '/story': (context) => const StoryView(),
+        '/create_story': (context) => const CreateStoryView(),
       },
     );
   }

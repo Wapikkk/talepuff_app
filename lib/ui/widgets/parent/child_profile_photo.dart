@@ -35,7 +35,7 @@ class ChildProfilePhoto extends StatelessWidget {
                   backgroundImage: parentVM.imagePreview != null
                       ? FileImage(parentVM.imagePreview!) as ImageProvider
                       : (parentVM.currentPhotoUrl != null
-                          ? NetworkImage("http://192.168.100.56:8080${parentVM.currentPhotoUrl}")
+                          ? NetworkImage("http://192.168.100.83:8080${parentVM.currentPhotoUrl}")
                           : const AssetImage(AppAssets.mascotHarimauSumatera)),
                 ),
               ),
@@ -78,7 +78,7 @@ class ChildProfilePhoto extends StatelessWidget {
 
     if (childId == null || childId == "null") {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Data anak belum dimuat!")),
+        const SnackBar(content: Text("Child's data has not yet been loaded!")),
       );
       return;
     }

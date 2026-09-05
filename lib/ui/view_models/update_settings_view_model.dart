@@ -13,7 +13,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      final url = Uri.parse('http://192.168.0.104:8080/api/child/update-name/$childId');
+      final url = Uri.parse('http://192.168.100.83:8080/api/child/update-name/$childId');
       final response = await http.put(
         url,
         body: jsonEncode({'name': newName.trim()}),
@@ -55,7 +55,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
       await user.verifyBeforeUpdateEmail(newEmail);
       await user.reload();
 
-      final url = Uri.parse('http://192.168.100.56:8080/api/user/update-email/${user.uid}');
+      final url = Uri.parse('http://192.168.100.83:8080/api/user/update-email/${user.uid}');
       final response = await http.put(
         url,
         body: jsonEncode({'email': newEmail.trim()}),

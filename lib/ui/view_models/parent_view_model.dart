@@ -98,7 +98,7 @@ class ParentViewModel extends ChangeNotifier{
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.0.104:8080/api/child/upload-photo/$childId'),
+        Uri.parse('http://192.168.100.83:8080/api/child/upload-photo/$childId'),
       );
 
       request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
