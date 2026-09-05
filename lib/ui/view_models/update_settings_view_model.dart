@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
@@ -13,7 +14,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      final url = Uri.parse('http://192.168.100.83:8080/api/child/update-name/$childId');
+      final url = Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/child/update-name/$childId");
       final response = await http.put(
         url,
         body: jsonEncode({'name': newName.trim()}),
@@ -55,7 +56,7 @@ class UpdateSettingsViewModel extends ChangeNotifier {
       await user.verifyBeforeUpdateEmail(newEmail);
       await user.reload();
 
-      final url = Uri.parse('http://192.168.100.83:8080/api/user/update-email/${user.uid}');
+      final url = Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/user/update-email/${user.uid}");
       final response = await http.put(
         url,
         body: jsonEncode({'email': newEmail.trim()}),

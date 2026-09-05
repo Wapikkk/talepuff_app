@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.5.3
   image_picker: ^1.0.7
   image_cropper: ^11.0.0
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,7 @@ flutter:
     - assets/icon_edit_photo/
     - assets/icon_voice/
     - assets/icon_create_story/
+    - .env
 
   fonts:
     - family: Quicksand

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/app_colors.dart';
@@ -35,7 +36,7 @@ class ChildProfilePhoto extends StatelessWidget {
                   backgroundImage: parentVM.imagePreview != null
                       ? FileImage(parentVM.imagePreview!) as ImageProvider
                       : (parentVM.currentPhotoUrl != null
-                          ? NetworkImage("http://192.168.100.83:8080${parentVM.currentPhotoUrl}")
+                          ? NetworkImage("${dotenv.env['API_BASE_URL'] ?? ''}${parentVM.currentPhotoUrl}")
                           : const AssetImage(AppAssets.mascotHarimauSumatera)),
                 ),
               ),

@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
-  final String baseUrl = "http://192.168.100.83:8080/api";
+  final String baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/api";
 
   Future<void> registerToBackend({
     required String firebaseUid,

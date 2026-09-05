@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import '/core/app_colors.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ParentViewModel extends ChangeNotifier{
   File? _imagePreview; get imagePreview => _imagePreview;
@@ -98,14 +99,14 @@ class ParentViewModel extends ChangeNotifier{
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.100.83:8080/api/child/upload-photo/$childId'),
+        Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/child/upload-photo/$childId"),
       );
 
       request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
       var response = await request.send();
 
       if (response.statusCode == 200) {
-        debugPrint("Upload Berhasil!");
+        debugPrint("Upload successful!");
         final respStr = await response.stream.bytesToString();
         final Map<String, dynamic> data = json.decode(respStr);
 
