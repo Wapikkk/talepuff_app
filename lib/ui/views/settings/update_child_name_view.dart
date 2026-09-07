@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import '../../widgets/update_settings/update_header_settings.dart';
 import '../../widgets/update_settings/update_input_settings.dart';
 import '../../widgets/update_settings/update_btn_settings.dart';
-import '../../../ui/view_models/update_settings_view_model.dart';
-import '../../../ui/view_models/parent_view_model.dart';
+import '../../view_models/parents/update_settings_view_model.dart';
+import '../../view_models/parents/parent_view_model.dart';
 
 class UpdateChildNameView extends StatefulWidget {
   const UpdateChildNameView({super.key});

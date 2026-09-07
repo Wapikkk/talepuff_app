@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/services/auth_service.dart';
-import '../../../ui/view_models/child_info_view_model.dart';
+import '../parents/child_info_view_model.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();

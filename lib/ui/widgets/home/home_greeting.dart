@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:provider/provider.dart';
-import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
+import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 
 class HomeGreeting extends StatelessWidget{
   const HomeGreeting({super.key});

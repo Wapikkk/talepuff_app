@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/home_view_model.dart';
-import '../../view_models/child_info_view_model.dart';
+import '../../view_models/home/home_view_model.dart';
+import '../../view_models/parents/child_info_view_model.dart';
 import '../../widgets/home/create_new_story_btn.dart';
 import '../../widgets/home/play_last_story_btn.dart';
 import '../../widgets/app_background.dart';

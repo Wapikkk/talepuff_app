@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talepuff_app/ui/view_models/child_info_view_model.dart';
+import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 import '../shared/app_ui_helper.dart';
 
 class InterestPicker extends StatelessWidget{

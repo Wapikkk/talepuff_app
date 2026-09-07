@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../ui/view_models/settings_view_model.dart';
+import '../../view_models/parents/settings_view_model.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
 

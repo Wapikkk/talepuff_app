@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
-import '../../view_models/parent_view_model.dart';
+import '../../view_models/parents/parent_view_model.dart';
 
 class BedtimeStory extends StatelessWidget {
   const BedtimeStory({super.key});

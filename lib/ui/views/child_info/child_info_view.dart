@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/child_info_view_model.dart';
+import '../../view_models/parents/child_info_view_model.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
 import '../../widgets/child_info/gender_picker.dart';

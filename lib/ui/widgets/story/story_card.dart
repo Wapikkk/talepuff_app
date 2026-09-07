@@ -29,7 +29,7 @@ class StoryCard extends StatelessWidget{
                   const Center(child: Icon(Icons.image, color: Colors.white54, size: 40)),
                   Positioned(
                     top: 8, left: 8,
-                    child: Icon(Icons.favorite, color: Colors.white.withOpacity(0.8), size: 20),
+                    child: Icon(Icons.favorite, color: Colors.white.withValues(alpha: 0.8), size: 20),
                   )
                 ],
               ),

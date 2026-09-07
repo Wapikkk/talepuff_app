@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../ui/view_models/login_view_model.dart';
+import '../../view_models/auth/login_view_model.dart';
 import '../../../ui/widgets/settings/about.dart';
 import '../../../ui/widgets/settings/volume_limit.dart';
 import '../../../ui/widgets/settings/account_settings.dart';

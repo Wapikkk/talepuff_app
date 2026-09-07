@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
-import 'package:talepuff_app/ui/view_models/signup_view_model.dart';
+import '/ui/view_models/auth/signup_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/signup/signup_header.dart';
 import '../../widgets/signup/signup_input_form.dart';

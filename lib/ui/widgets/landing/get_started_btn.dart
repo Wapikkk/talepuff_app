@@ -17,7 +17,7 @@ class GetStartedBtn extends StatelessWidget{
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkPurple.withOpacity(0.9),
+            color: AppColors.darkPurple.withValues(alpha: 0.9),
             blurRadius: 10,
             spreadRadius: -4,
             offset: const Offset(0, 4),

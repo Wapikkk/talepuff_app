@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/signup_view_model.dart';
+import '../../view_models/auth/signup_view_model.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 
 class SignUpBtn extends StatelessWidget {

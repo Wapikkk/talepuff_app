@@ -62,4 +62,7 @@ class AppColors {
   
   // Color Linear Button
   static const Color linearButton = Color.fromRGBO(26, 11, 51, 1);
+  
+  // Color Button Story
+  static const Color btnStory = Color.fromRGBO(255, 241, 208, 1);
 }

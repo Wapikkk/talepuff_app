@@ -14,10 +14,10 @@ class HomeSearchBar extends StatelessWidget {
         height: 35,
         width: screenWidth * 0.78,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.55),
+          color: Colors.white.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             width: 1,
           ),
         ),

@@ -3,7 +3,7 @@ import '../../widgets/login/login_header.dart';
 import '../../widgets/login/login_input_form.dart';
 import '../../widgets/login/login_btn.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/login_view_model.dart';
+import '../../view_models/auth/login_view_model.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 

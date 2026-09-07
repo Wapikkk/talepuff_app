@@ -2,37 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import '/ui/view_models/home_view_model.dart';
+
+import 'ui/view_models/home/home_view_model.dart';
 import '/ui/view_models/navbar_view_model.dart';
 import '/ui/views/parent/parent_view.dart';
-import '/ui/view_models/parent_view_model.dart';
+import 'ui/view_models/parents/parent_view_model.dart';
 import 'ui/views/main_navigation_view.dart';
 
 import 'ui/views/landing/landing_view.dart';
 import 'ui/view_models/landing_view_model.dart';
 
 import 'ui/views/child_info/child_info_view.dart';
-import 'ui/view_models/child_info_view_model.dart';
+import 'ui/view_models/parents/child_info_view_model.dart';
 
 import 'ui/views/sign_up/signup_view.dart';
-import 'ui/view_models/signup_view_model.dart';
+import 'ui/view_models/auth/signup_view_model.dart';
 
 import 'ui/views/login/login_view.dart';
-import 'ui/view_models/login_view_model.dart';
+import 'ui/view_models/auth/login_view_model.dart';
 
 import 'ui/views/settings/settings_view.dart';
-import 'ui/view_models/settings_view_model.dart';
+import 'ui/view_models/parents/settings_view_model.dart';
 
-import 'ui/view_models/update_settings_view_model.dart';
+import 'ui/view_models/parents/update_settings_view_model.dart';
 import 'ui/views/settings/update_password_view.dart';
 import 'ui/views/settings/update_child_name_view.dart';
 import 'ui/views/settings/update_email_view.dart';
 
 import 'ui/views/create_story/create_story_view.dart';
-import 'ui/view_models/create_story_view_model.dart';
+import 'ui/view_models/create_story/create_story_view_model.dart';
 
 import 'ui/views/story/story_view.dart';
-import 'ui/view_models/story_view_model.dart';
+import 'ui/view_models/story/story_view_model.dart';
+import 'ui/view_models/story/story_filter_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +61,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryViewModel()),
+        ChangeNotifierProvider(create: (_) => StoryFilterViewModel()),
       ],
       child: const MyApp(),
     ),

@@ -19,7 +19,7 @@ class PlayLastStoryBtn extends StatelessWidget{
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black54.withOpacity(0.2),
+            color: Colors.black54.withValues(alpha: 0.2),
             spreadRadius: -4,
             blurRadius: 8,
             offset: const Offset(0, 4),

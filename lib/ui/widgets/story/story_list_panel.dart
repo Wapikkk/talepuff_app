@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'story_filter_tabs.dart';
 import 'story_card.dart';
+import '../../../core/app_assets.dart';
+import '../../../core/app_colors.dart';
 
 class StoryListPanel extends StatelessWidget {
   const StoryListPanel({super.key});
@@ -10,12 +12,12 @@ class StoryListPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
       decoration: const BoxDecoration(
-        color: Color(0xFF231F40),
+        color: AppColors.darkPurple,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         children: [
-          const StoryFilterTabs(),
+          StoryFilterTabs(),
           const SizedBox(height: 20),
           Expanded(
             child: GridView.builder(

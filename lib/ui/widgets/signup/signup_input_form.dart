@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
-import '../../view_models/signup_view_model.dart';
+import '../../view_models/auth/signup_view_model.dart';
 import '../shared/app_ui_helper.dart';
 import '../../../core/app_assets.dart';
 

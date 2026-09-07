@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../view_models/create_story_view_model.dart';
+import '../../view_models/create_story/create_story_view_model.dart';
 import '../../widgets/create_story/create_story_header.dart';
 import '../../widgets/create_story/choice_chip_group.dart';
 import '../../widgets/create_story/generate_button.dart';

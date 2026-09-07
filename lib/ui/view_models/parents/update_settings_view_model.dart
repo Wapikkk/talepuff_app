@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
-import '../../../ui/view_models/parent_view_model.dart';
+import 'parent_view_model.dart';
 
 class UpdateSettingsViewModel extends ChangeNotifier {
   bool _isLoading = false; get isLoading => _isLoading;

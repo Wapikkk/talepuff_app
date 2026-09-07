@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:talepuff_app/core/app_colors.dart';
+import 'package:talepuff_app/core/app_assets.dart';
 
 class AudioPlayerCard extends StatelessWidget{
   const AudioPlayerCard({super.key});
@@ -9,7 +11,7 @@ class AudioPlayerCard extends StatelessWidget{
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -28,11 +30,15 @@ class AudioPlayerCard extends StatelessWidget{
             height: 150,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Center(
-              child: Icon(Icons.graphic_eq, size: 50, color: Colors.grey),
+              child: Icon(
+                Icons.graphic_eq,
+                size: 50,
+                color: AppColors.darkPurple,
+              ),
             ),
           ),
 
@@ -41,9 +47,10 @@ class AudioPlayerCard extends StatelessWidget{
           const Text(
             "Aira's Space Adventure",
             style: TextStyle(
+              fontFamily: AppAssets.fontFamily,
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2D2D2D),
+              color: AppColors.linearButton,
             ),
           ),
 
@@ -51,9 +58,9 @@ class AudioPlayerCard extends StatelessWidget{
             data: SliderTheme.of(context).copyWith(
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               trackHeight: 4,
-              activeTrackColor: const Color(0xFF3B2E5A),
-              inactiveTrackColor: Colors.grey[300],
-              thumbColor: const Color(0xFF3B2E5A),
+              activeTrackColor: AppColors.darkPurple,
+              inactiveTrackColor: Colors.white,
+              thumbColor: AppColors.darkPurple,
             ),
             child: Slider(
               value: 0.4,
@@ -66,8 +73,24 @@ class AudioPlayerCard extends StatelessWidget{
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("1:40", style: TextStyle(fontSize: 12, color: Colors.black54)),
-                Text("3:00", style: TextStyle(fontSize: 12, color: Colors.black54)),
+                Text(
+                  "1:40",
+                  style: TextStyle(
+                    fontFamily: AppAssets.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.linearButton,
+                  ),
+                ),
+                Text(
+                  "3:00",
+                  style: TextStyle(
+                    fontFamily: AppAssets.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.linearButton,
+                  ),
+                ),
               ],
             ),
           ),
@@ -78,21 +101,36 @@ class AudioPlayerCard extends StatelessWidget{
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
-                icon: const Icon(Icons.replay_10, size: 28),
+                icon: const Icon(
+                  Icons.replay_10,
+                  size: 28,
+                  color: AppColors.linearButton,
+                ),
                 onPressed: () {},
               ),
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF3B2E5A), width: 3),
+                  border: Border.all(
+                    color: AppColors.linearButton,
+                    width: 3,
+                  ),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.pause, size: 36, color: Color(0xFF3B2E5A)),
+                  icon: const Icon(
+                    Icons.pause,
+                    size: 36,
+                    color: AppColors.linearButton,
+                  ),
                   onPressed: () {},
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.favorite_border, size: 28),
+                icon: const Icon(
+                  Icons.favorite_border,
+                  size: 28,
+                  color: AppColors.linearButton,
+                ),
                 onPressed: () {},
               ),
             ],

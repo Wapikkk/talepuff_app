@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../ui/view_models/parent_view_model.dart';
+import '../../../../data/services/auth_service.dart';
+import '../parents/parent_view_model.dart';
 
 class LoginViewModel extends ChangeNotifier{
   final AuthService _authService = AuthService();
@@ -81,7 +81,7 @@ class LoginViewModel extends ChangeNotifier{
       }
 
     } catch (e) {
-      debugPrint("ERROR SISTEM: $e");
+      debugPrint("ERROR SYSTEM: $e");
       if(!context.mounted) return;
       if (FirebaseAuth.instance.currentUser != null) {
         debugPrint("User sukses login di background, melanjutkan ke backend...");

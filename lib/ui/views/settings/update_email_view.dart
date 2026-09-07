@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/update_settings/update_header_settings.dart';
 import '../../widgets/update_settings/update_input_settings.dart';
 import '../../widgets/update_settings/update_btn_settings.dart';
-import '../../../ui/view_models/update_settings_view_model.dart';
+import '../../view_models/parents/update_settings_view_model.dart';
 
 class UpdateEmailView extends StatefulWidget {
   const UpdateEmailView({super.key});
