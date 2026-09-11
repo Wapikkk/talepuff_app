@@ -66,6 +66,18 @@ class AppAssets {
   static const String iconBrave = 'assets/icon_voice/brave.png';
   static const String iconCharacter = 'assets/icon_voice/character.png';
   static const String iconNeutral = 'assets/icon_voice/neutral.png';
+  static const String iconBrandAwarenessOrange = 'assets/icon_voice/brand_awareness_orange.png';
+  static const String iconBrandAwarenessDarkPurple = 'assets/icon_voice/brand_awareness_dark_purple.png';
+  static const String iconFavoriteOrange = 'assets/icon_voice/favorite_orange.png';
+  static const String iconFavoriteDarkPurple = 'assets/icon_voice/favorite_dark_purple';
+  static const String iconModeNightOrange = 'assets/icon_voice/mode_night_orange.png';
+  static const String iconModeNightDarkPurple = 'assets/icon_voice/mode_night_dark_purple.png';
+  static const String iconPetsOrange = 'assets/icon_voice/pets_orange.png';
+  static const String iconPetsDarkPurple = 'assets/icon_voice/pets_dark_purple.png';
+  static const String iconSecurityOrange = 'assets/icon_voice/security_orange.png';
+  static const String iconSecurityDarkPurple = 'assets/icon_voice/security_dark_purple.png';
+  static const String iconSentimentExcitedOrange = 'assets/icon_voice/sentiment_excited_orange.png';
+  static const String iconSentimentExcitedDarkPurple = 'assets/icon_voice/sentiment_excited_dark_purple.png';
 
   // icon_create_story
   static const String iconClearDay = 'assets/icon_create_story/clear_day.png';

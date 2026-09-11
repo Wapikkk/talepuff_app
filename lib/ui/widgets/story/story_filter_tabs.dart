@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import '../../view_models/story/story_filter_view_model.dart';
 

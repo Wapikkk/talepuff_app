@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateStoryViewModel extends ChangeNotifier {
   String _selectedCategory = '';
@@ -57,15 +58,28 @@ class CreateStoryViewModel extends ChangeNotifier {
       return;
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    final activeChild = prefs.getInt('active_child_id');
+    if (activeChild == null) {
+      if(!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error: No active child profile found.")),
+      );
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
+      int lengthMinutes = int.tryParse(_storyLength.split(' ') [0]) ?? 3;
+      String moodString = _selectedMoods.join(", ");
       final payload = {
-        "category": _selectedCategory,
+        "child_id": activeChild,
         "character_name": _characterName,
-        "story_length": _storyLength,
-        "moods": _selectedMoods,
+        "theme": _selectedCategory,
+        "mood": moodString,
+        "length_minutes": lengthMinutes,
         "language": _language,
         "description": _description,
       };

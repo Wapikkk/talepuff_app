@@ -5,7 +5,7 @@ import 'story_card.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../view_models/story/story_filter_view_model.dart';
-import '../../view_models/';
+import '../../view_models/navbar_view_model.dart';
 
 class StoryListPanel extends StatelessWidget {
   const StoryListPanel({super.key});
@@ -48,7 +48,9 @@ class StoryListPanel extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/create_story'),
+            onPressed: () {
+              context.read<NavbarViewModel>().changeIndex(2);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF9A88B),
               foregroundColor: AppColors.darkPurple,

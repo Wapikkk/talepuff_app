@@ -17,7 +17,7 @@ class LoginViewModel extends ChangeNotifier{
     final prefs = await SharedPreferences.getInstance();
     final savedEmail = prefs.getString('saved_email');
 
-    debugPrint("DEBUG VM: Email yang ditemukan di SharedPreferences: '$savedEmail'");
+    debugPrint("DEBUG VM: Email that found in SharedPreferences: '$savedEmail'");
 
     if (savedEmail != null && savedEmail.isNotEmpty) {
       email = savedEmail;
@@ -84,7 +84,7 @@ class LoginViewModel extends ChangeNotifier{
       debugPrint("ERROR SYSTEM: $e");
       if(!context.mounted) return;
       if (FirebaseAuth.instance.currentUser != null) {
-        debugPrint("User sukses login di background, melanjutkan ke backend...");
+        debugPrint("User success login to background, next to backend...");
         await _handleSuccessfulLogin(context);
       } else {
         _setErrorMessage("An unexpected error occurred");
@@ -127,6 +127,11 @@ class LoginViewModel extends ChangeNotifier{
     _currentPhotoUrl = childData['profile_photo_url'];
     _childName = childData['name'];
     notifyListeners();
+
+    if (_currentChildId != null) {
+      await prefs.setInt('active_child_id', int.parse(_currentChildId!));
+      debugPrint("DEBUG: Child ID saved to local: $_currentChildId");
+    }
 
     if (context.mounted) {
       Provider.of<ParentViewModel>(context, listen: false)

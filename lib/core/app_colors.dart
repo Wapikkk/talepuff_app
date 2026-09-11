@@ -65,4 +65,7 @@ class AppColors {
   
   // Color Button Story
   static const Color btnStory = Color.fromRGBO(255, 241, 208, 1);
+  
+  // Color Voice Image Header
+  static const Color voiceImageHeader = Color.fromRGBO(164, 94, 123, 1);
 }

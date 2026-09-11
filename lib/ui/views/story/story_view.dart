@@ -15,7 +15,7 @@ class StoryView extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => StoryFilterViewModel(),
       child: Scaffold(
-
+        resizeToAvoidBottomInset: false,
         body: AppBackground(
           child: SafeArea(
             bottom: false,

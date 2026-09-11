@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/material.dart';
 
 class AuthService {
   final String baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/api";
@@ -28,7 +29,7 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      print("Data has been saved in Database!");
+      debugPrint("Data has been saved in Database!");
     } else {
       throw Exception("Failed save data to backend");
     }

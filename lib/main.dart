@@ -36,6 +36,8 @@ import 'ui/views/story/story_view.dart';
 import 'ui/view_models/story/story_view_model.dart';
 import 'ui/view_models/story/story_filter_view_model.dart';
 
+import 'ui/view_models/loading/loading_view_model.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -62,6 +64,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryFilterViewModel()),
+        ChangeNotifierProvider(create: (_) => LoadingViewModel()),
       ],
       child: const MyApp(),
     ),
