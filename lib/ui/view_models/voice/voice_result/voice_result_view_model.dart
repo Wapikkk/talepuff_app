@@ -1,26 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../voice_selection_dialog/voice_selection_dialog_view_model.dart';
 
 class VoiceResultViewModel extends ChangeNotifier{
   bool _isProcessingAudio = false;
   bool get isProcessingAudio => _isProcessingAudio;
 
-  Future<void> processAndSendAudio(VoiceOption selectedVoice, String storyText) async {
+  Future<void> processAndSendAudio(VoiceOption selectedVoice, int storyId) async {
     _isProcessingAudio = true;
     notifyListeners();
 
     try {
-      // 1. Call API Text-to-Speech here based on selectedVoice.title
-      // await ttsService.generateAudio(storyText, selectedVoice.title);
+      final baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/generate_audio";
 
-      // 2. Send data/URL audio to Microcontroller (via MQTT/HTTP/WebSocket)
-      // await hardwareService.sendToDevice(audioPayload);
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({
+          'story_id': storyId,
+          'voice_tone': selectedVoice.title,
+        }),
+      );
 
-      // Simulated delay proses
-      await Future.delayed(const Duration(seconds: 3));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final audioUrl = data['audio_url'];
+
+        debugPrint("Success! URL Audio: $audioUrl");
+
+        // TODO: Send URL audio via MQTT / HTTP to Hardware
+        // await hardwareService.sendToDevice(audioUrl);
+      } else {
+        debugPrint("Failed to create audio: ${response.body}");
+        // TODO: Show alert fail to User
+      }
 
     } catch (e) {
-      // Handle error connection/hardware
+      debugPrint("A connection error occurred: $e");
     } finally {
       _isProcessingAudio = false;
       notifyListeners();
