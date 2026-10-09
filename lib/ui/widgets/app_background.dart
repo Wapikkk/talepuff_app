@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/app_colors.dart';
+import 'package:talepuff_app/core/app_colors.dart';
 
 class AppBackground extends StatelessWidget {
   final Widget child;

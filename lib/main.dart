@@ -37,6 +37,8 @@ import 'ui/view_models/story/story_view_model.dart';
 import 'ui/view_models/story/story_filter_view_model.dart';
 
 import 'ui/view_models/loading/loading_view_model.dart';
+import 'ui/view_models/voice/voice_selection_dialog/voice_selection_dialog_view_model.dart';
+import 'ui/view_models/voice/voice_result/voice_result_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +67,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryFilterViewModel()),
         ChangeNotifierProvider(create: (_) => LoadingViewModel()),
+        ChangeNotifierProvider(create: (_) => VoiceSelectionDialogViewModel()),
+        ChangeNotifierProvider(create: (_) => VoiceResultViewModel()),
       ],
       child: const MyApp(),
     ),

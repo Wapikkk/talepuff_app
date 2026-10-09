@@ -31,70 +31,75 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    return Scaffold(
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
 
-      resizeToAvoidBottomInset: false,
-      extendBody: true,
+        resizeToAvoidBottomInset: false,
+        extendBody: true,
 
-      body: AppBackground(
-        child: Stack(
-          children: [
-            const StarsOverlay(),
-            const CloudOverlay(),
+        body: AppBackground(
+          child: Stack(
+            children: [
+              const StarsOverlay(),
+              const CloudOverlay(),
 
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
 
-                child: Column(
-                  children: [
-                    SizedBox(height: 20),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.11),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 30),
-                          HomeGreeting(),
-                          SizedBox(height: 16),
-                          HomeSearchBar(),
-                        ],
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.11),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 30),
+                            HomeGreeting(),
+                            SizedBox(height: 16),
+                            HomeSearchBar(),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    Consumer<HomeViewModel>(
-                      builder: (context, hvm, child) {
-                        return Mascot(mascotId: hvm.activeMascot);
-                      },
-                    ),
-
-                    const Spacer(),
-
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PlayLastStoryBtn(
-                            onPressed: () {
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          CreateNewStoryBtn(
-                            onPressed: () {
-                            },
-                          ),
-                        ],
+                      Consumer<HomeViewModel>(
+                        builder: (context, hvm, child) {
+                          return Mascot(mascotId: hvm.activeMascot);
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 30),
-                  ],
+
+                      const Spacer(),
+
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PlayLastStoryBtn(
+                              onPressed: () {
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            CreateNewStoryBtn(
+                              onPressed: () {
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

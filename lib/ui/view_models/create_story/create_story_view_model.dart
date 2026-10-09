@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talepuff_app/ui/views/loading_screen/loading_screen_view.dart';
 
 class CreateStoryViewModel extends ChangeNotifier {
   String _selectedCategory = '';
@@ -83,12 +84,15 @@ class CreateStoryViewModel extends ChangeNotifier {
         "language": _language,
         "description": _description,
       };
-
-      debugPrint("Sending Payload to Backend: $payload");
-
-      // TODO: Call AuthService/StoryService in here to hit API Backend
-      await Future.delayed(const Duration(seconds: 2));
-
+      debugPrint("Payload ready! move to Loading Screen...");
+      if(context.mounted){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoadingScreenView(payload: payload),
+          ),
+        );
+      }
     } catch (e) {
       debugPrint("Error generating story: $e");
     } finally {

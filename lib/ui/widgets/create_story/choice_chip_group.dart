@@ -4,8 +4,9 @@ import 'package:talepuff_app/core/app_colors.dart';
 
 class ChoiceChipGroup extends StatefulWidget {
   final List<String> options;
+  final Function(String) onSelected;
 
-  const ChoiceChipGroup({super.key, required this.options});
+  const ChoiceChipGroup({super.key, required this.options, required this.onSelected});
 
   @override
   State<ChoiceChipGroup> createState() => _ChoiceChipGroupState();
@@ -26,8 +27,10 @@ class _ChoiceChipGroupState extends State<ChoiceChipGroup> {
             setState(() {
               if (selectedOption == option) {
                 selectedOption = null;
+                widget.onSelected("");
               } else {
                 selectedOption = option;
+                widget.onSelected(option);
               }
             });
           },

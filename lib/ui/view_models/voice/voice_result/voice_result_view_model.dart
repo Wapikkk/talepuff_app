@@ -3,21 +3,23 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../voice_selection_dialog/voice_selection_dialog_view_model.dart';
+import 'package:talepuff_app/data/services/mqtt_service.dart';
 
 class VoiceResultViewModel extends ChangeNotifier{
   bool _isProcessingAudio = false;
   bool get isProcessingAudio => _isProcessingAudio;
+
 
   Future<void> processAndSendAudio(VoiceOption selectedVoice, int storyId) async {
     _isProcessingAudio = true;
     notifyListeners();
 
     try {
-      final baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/generate_audio";
+      final baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/api/audio/generate_audio";
 
       final response = await http.post(
         Uri.parse(baseUrl),
-        headers: {'Content-type': 'application/json'},
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'story_id': storyId,
           'voice_tone': selectedVoice.title,
@@ -30,8 +32,9 @@ class VoiceResultViewModel extends ChangeNotifier{
 
         debugPrint("Success! URL Audio: $audioUrl");
 
-        // TODO: Send URL audio via MQTT / HTTP to Hardware
-        // await hardwareService.sendToDevice(audioUrl);
+        final mqttService = MqttService();
+        await mqttService.publishAudioUrl(audioUrl);
+
       } else {
         debugPrint("Failed to create audio: ${response.body}");
         // TODO: Show alert fail to User

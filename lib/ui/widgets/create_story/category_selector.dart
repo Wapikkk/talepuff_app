@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import 'package:talepuff_app/ui/view_models/create_story/create_story_view_model.dart';
 
 class CategorySelector extends StatefulWidget {
   const CategorySelector({super.key});
@@ -32,8 +34,10 @@ class _CategorySelectorState extends State<CategorySelector> {
             setState(() {
               if (selectedIndex == index) {
                 selectedIndex = null;
+                context.read<CreateStoryViewModel>().setCategory("");
               } else {
                 selectedIndex = index;
+                context.read<CreateStoryViewModel>().setCategory(cat["title"]);
               }
             });
           },

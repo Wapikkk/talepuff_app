@@ -1,5 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../views/voice/voice_result/voice_result_view.dart';
 
 class LoadingViewModel extends ChangeNotifier {
   double _progress = 0.0;
@@ -58,21 +63,50 @@ class LoadingViewModel extends ChangeNotifier {
 
   Future<void> _callBackendAPI(BuildContext context, Map<String, dynamic> payload) async {
     try {
-    //   TODO Uncomment this line after StoryService ready
-    //   final result = await StoryService().generateStory(payload);
+      final baseUrl = '${dotenv.env['API_BASE_URL'] ?? ''}/api/story/generate';
+      debugPrint("Starting process AI to: $baseUrl");
 
-      await Future.delayed(const Duration(seconds: 5));
+      final user = FirebaseAuth.instance.currentUser;
+      final token = await user?.getIdToken(true);
 
-      _simulatedTimer?.cancel();
-      _progress = 1.0;
-      notifyListeners();
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(payload),
+      );
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      if(response.statusCode == 200 || response.statusCode == 201){
+        final resultData = jsonDecode(response.body);
+        debugPrint("The story was successfully created!");
 
-      if(!context.mounted) return;
-    //   TODO Navigate to voice page
-    //   Navigator.pushReplacementNamed(context, '/story_result', argument: result)
+        _simulatedTimer?.cancel();
+        _progress = 1.0;
+        notifyListeners();
 
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if(!context.mounted) return;
+
+        final storyData = resultData['data'] ?? {};
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VoiceResultView(
+              title: storyData['title'] ?? 'Story Title',
+              generatedText: storyData['content'] ?? 'Story text not available',
+              imageUrl: storyData['image_url'] ?? '',
+              payload: payload,
+              storyId: storyData['id'] ?? 0,
+            ),
+          ),
+        );
+      } else {
+        throw Exception("Status server response: ${response.statusCode}");
+      }
     } catch (e) {
       _simulatedTimer?.cancel();
       if(!context.mounted) return;

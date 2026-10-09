@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import '../../../../core/app_colors.dart';
 
 class VoiceDialogContainer extends StatelessWidget{
   final String title;
@@ -27,13 +28,11 @@ class VoiceDialogContainer extends StatelessWidget{
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2D2541),
+                color: AppColors.darkPurple,
                 fontFamily: AppAssets.fontFamily,
               ),
             ),
             const SizedBox(height: 24),
-
-            // Konten (Grid tombol dan tombol Done) akan di-render di sini
             child,
           ],
         ),

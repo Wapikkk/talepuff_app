@@ -6,13 +6,14 @@ import '../../../widgets/voice/voice_selection_dialog/voice_done_button.dart';
 import '../../../widgets/voice/voice_selection_dialog/voice_option_button.dart';
 
 class VoiceSelectionDialogView extends StatelessWidget {
-  const VoiceSelectionDialogView({super.key});
+  final int storyId;
+  const VoiceSelectionDialogView({super.key, required this.storyId});
 
-  static void show(BuildContext context) {
+  static void show(BuildContext context, int storyId) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const VoiceSelectionDialogView(),
+      builder: (context) => VoiceSelectionDialogView(storyId: storyId),
     );
   }
 
@@ -42,6 +43,7 @@ class VoiceSelectionDialogView extends StatelessWidget {
           const SizedBox(height: 30),
 
           VoiceDoneButton(
+            storyId: storyId,
             onPressed: () {
               final viewModel = context.read<VoiceSelectionDialogViewModel>();
               if (viewModel.selectedIndex != -1) {

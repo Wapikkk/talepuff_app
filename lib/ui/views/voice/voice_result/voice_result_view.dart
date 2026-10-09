@@ -10,6 +10,7 @@ class VoiceResultView extends StatefulWidget{
   final String title;
   final String generatedText;
   final String imageUrl;
+  final int storyId;
   final Map<String, dynamic> payload;
 
   const VoiceResultView ({
@@ -17,7 +18,8 @@ class VoiceResultView extends StatefulWidget{
     required this.title,
     required this.generatedText,
     required this.imageUrl,
-    required this.payload
+    required this.payload,
+    required this.storyId
   });
 
   @override
@@ -29,7 +31,7 @@ class _VoiceResultViewState extends State<VoiceResultView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      VoiceSelectionDialogView.show(context);
+      VoiceSelectionDialogView.show(context, widget.storyId);
     });
   }
 
@@ -56,8 +58,8 @@ class _VoiceResultViewState extends State<VoiceResultView> {
                         const SizedBox(height: 30),
 
                         VoiceTextContent(
-                          text: widget.title,
-                          title: widget.generatedText,
+                          title: widget.title,
+                          text: widget.generatedText,
                         ),
 
                         const SizedBox(height: 30),
