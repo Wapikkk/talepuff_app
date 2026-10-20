@@ -1,4 +1,6 @@
+import '../../core/mascots.dart';
 import '../../core/validators.dart';
+import '../services/api_errors.dart';
 import '../models/account_result.dart';
 import '../services/auth_gateway.dart';
 import '../services/auth_service.dart';
@@ -26,6 +28,7 @@ class AccountRepository {
     try {
       await _api.updateChildName(childId: childId, name: trimmed);
     } on ProfileApiException catch (e) {
+      if (e.endpointMissing) return const AccountFailure(outdatedBackendMessage);
       switch (e.statusCode) {
         case 400:
           return const AccountFailure("The server didn't accept this name. Use letters only, up to 30 characters.");
@@ -85,6 +88,28 @@ class AccountRepository {
       'We sent a verification link to $email. Your email changes after you open the link.',
       value: email,
     );
+  }
+
+  Future<AccountResult> updateMascot({required int childId, required String mascotId}) async {
+    if (!Mascots.isValid(mascotId)) return const AccountFailure('Please choose one of the mascots.');
+
+    try {
+      await _api.updateMascot(childId: childId, mascotId: mascotId);
+    } on ProfileApiException catch (e) {
+      if (e.endpointMissing) return const AccountFailure(outdatedBackendMessage);
+      switch (e.statusCode) {
+        case 400:
+          return const AccountFailure("The server didn't accept this mascot. Please choose another one.");
+        case 401:
+        case 403:
+          return const AccountFailure('For security, please log out and login again, then try once more.');
+        case 404:
+          return const AccountFailure("We couldn't find this child's profile. Please log out and login again.");
+        default:
+          return const AccountFailure(_serverUnreachable);
+      }
+    }
+    return AccountSuccess('Mascot updated!', value: mascotId);
   }
 
   String _message(AuthFailure failure) {

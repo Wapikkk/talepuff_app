@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
+import '../../../data/models/account_result.dart';
 import '../../view_models/parents/parent_view_model.dart';
+import '../shared/top_banner.dart';
 import '../../view_models/auth/login_view_model.dart';
 
 class ChildProfilePhoto extends StatelessWidget {
@@ -76,20 +78,28 @@ class ChildProfilePhoto extends StatelessWidget {
   void _showPickerMenu(BuildContext context, ParentViewModel parentVM) {
     final loginVM = Provider.of<LoginViewModel>(context, listen: false);
     final childId = loginVM.currentChildId;
+    final overlay = TopBanner.overlayOf(context);
 
     if (childId == null || childId == "null") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Child's data has not yet been loaded!")),
-      );
+      TopBanner.show(overlay, "Child's data has not been loaded yet. Please try again in a moment.", type: TopBannerType.error);
       return;
     }
+
+    void report(AccountResult? result) {
+      if (result is AccountFailure && result.message.isNotEmpty) {
+        TopBanner.show(overlay, result.message, type: TopBannerType.error);
+      } else if (result is AccountSuccess) {
+        TopBanner.show(overlay, result.message);
+      }
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -126,9 +136,9 @@ class ChildProfilePhoto extends StatelessWidget {
                   color: AppColors.darkPurple,
                 ),
               ),
-              onTap: () {
-                parentVM.handleImageSelection(ImageSource.camera, childId);
-                Navigator.pop(context);
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                report(await parentVM.handleImageSelection(ImageSource.camera, childId));
               },
             ),
 
@@ -143,9 +153,9 @@ class ChildProfilePhoto extends StatelessWidget {
                   color: AppColors.darkPurple,
                 ),
               ),
-              onTap: () {
-                parentVM.handleImageSelection(ImageSource.gallery, childId);
-                Navigator.pop(context);
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                report(await parentVM.handleImageSelection(ImageSource.gallery, childId));
               },
             ),
 
@@ -161,9 +171,9 @@ class ChildProfilePhoto extends StatelessWidget {
                     color: AppColors.storiesCount,
                   ),
                 ),
-                onTap: () {
-                  parentVM.removePhoto();
-                  Navigator.pop(context);
+                onTap: () async {
+                  Navigator.pop(sheetContext);
+                  report(await parentVM.removePhoto());
                 },
               ),
           ],

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/app_assets.dart';
+import '../../../data/repositories/story_repository.dart';
+import '../../view_models/parents/child_info_view_model.dart';
+import '../../view_models/parents/parent_view_model.dart';
 import '../../view_models/story/story_filter_view_model.dart';
-import '../../widgets/story/audio_player_card.dart';
 import '../../widgets/story/story_list_panel.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
@@ -13,7 +16,10 @@ class StoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => StoryFilterViewModel(),
+      create: (context) => StoryFilterViewModel(
+        repository: context.read<StoryRepository>(),
+        childId: () => context.read<ParentViewModel>().currentChildId,
+      )..load(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: AppBackground(
@@ -23,10 +29,26 @@ class StoryView extends StatelessWidget {
               children: [
                 const StarsOverlay(),
                 const CloudOverlay(),
-                const Column(
+                Column(
                   children: [
-                    AudioPlayerCard(),
-                    Expanded(child: StoryListPanel()),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 18),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "${context.watch<ChildInfoViewModel>().childName}'s stories",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: AppAssets.fontFamily,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: StoryListPanel()),
                   ],
                 ),
               ],

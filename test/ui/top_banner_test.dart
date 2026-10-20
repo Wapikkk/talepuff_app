@@ -148,7 +148,7 @@ void main() {
   group('renaming the child from Settings', () {
     testWidgets('the Parent/Home name changes immediately and a banner confirms it', (tester) async {
       final account = AccountFixture();
-      final parent = ParentViewModel(client: unusedHttpClient())..setInitiateData('7', null, 'Aira');
+      final parent = ParentViewModel(photos: fakePhotos())..setInitiateData('7', null, 'Aira');
       final childInfo = ChildInfoViewModel(repository: AuthFixture(signedInUser: const AuthUser('uid-1', null)).repository)
         ..applySavedName('Aira');
 
@@ -190,7 +190,7 @@ void main() {
 
     testWidgets('a rejected name shows the red message and changes nothing', (tester) async {
       final account = AccountFixture();
-      final parent = ParentViewModel(client: unusedHttpClient())..setInitiateData('7', null, 'Aira');
+      final parent = ParentViewModel(photos: fakePhotos())..setInitiateData('7', null, 'Aira');
       final childInfo = ChildInfoViewModel(repository: AuthFixture().repository)..applySavedName('Aira');
 
       await tester.pumpWidget(MultiProvider(

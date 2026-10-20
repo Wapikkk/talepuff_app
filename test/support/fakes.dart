@@ -7,6 +7,11 @@ import 'package:talepuff_app/data/models/child_profile.dart';
 import 'package:talepuff_app/data/repositories/account_repository.dart';
 import 'package:talepuff_app/data/repositories/auth_repository.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
+import 'package:talepuff_app/data/services/story_service.dart';
+import 'package:talepuff_app/data/repositories/story_repository.dart';
+import 'package:talepuff_app/data/models/story.dart';
+import 'package:talepuff_app/data/services/profile_photo_service.dart';
+import 'package:talepuff_app/data/repositories/profile_photo_repository.dart';
 import 'package:talepuff_app/data/services/feedback_service.dart';
 import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
@@ -77,7 +82,9 @@ class FakeProfileApi implements ProfileApi {
   ProfileLookup? forcedLookup;
   ProfileApiException? registerError;
   ProfileApiException? renameError;
+  ProfileApiException? mascotError;
   final renamed = <String>[];
+  final mascots = <String>[];
   final registered = <ChildDraft>[];
   int fetchCalls = 0;
   int _nextId = 1;
@@ -88,6 +95,12 @@ class FakeProfileApi implements ProfileApi {
     if (forcedLookup != null) return forcedLookup!;
     final profile = store[firebaseUid];
     return profile == null ? const ProfileNotFound() : ProfileFound(profile, const {});
+  }
+
+  @override
+  Future<void> updateMascot({required int childId, required String mascotId}) async {
+    if (mascotError != null) throw mascotError!;
+    mascots.add('$childId:$mascotId');
   }
 
   @override
@@ -196,3 +209,129 @@ class FakeFeedbackApi implements FeedbackApi {
 
 /// Klien HTTP untuk tes yang tidak boleh menyentuh jaringan: memakainya akan menggagalkan tes.
 http.Client unusedHttpClient() => MockClient((_) async => throw StateError('network is not expected in this test'));
+
+/// API foto profil palsu: mencatat panggilan, dan bisa dipaksa gagal atau ditahan.
+class FakePhotoApi implements ProfilePhotoApi {
+  String uploadedUrl = '/uploads/profiles/new.jpg';
+  PhotoApiException? error;
+  Completer<void>? gate;
+  final uploads = <String>[];
+  final removals = <int>[];
+
+  @override
+  Future<String> upload({required int childId, required String filePath}) async {
+    await gate?.future;
+    if (error != null) throw error!;
+    uploads.add('$childId:$filePath');
+    return uploadedUrl;
+  }
+
+  @override
+  Future<void> remove({required int childId}) async {
+    await gate?.future;
+    if (error != null) throw error!;
+    removals.add(childId);
+  }
+}
+
+ProfilePhotoRepository fakePhotos([FakePhotoApi? api]) => ProfilePhotoRepository(api: api ?? FakePhotoApi());
+
+StorySummary makeStory(
+  int id, {
+  String? title,
+  String theme = 'Daily',
+  String mood = 'Calm',
+  int minutes = 3,
+  bool favorite = false,
+  int plays = 0,
+  Duration age = const Duration(minutes: 7),
+  String audioUrl = '',
+}) {
+  return StorySummary(
+    id: id,
+    childId: 7,
+    title: title ?? 'Story $id',
+    theme: theme,
+    mood: mood,
+    language: 'Basic English',
+    lengthMinutes: minutes,
+    audioUrl: audioUrl,
+    voiceTone: '',
+    isFavorite: favorite,
+    playCount: plays,
+    createdAt: DateTime.now().subtract(age),
+  );
+}
+
+StoryDetail makeDetail(int id, {String content = 'First paragraph.\n\nSecond paragraph.', bool favorite = false}) {
+  final base = makeStory(id, favorite: favorite);
+  return StoryDetail(
+    id: base.id,
+    childId: base.childId,
+    title: base.title,
+    theme: base.theme,
+    mood: 'Calm, Brave',
+    language: base.language,
+    lengthMinutes: base.lengthMinutes,
+    audioUrl: '',
+    voiceTone: '',
+    isFavorite: favorite,
+    playCount: 0,
+    createdAt: base.createdAt,
+    content: content,
+    description: 'a description',
+  );
+}
+
+class StoryListCall {
+  final int childId;
+  final StoryTab tab;
+  final String query;
+  final int offset;
+  const StoryListCall(this.childId, this.tab, this.query, this.offset);
+
+  @override
+  String toString() => '${tab.name}|$query|$offset';
+}
+
+/// API cerita palsu. [onList] menentukan jawaban daftar (boleh ditunda dengan Completer); sisanya mencatat panggilan.
+class FakeStoryApi implements StoryApi {
+  Future<StoryPage> Function(StoryListCall call)? onList;
+  StoryApiException? listError;
+  StoryDetail? detail;
+  StoryApiException? detailError;
+  StoryApiException? favoriteError;
+  Completer<void>? favoriteGate;
+  final listCalls = <StoryListCall>[];
+  final favoriteCalls = <String>[];
+
+  @override
+  Future<StoryPage> list({
+    required int childId,
+    required StoryTab tab,
+    String query = '',
+    int offset = 0,
+    int limit = StoryService.pageSize,
+  }) async {
+    final call = StoryListCall(childId, tab, query, offset);
+    listCalls.add(call);
+    if (listError != null) throw listError!;
+    final handler = onList;
+    return handler == null ? const StoryPage([], hasMore: false) : handler(call);
+  }
+
+  @override
+  Future<StoryDetail> get(int id) async {
+    if (detailError != null) throw detailError!;
+    return detail ?? makeDetail(id);
+  }
+
+  @override
+  Future<void> setFavorite(int id, bool favorite) async {
+    await favoriteGate?.future;
+    if (favoriteError != null) throw favoriteError!;
+    favoriteCalls.add('$id:$favorite');
+  }
+}
+
+StoryRepository fakeStories([FakeStoryApi? api]) => StoryRepository(api: api ?? FakeStoryApi());

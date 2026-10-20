@@ -5,14 +5,15 @@ import '../../../core/app_assets.dart';
 class UpdateBtnSettings extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-
   final bool isBusy;
+  final bool enabled;
 
   const UpdateBtnSettings({
     super.key,
     required this.text,
     required this.onPressed,
     this.isBusy = false,
+    this.enabled = true,
   });
 
   @override
@@ -23,13 +24,13 @@ class UpdateBtnSettings extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.btnSave,
-          disabledBackgroundColor: AppColors.btnSave.withValues(alpha: 0.6),
+          disabledBackgroundColor: isBusy ? AppColors.btnSave.withValues(alpha: 0.6) : const Color(0xFFBDBDBD),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
           elevation: 2,
         ),
-        onPressed: isBusy ? null : onPressed,
+        onPressed: (isBusy || !enabled) ? null : onPressed,
         child: isBusy
             ? const SizedBox(
                 width: 22,

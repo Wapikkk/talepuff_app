@@ -1,5 +1,6 @@
 import '../../core/validators.dart';
 import '../models/account_result.dart';
+import '../services/api_errors.dart';
 import '../services/app_info.dart';
 import '../services/feedback_service.dart';
 
@@ -28,6 +29,7 @@ class FeedbackRepository {
     try {
       await _api.send(category: category, message: message.trim(), appVersion: version);
     } on FeedbackApiException catch (e) {
+      if (e.endpointMissing) return const AccountFailure(outdatedBackendMessage);
       switch (e.statusCode) {
         case 400:
           return const AccountFailure("The server didn't accept this message. Please check it and try again.");

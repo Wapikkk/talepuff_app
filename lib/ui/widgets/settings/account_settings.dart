@@ -30,6 +30,11 @@ class AccountSettings extends StatelessWidget{
           title: "Child's Name",
           onTap: () => Navigator.pushNamed(context, '/update_child_name'),
         ),
+        _buildSettingItem(
+          context: context,
+          title: 'Mascot',
+          onTap: () => Navigator.pushNamed(context, '/update_mascot'),
+        ),
         if (canManageCredentials) ...[
           _buildSettingItem(
             context: context,

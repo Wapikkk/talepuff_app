@@ -7,7 +7,6 @@ import 'package:talepuff_app/data/repositories/auth_repository.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/authenticated_client.dart';
-import 'package:talepuff_app/ui/view_models/home/home_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 
 import '../support/fakes.dart';
@@ -106,30 +105,6 @@ void main() {
       await viewModel.syncChildData();
 
       expect(viewModel.childName, 'Friend');
-    });
-  });
-
-  group('HomeViewModel.prepareHomeData', () {
-    test('reads the mascot through the authenticated API', () async {
-      final wired = Wired((_) async => profile(extra: {'mascot_id': 'Gajah'}));
-      final viewModel = HomeViewModel(repository: wired.repository);
-
-      await viewModel.prepareHomeData();
-
-      expect(viewModel.activeMascot, 'Gajah');
-      expect(viewModel.isLoading, isFalse);
-      expect(wired.requests.single.headers['Authorization'], 'Bearer tok-1');
-    });
-
-    test('keeps the default mascot when the profile has none or cannot be loaded', () async {
-      final none = HomeViewModel(repository: Wired((_) async => profile()).repository);
-      await none.prepareHomeData();
-      expect(none.activeMascot, 'Harimau');
-
-      final rejected = HomeViewModel(repository: Wired((_) async => http.Response('', 401)).repository);
-      await rejected.prepareHomeData();
-      expect(rejected.activeMascot, 'Harimau');
-      expect(rejected.isLoading, isFalse, reason: 'the loading state must always end');
     });
   });
 

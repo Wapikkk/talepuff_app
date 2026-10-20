@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/data/repositories/auth_repository.dart';
+import 'package:talepuff_app/data/models/child_profile.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/ui/view_models/auth/login_view_model.dart';
@@ -20,7 +21,7 @@ Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
     providers: [
       Provider<AuthRepository>.value(value: f.repository),
       ChangeNotifierProvider(create: (_) => LoginViewModel(repository: f.repository)),
-      ChangeNotifierProvider(create: (_) => ParentViewModel(client: unusedHttpClient())),
+      ChangeNotifierProvider(create: (_) => ParentViewModel(photos: fakePhotos())),
       ChangeNotifierProvider.value(value: navbar ?? NavbarViewModel()),
       ChangeNotifierProvider(create: (_) => StartupViewModel(repository: f.repository)),
       ChangeNotifierProvider(create: (_) => ChildInfoViewModel(repository: f.repository)),
@@ -61,6 +62,21 @@ void main() {
 
     expect(find.text('MAIN'), findsOneWidget);
     expect(navbar.currentIndex, 0);
+  });
+
+  testWidgets('the child data is ready from the login data itself (no "Friend" flash, no extra request)', (tester) async {
+    final f = AuthFixture(signedInUser: const AuthUser('uid-1', 'parent@example.com'));
+    f.api.store['uid-1'] = const ChildProfile(id: 7, name: 'Aira', age: 3, interests: ['Space'], mascotId: 'Badak');
+
+    await tester.pumpWidget(buildApp(f));
+    await tester.pumpAndSettle();
+
+    final childInfo = tester.element(find.text('MAIN')).read<ChildInfoViewModel>();
+    expect(childInfo.childName, 'Aira');
+    expect(childInfo.age, '3');
+    expect(childInfo.selectedInterests, ['Space']);
+    expect(childInfo.mascotId, 'Badak');
+    expect(f.api.fetchCalls, 1, reason: 'only the lookup done while restoring the session');
   });
 
   testWidgets('a saved session with a profile skips login and prepares the session data', (tester) async {

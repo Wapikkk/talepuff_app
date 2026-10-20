@@ -54,6 +54,20 @@ void main() {
       );
     });
 
+    test("Gin's plain-text 404 means the route is missing; a JSON 404 means the account is", () async {
+      final missing = serviceWith((_) async => http.Response('404 page not found', 404));
+      await expectLater(
+        missing.send(category: 'bug', message: 'hello there', appVersion: ''),
+        throwsA(isA<FeedbackApiException>().having((e) => e.endpointMissing, 'endpointMissing', isTrue)),
+      );
+
+      final noUser = serviceWith((_) async => http.Response('{"error":"User not found"}', 404));
+      await expectLater(
+        noUser.send(category: 'bug', message: 'hello there', appVersion: ''),
+        throwsA(isA<FeedbackApiException>().having((e) => e.endpointMissing, 'endpointMissing', isFalse)),
+      );
+    });
+
     test('a refused connection and a timeout both throw FeedbackApiException', () async {
       final refused = serviceWith((_) async => throw const SocketException('refused'));
       await expectLater(refused.send(category: 'bug', message: 'hello there', appVersion: ''), throwsA(isA<FeedbackApiException>()));
@@ -115,6 +129,13 @@ void main() {
         final result = await make(api).send(category: 'bug', message: 'Something broke');
         expect(failureOf(result), contains(entry.value), reason: '${entry.key}');
       }
+    });
+
+    test('a missing route (backend not restarted) is explained, not reported as a missing account', () async {
+      final api = FakeFeedbackApi()..error = const FeedbackApiException('x', statusCode: 404, endpointMissing: true);
+      final message = failureOf(await make(api).send(category: 'bug', message: 'Something broke'));
+      expect(message, contains('restart the backend'));
+      expect(message, isNot(contains('find your account')));
     });
 
     test('a connection failure is reported as such', () async {

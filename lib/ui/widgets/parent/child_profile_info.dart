@@ -16,18 +16,24 @@ class ChildProfileInfo extends StatelessWidget{
     required this.interests,
   });
 
+  static String ageText(String age) {
+    final years = int.tryParse(age.trim());
+    if (years == null || years <= 0) return '';
+    return years == 1 ? '1 year old' : '$years years old';
+  }
+
   String _formatInterests() {
     String prefix = "Hi, I'm $name";
     String interestsText;
     if (interests.isEmpty) return "$prefix!";
 
     if (interests.length == 1) {
-      interestsText = "i like ${interests[0]}!";
+      interestsText = "I like ${interests[0]}!";
     } else if (interests.length == 2) {
-      interestsText = "i like ${interests[0]} and ${interests[1]}!";
+      interestsText = "I like ${interests[0]} and ${interests[1]}!";
     } else {
       String allButLast = interests.sublist(0, interests.length - 1).join(", ");
-      interestsText = "i like $allButLast, and ${interests.last}!";
+      interestsText = "I like $allButLast, and ${interests.last}!";
     }
 
     return "$prefix, $interestsText";
@@ -38,7 +44,7 @@ class ChildProfileInfo extends StatelessWidget{
     return Column(
       children: [
         Text(
-          "$name, ${age}th",
+          [name, ageText(age)].where((part) => part.isNotEmpty).join(', '),
           style: const TextStyle(
             color: AppColors.darkPurple,
             fontSize: 24,

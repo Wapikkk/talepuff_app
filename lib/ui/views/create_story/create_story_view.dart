@@ -67,14 +67,6 @@ class CreateStoryView extends StatelessWidget{
                               },
                             ),
 
-                            const SectionTitle(title: "Language"),
-                            ChoiceChipGroup(
-                              options: ['Basic English', 'Mixed (EN + ID)'],
-                              onSelected: (value) {
-                                context.read<CreateStoryViewModel>().setLanguage(value);
-                              },
-                            ),
-
                             const SectionTitle(title: "Describe Your Story"),
                             CustomInputField(
                               hint: "Optional, max 30 words",
