@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-
 import '../models/child_profile.dart';
 
-/// Hasil mencari profil anak di backend. Tiga keadaan dibedakan agar UI tidak salah memberi pesan:
-/// "belum ada profil" sangat berbeda dari "server tidak terjangkau".
 sealed class ProfileLookup {
   const ProfileLookup();
 }
@@ -22,6 +18,10 @@ class ProfileFound extends ProfileLookup {
 
 class ProfileNotFound extends ProfileLookup {
   const ProfileNotFound();
+}
+
+class ProfileRejected extends ProfileLookup {
+  const ProfileRejected();
 }
 
 class ProfileUnreachable extends ProfileLookup {
@@ -38,7 +38,6 @@ class ProfileApiException implements Exception {
   String toString() => 'ProfileApiException($message, status: $statusCode)';
 }
 
-/// Antarmuka ke backend untuk profil anak (dipisah agar mudah diganti objek palsu di tes).
 abstract class ProfileApi {
   Future<ProfileLookup> fetchProfile(String firebaseUid);
 
@@ -47,6 +46,8 @@ abstract class ProfileApi {
     required String email,
     required ChildDraft child,
   });
+
+  Future<void> updateChildName({required int childId, required String name});
 }
 
 class AuthService implements ProfileApi {
@@ -59,7 +60,6 @@ class AuthService implements ProfileApi {
   final String? _baseUrlOverride;
   final Duration _timeout;
 
-  // Dibaca saat dipakai (bukan saat konstruksi) karena .env baru dimuat setelah objek dibuat.
   String get _baseUrl => _baseUrlOverride ?? "${dotenv.env['API_BASE_URL'] ?? ''}/api";
 
   @override
@@ -97,11 +97,31 @@ class AuthService implements ProfileApi {
   }
 
   @override
+  Future<void> updateChildName({required int childId, required String name}) async {
+    try {
+      final response = await _client
+          .put(
+            Uri.parse('$_baseUrl/child/update-name/$childId'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'name': name}),
+          )
+          .timeout(_timeout);
+      if (response.statusCode != 200) {
+        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode);
+      }
+    } on TimeoutException {
+      throw const ProfileApiException('Server did not respond in time');
+    } on SocketException catch (e) {
+      throw ProfileApiException('Cannot reach the server: ${e.message}');
+    } on http.ClientException catch (e) {
+      throw ProfileApiException('Cannot reach the server: ${e.message}');
+    }
+  }
+
+  @override
   Future<ProfileLookup> fetchProfile(String firebaseUid) async {
     final lookup = await _fetchProfile(firebaseUid);
     if (lookup is ProfileUnreachable) {
-      // Alasan sebenarnya (timeout, status 500, isi balasan aneh, koneksi ditolak) hanya
-      // tersedia di sini; pesan ke pengguna sengaja disederhanakan.
       debugPrint('[auth] fetchProfile failed against $_baseUrl: ${lookup.reason}');
     }
     return lookup;
@@ -114,6 +134,7 @@ class AuthService implements ProfileApi {
           .timeout(_timeout);
 
       if (response.statusCode == 404) return const ProfileNotFound();
+      if (response.statusCode == 401 || response.statusCode == 403) return const ProfileRejected();
       if (response.statusCode != 200) {
         return ProfileUnreachable('Server responded ${response.statusCode}');
       }
@@ -132,8 +153,6 @@ class AuthService implements ProfileApi {
     }
   }
 
-  /// Kompatibilitas untuk pemanggil lama (HomeViewModel, ChildInfoViewModel.syncChildData):
-  /// data mentah bila profil ada, selain itu null.
   Future<Map<String, dynamic>?> getChildInfo(String uid) async {
     final result = await fetchProfile(uid);
     if (result is ProfileFound) return result.raw;

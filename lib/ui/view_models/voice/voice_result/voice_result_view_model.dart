@@ -6,6 +6,10 @@ import '../voice_selection_dialog/voice_selection_dialog_view_model.dart';
 import 'package:talepuff_app/data/services/mqtt_service.dart';
 
 class VoiceResultViewModel extends ChangeNotifier{
+  VoiceResultViewModel({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
+
   bool _isProcessingAudio = false;
   bool get isProcessingAudio => _isProcessingAudio;
 
@@ -17,7 +21,7 @@ class VoiceResultViewModel extends ChangeNotifier{
     try {
       final baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/api/audio/generate_audio";
 
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

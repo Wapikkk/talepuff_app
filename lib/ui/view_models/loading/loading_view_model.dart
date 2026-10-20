@@ -3,10 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../views/voice/voice_result/voice_result_view.dart';
 
 class LoadingViewModel extends ChangeNotifier {
+  LoadingViewModel({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
+
   double _progress = 0.0;
   double get progress => _progress;
 
@@ -66,15 +69,9 @@ class LoadingViewModel extends ChangeNotifier {
       final baseUrl = '${dotenv.env['API_BASE_URL'] ?? ''}/api/story/generate';
       debugPrint("Starting process AI to: $baseUrl");
 
-      final user = FirebaseAuth.instance.currentUser;
-      final token = await user?.getIdToken(true);
-
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
 

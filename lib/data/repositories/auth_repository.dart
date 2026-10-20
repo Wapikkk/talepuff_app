@@ -18,6 +18,7 @@ class AuthRepository {
   final ProfileApi _api;
   final SessionStore _session;
 
+  static const _sessionRejectedMessage = 'The server rejected your session. Please login again.';
   static const _unreachableMessage =
       "Can't reach the server. Make sure the backend is running and you're on the same network.";
   static const _profileSyncMessage =
@@ -69,6 +70,8 @@ class AuthRepository {
       case ProfileNotFound():
         if (child == null) return const NeedsProfile();
         return _registerThenEnter(user, child);
+      case ProfileRejected():
+        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
       case ProfileUnreachable():
         return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
     }
@@ -95,6 +98,8 @@ class AuthRepository {
         );
       case ProfileNotFound():
         return _registerThenEnter(user, child);
+      case ProfileRejected():
+        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
       case ProfileUnreachable():
         return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
     }
@@ -106,6 +111,9 @@ class AuthRepository {
 
     final lookup = await _api.fetchProfile(user.uid);
     if (lookup is ProfileFound) return _enter(lookup.profile, user);
+    if (lookup is ProfileRejected) {
+      return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
+    }
     if (lookup is ProfileUnreachable) {
       return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
     }
@@ -124,6 +132,8 @@ class AuthRepository {
         return _enter(profile, user);
       case ProfileNotFound():
         return const NeedsProfile();
+      case ProfileRejected():
+        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
       case ProfileUnreachable():
         return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
     }
@@ -132,8 +142,13 @@ class AuthRepository {
   Future<AuthResult> _registerThenEnter(AuthUser user, ChildDraft child) async {
     try {
       await _api.register(firebaseUid: user.uid, email: user.email ?? '', child: child);
-    } on ProfileApiException {
-      return const AuthFailed(_profileSyncMessage, AuthFailureReason.profileSyncFailed);
+    } on ProfileApiException catch (e) {
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
+      }
+      if (e.statusCode != 409) {
+        return const AuthFailed(_profileSyncMessage, AuthFailureReason.profileSyncFailed);
+      }
     }
 
     final lookup = await _api.fetchProfile(user.uid);
@@ -161,6 +176,11 @@ class AuthRepository {
         return const AuthFailed('Too many attempts. Please try again later.', AuthFailureReason.tooManyRequests);
       case AuthGatewayError.network:
         return const AuthFailed('No connection. Check your internet and try again.', AuthFailureReason.network);
+      case AuthGatewayError.invalidEmail:
+        return const AuthFailed('Invalid email format, please check again!', AuthFailureReason.invalidInput);
+      case AuthGatewayError.requiresRecentLogin:
+      case AuthGatewayError.sessionExpired:
+        return const AuthFailed('Your session has expired. Please login again.', AuthFailureReason.unknown);
       case AuthGatewayError.cancelled:
       case AuthGatewayError.unknown:
         return AuthFailed(failure.detail ?? 'Something went wrong. Please try again.', AuthFailureReason.unknown);

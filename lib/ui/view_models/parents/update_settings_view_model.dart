@@ -1,120 +1,81 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:provider/provider.dart';
-import 'parent_view_model.dart';
+import '../../../data/models/account_result.dart';
+import '../../../data/repositories/account_repository.dart';
 
 class UpdateSettingsViewModel extends ChangeNotifier {
-  bool _isLoading = false; get isLoading => _isLoading;
+  UpdateSettingsViewModel({required AccountRepository repository}) : _repository = repository;
 
-  Future<void> updateChildName(BuildContext context, String childId, String newName) async {
-    if (newName.trim().isEmpty) return;
-    _setLoading(true);
+  final AccountRepository _repository;
+  Timer? _errorTimer;
 
-    try {
-      final url = Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/child/update-name/$childId");
-      final response = await http.put(
-        url,
-        body: jsonEncode({'name': newName.trim()}),
-        headers: {'Content-Type': 'application/json'},
-      );
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-      if(!context.mounted)return;
+  String? errorMessage;
 
-      if (response.statusCode == 200) {
-        Provider.of<ParentViewModel>(context, listen: false).updateLocalChildName(newName.trim());
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Name updated successfully!"), backgroundColor: Colors.green),
-        );
-        debugPrint("DEBUG: Child's name has been changed in database");
-      }
-    } catch (e) {
-      debugPrint("ERROR Update Name: $e");
-    } finally {
-      _setLoading(false);
+  bool get canManageCredentials => _repository.canManageCredentials;
+
+  Future<AccountResult?> updateChildName({required String? childId, required String name}) {
+    final id = int.tryParse(childId ?? '');
+    if (id == null) {
+      _setError("Child's data has not been loaded yet. Please try again in a moment.");
+      return Future.value(const AccountFailure(''));
     }
+    return _run(() => _repository.updateChildName(childId: id, name: name));
   }
 
-  Future<void> updateEmail(BuildContext context, String newEmail, String currentPassword) async {
-    if (newEmail.trim().isEmpty || currentPassword.isEmpty) return;
-    _setLoading(true);
-
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: currentPassword,
-      );
-      debugPrint("DEBUG: Starting re-authentication");
-      await user.reauthenticateWithCredential(credential);
-      debugPrint("DEBUG: Re-authentication success!");
-
-      await user.verifyBeforeUpdateEmail(newEmail);
-      await user.reload();
-
-      final url = Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/user/update-email/${user.uid}");
-      final response = await http.put(
-        url,
-        body: jsonEncode({'email': newEmail.trim()}),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (!context.mounted) return;
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Email updated successfully! please check your new email"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      debugPrint("CATCH ERROR Update Email: $e");
-
-      if (context.mounted) {
-        String msg = "Failed to update email. Please try logging out and in again.";
-        if (e.toString().contains('PigeonUserDetails')) {
-          msg = "System Sync Error. Please perform a 'flutter clean' and restart.";
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      _setLoading(false);
-    }
+  Future<AccountResult?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) {
+    return _run(() => _repository.changePassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+          confirmPassword: confirmPassword,
+        ));
   }
 
-  Future<void> updatePassword(String oldPass, String newPass) async {
-    _setLoading(true);
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user!.email!,
-        password: oldPass,
-      );
-
-      await user.reauthenticateWithCredential(credential);
-      await user.updatePassword(newPass);
-
-      debugPrint("DEBUG: Password has been updated in Firebase");
-    } catch (e) {
-      debugPrint("ERROR Update Password: $e");
-    } finally {
-      _setLoading(false);
-    }
+  Future<AccountResult?> requestEmailChange({required String newEmail, required String currentPassword}) {
+    return _run(() => _repository.requestEmailChange(newEmail: newEmail, currentPassword: currentPassword));
   }
 
-  void _setLoading(bool value) {
-    _isLoading = value;
+  void clearError() {
+    if (errorMessage == null) return;
+    _errorTimer?.cancel();
+    errorMessage = null;
     notifyListeners();
+  }
+
+  Future<AccountResult?> _run(Future<AccountResult> Function() action) async {
+    if (_isLoading) return null;
+    _isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+    try {
+      final result = await action();
+      if (result is AccountFailure) _setError(result.message);
+      return result;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void _setError(String message) {
+    errorMessage = message;
+    notifyListeners();
+    _errorTimer?.cancel();
+    _errorTimer = Timer(const Duration(seconds: 3), () {
+      errorMessage = null;
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _errorTimer?.cancel();
+    super.dispose();
   }
 }

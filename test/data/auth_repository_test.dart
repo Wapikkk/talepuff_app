@@ -79,6 +79,53 @@ void main() {
     });
   });
 
+  group('a rejected session (401/403 from the backend)', () {
+    test('signing in reports it instead of "can\'t reach the server" or "no profile"', () async {
+      final f = AuthFixture();
+      f.api.forcedLookup = const ProfileRejected();
+
+      final result = await f.repository.signInWithEmail('p@x.com', 'abcd1234') as AuthFailed;
+
+      expect(result.message, contains('rejected your session'));
+      expect(result.message, isNot(contains("Can't reach")));
+    });
+
+    test('restoring a saved session reports it too', () async {
+      final f = AuthFixture(signedInUser: const AuthUser('uid-1', 'p@x.com'));
+      f.api.forcedLookup = const ProfileRejected();
+      expect(await f.repository.restoreSession(), isA<AuthFailed>());
+    });
+
+    test('register answered with 401 is a session problem, not "could not save the profile"', () async {
+      final f = AuthFixture();
+      f.api.registerError = const ProfileApiException('unauthorized', statusCode: 401);
+
+      final result = await f.repository.signUpWithEmail('p@x.com', 'abcd1234', childDraft) as AuthFailed;
+
+      expect(result.message, contains('rejected your session'));
+    });
+  });
+
+  group('register answered with 409 (profile already stored by the backend)', () {
+    test('is treated as "already registered": the stored profile is fetched, not an error', () async {
+      final f = AuthFixture();
+      f.seedProfile(name: 'Stored Name', id: 4);
+      f.api.registerError = const ProfileApiException('conflict', statusCode: 409);
+
+      final result = await f.repository.signUpWithEmail('p@x.com', 'abcd1234', childDraft);
+
+      expect(result, isA<SignedIn>());
+      expect((result as SignedIn).profile.name, 'Stored Name');
+    });
+
+    test('any other status still fails', () async {
+      final f = AuthFixture();
+      f.api.registerError = const ProfileApiException('bad', statusCode: 400);
+      final result = await f.repository.signUpWithEmail('p@x.com', 'abcd1234', childDraft);
+      expect(result, isA<AuthFailed>());
+    });
+  });
+
   group('signUpWithEmail', () {
     test('registers the child exactly once and enters the app', () async {
       final f = AuthFixture();

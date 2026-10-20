@@ -31,6 +31,13 @@ void main() {
       expect(await service.fetchProfile('uid-1'), isA<ProfileNotFound>());
     });
 
+    test('401 and 403 mean the server rejected the session, not that it is unreachable', () async {
+      for (final status in [401, 403]) {
+        final service = serviceWith((_) async => http.Response('{"error":"Invalid or expired token"}', status));
+        expect(await service.fetchProfile('uid-1'), isA<ProfileRejected>(), reason: '$status');
+      }
+    });
+
     test('a 500 is "unreachable", never "not found"', () async {
       final service = serviceWith((_) async => http.Response('boom', 500));
       expect(await service.fetchProfile('uid-1'), isA<ProfileUnreachable>());
@@ -120,6 +127,38 @@ void main() {
       );
       await expectLater(
         service.register(firebaseUid: 'u', email: 'e', child: draft),
+        throwsA(isA<ProfileApiException>()),
+      );
+    });
+  });
+
+  group('updateChildName', () {
+    test('sends a PUT with the name and treats 200 as success', () async {
+      late http.Request seen;
+      final service = serviceWith((request) async {
+        seen = request;
+        return http.Response('{"message":"ok"}', 200);
+      });
+
+      await service.updateChildName(childId: 7, name: 'Aira');
+
+      expect(seen.method, 'PUT');
+      expect(seen.url.toString(), 'http://backend/api/child/update-name/7');
+      expect(jsonDecode(seen.body), {'name': 'Aira'});
+    });
+
+    test('a non-200 answer throws with the status code', () async {
+      final service = serviceWith((_) async => http.Response('boom', 500));
+      await expectLater(
+        service.updateChildName(childId: 7, name: 'Aira'),
+        throwsA(isA<ProfileApiException>().having((e) => e.statusCode, 'statusCode', 500)),
+      );
+    });
+
+    test('a refused connection throws ProfileApiException', () async {
+      final service = serviceWith((_) async => throw const SocketException('refused'));
+      await expectLater(
+        service.updateChildName(childId: 7, name: 'Aira'),
         throwsA(isA<ProfileApiException>()),
       );
     });

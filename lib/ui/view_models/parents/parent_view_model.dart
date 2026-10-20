@@ -8,6 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ParentViewModel extends ChangeNotifier{
+  ParentViewModel({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
+
   File? _imagePreview; get imagePreview => _imagePreview;
   String? _currentChildId, _currentChildName, _currentPhotoUrl;
   String? get currentChildId => _currentChildId; get currentChildName => _currentChildName; get currentPhotoUrl => _currentPhotoUrl;
@@ -55,8 +59,6 @@ class ParentViewModel extends ChangeNotifier{
     }
   }
 
-
-
   Future<CroppedFile?> _cropImage(String path) async {
     return await ImageCropper().cropImage(
       sourcePath: path,
@@ -103,7 +105,7 @@ class ParentViewModel extends ChangeNotifier{
       );
 
       request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
-      var response = await request.send();
+      final response = await _client.send(request);
 
       if (response.statusCode == 200) {
         debugPrint("Upload successful!");

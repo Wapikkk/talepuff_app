@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:talepuff_app/core/validators.dart';
 
 void main() {
+  childNameTests();
   group('AuthValidators.email', () {
     test('accepts common and long-TLD addresses', () {
       for (final email in ['a@b.co', 'parent.name+tag@mail.example.com', 'x@site.technology', '  a@b.co  ']) {
@@ -31,6 +32,22 @@ void main() {
 
     test('the message states the real requirement', () {
       expect(AuthValidators.newPassword('abc'), contains('8 characters'));
+    });
+  });
+}
+
+void childNameTests() {
+  group('AuthValidators.childName (same rule as the story generator)', () {
+    test('accepts letters, spaces, apostrophes and hyphens', () {
+      for (final name in ['Aira', 'Mary-Ann', "D'Arcy", 'Anna Maria', '  Bimo  ', 'A' * 30]) {
+        expect(AuthValidators.childName(name), isNull, reason: name);
+      }
+    });
+
+    test('rejects names that would silently become "Pip" in a story', () {
+      for (final name in ['', '   ', 'Aira 2', '2Aira', 'Aira!', "'Aira", '-Aira', 'Aira@home', 'A' * 31]) {
+        expect(AuthValidators.childName(name), isNotNull, reason: name);
+      }
     });
   });
 }

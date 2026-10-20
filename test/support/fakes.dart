@@ -1,21 +1,22 @@
 import 'dart:async';
 
 import 'package:talepuff_app/data/models/child_profile.dart';
+import 'package:talepuff_app/data/repositories/account_repository.dart';
 import 'package:talepuff_app/data/repositories/auth_repository.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/session_store.dart';
 
-/// Pengganti Firebase/Google: hasil diatur lewat field, semua panggilan dicatat.
 class FakeGateway implements AuthGateway {
   FakeGateway({this.user});
 
   AuthUser? user;
   AuthUser next = const AuthUser('uid-1', 'parent@example.com');
-  AuthFailure? failure; // dilempar oleh setiap panggilan masuk/daftar bila diisi
-  Completer<void>? gate; // bila diisi, panggilan menunggu sampai gate selesai
+  AuthFailure? failure;
+  Completer<void>? gate;
   final calls = <String>[];
   int signOutCalls = 0;
+  bool hasPassword = true;
 
   @override
   AuthUser? get currentUser => user;
@@ -38,6 +39,26 @@ class FakeGateway implements AuthGateway {
     user = null;
   }
 
+  @override
+  bool get usesPassword => hasPassword;
+
+  @override
+  Future<String?> idToken() async => 'fake-token';
+
+  @override
+  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+    calls.add('changePassword:$currentPassword->$newPassword');
+    await gate?.future;
+    if (failure != null) throw failure!;
+  }
+
+  @override
+  Future<void> requestEmailChange({required String currentPassword, required String newEmail}) async {
+    calls.add('requestEmailChange:$newEmail');
+    await gate?.future;
+    if (failure != null) throw failure!;
+  }
+
   Future<AuthUser> _run(String call) async {
     calls.add(call);
     await gate?.future;
@@ -46,11 +67,12 @@ class FakeGateway implements AuthGateway {
   }
 }
 
-/// Pengganti backend profil anak. Menyimpan profil di memori per uid.
 class FakeProfileApi implements ProfileApi {
   final Map<String, ChildProfile> store = {};
-  ProfileLookup? forcedLookup; // mengesampingkan isi [store]
+  ProfileLookup? forcedLookup;
   ProfileApiException? registerError;
+  ProfileApiException? renameError;
+  final renamed = <String>[];
   final registered = <ChildDraft>[];
   int fetchCalls = 0;
   int _nextId = 1;
@@ -61,6 +83,12 @@ class FakeProfileApi implements ProfileApi {
     if (forcedLookup != null) return forcedLookup!;
     final profile = store[firebaseUid];
     return profile == null ? const ProfileNotFound() : ProfileFound(profile, const {});
+  }
+
+  @override
+  Future<void> updateChildName({required int childId, required String name}) async {
+    if (renameError != null) throw renameError!;
+    renamed.add('$childId:$name');
   }
 
   @override
@@ -95,7 +123,6 @@ class FakeSessionStore implements SessionStore {
   }
 }
 
-/// Paket lengkap untuk tes repository dan ViewModel.
 class AuthFixture {
   AuthFixture({AuthUser? signedInUser}) : gateway = FakeGateway(user: signedInUser) {
     repository = AuthRepository(gateway: gateway, api: api, session: session);
@@ -106,12 +133,23 @@ class AuthFixture {
   final session = FakeSessionStore();
   late final AuthRepository repository;
 
-  /// Menyiapkan profil yang sudah tersimpan di backend untuk [uid].
   ChildProfile seedProfile({String uid = 'uid-1', String name = 'Aira', int id = 7}) {
     final profile = ChildProfile(id: id, name: name, age: 3, gender: 'Girl', interests: const ['Space']);
     api.store[uid] = profile;
     return profile;
   }
+}
+
+class AccountFixture {
+  AccountFixture({bool hasPassword = true, String email = 'parent@example.com'})
+      : gateway = FakeGateway(user: AuthUser('uid-1', email)) {
+    gateway.hasPassword = hasPassword;
+    repository = AccountRepository(gateway: gateway, api: api);
+  }
+
+  final FakeGateway gateway;
+  final api = FakeProfileApi();
+  late final AccountRepository repository;
 }
 
 const childDraft = ChildDraft(
