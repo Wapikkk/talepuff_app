@@ -9,10 +9,11 @@ import '../../../ui/widgets/loading_screen/loading_mascot_slider.dart';
 import '../../../ui/widgets/loading_screen/loading_progress.dart';
 import '../../../ui/widgets/loading_screen/loading_text.dart';
 
-class LoadingScreenView extends StatefulWidget{
+class LoadingScreenView extends StatefulWidget {
   final Map<String, dynamic> payload;
+  final VoidCallback? onCreated;
 
-  const LoadingScreenView({super.key, required this.payload});
+  const LoadingScreenView({super.key, required this.payload, this.onCreated});
 
   @override
   State<LoadingScreenView> createState() => _LoadingScreenState();
@@ -23,7 +24,11 @@ class _LoadingScreenState extends State<LoadingScreenView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoadingViewModel>().startGeneratingStory(context, widget.payload);
+      context.read<LoadingViewModel>().startGeneratingStory(
+        context,
+        widget.payload,
+        onCreated: widget.onCreated,
+      );
     });
   }
 
@@ -49,7 +54,6 @@ class _LoadingScreenState extends State<LoadingScreenView> {
                 ],
               ),
             ),
-
           ],
         ),
       ),

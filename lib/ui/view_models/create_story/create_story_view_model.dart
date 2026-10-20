@@ -10,6 +10,7 @@ class CreateStoryViewModel extends ChangeNotifier {
   final List<String> _selectedMoods = [];
   String _description = '';
   bool _isLoading = false;
+  int _formVersion = 0;
 
   String get selectedCategory => _selectedCategory;
   String get characterName => _characterName;
@@ -17,6 +18,7 @@ class CreateStoryViewModel extends ChangeNotifier {
   List<String> get selectedMoods => _selectedMoods;
   String get description => _description;
   bool get isLoading => _isLoading;
+  int get formVersion => _formVersion;
 
   void setCategory(String category) {
     _selectedCategory = category;
@@ -45,6 +47,16 @@ class CreateStoryViewModel extends ChangeNotifier {
     _description = desc;
   }
 
+  void reset() {
+    _selectedCategory = '';
+    _characterName = '';
+    _storyLength = '';
+    _selectedMoods.clear();
+    _description = '';
+    _formVersion++;
+    notifyListeners();
+  }
+
   Map<String, dynamic> buildPayload({required int childId}) {
     return {
       "child_id": childId,
@@ -58,9 +70,15 @@ class CreateStoryViewModel extends ChangeNotifier {
   }
 
   Future<void> generateStory(BuildContext context) async {
-    if (_selectedCategory.isEmpty || _characterName.isEmpty || _storyLength.isEmpty) {
+    if (_selectedCategory.isEmpty ||
+        _characterName.isEmpty ||
+        _storyLength.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill the required fields (Category, Name, Length)")),
+        const SnackBar(
+          content: Text(
+            "Please fill the required fields (Category, Name, Length)",
+          ),
+        ),
       );
       return;
     }
@@ -68,7 +86,7 @@ class CreateStoryViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final activeChild = prefs.getInt('active_child_id');
     if (activeChild == null) {
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error: No active child profile found.")),
       );
@@ -81,11 +99,12 @@ class CreateStoryViewModel extends ChangeNotifier {
     try {
       final payload = buildPayload(childId: activeChild);
       debugPrint("Payload ready! move to Loading Screen...");
-      if(context.mounted){
+      if (context.mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => LoadingScreenView(payload: payload),
+            builder: (context) =>
+                LoadingScreenView(payload: payload, onCreated: reset),
           ),
         );
       }

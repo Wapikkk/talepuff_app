@@ -47,7 +47,12 @@ class StoryRepository {
     int offset = 0,
   }) async {
     try {
-      final page = await _api.list(childId: childId, tab: tab, query: query, offset: offset);
+      final page = await _api.list(
+        childId: childId,
+        tab: tab,
+        query: query,
+        offset: offset,
+      );
       return StoryListLoaded(page.stories, hasMore: page.hasMore);
     } on StoryApiException catch (e) {
       return StoryListFailed(_message(e));
@@ -65,8 +70,23 @@ class StoryRepository {
   Future<AccountResult> setFavorite(int id, bool favorite) async {
     try {
       await _api.setFavorite(id, favorite);
-      return AccountSuccess(favorite ? 'Added to favorites.' : 'Removed from favorites.', value: '$favorite');
+      return AccountSuccess(
+        favorite ? 'Added to favorites.' : 'Removed from favorites.',
+        value: '$favorite',
+      );
     } on StoryApiException catch (e) {
+      return AccountFailure(_message(e));
+    }
+  }
+
+  Future<AccountResult> delete(int id) async {
+    try {
+      await _api.delete(id);
+      return const AccountSuccess('Story deleted.');
+    } on StoryApiException catch (e) {
+      if (e.statusCode == 404 && !e.endpointMissing) {
+        return const AccountSuccess('Story deleted.');
+      }
       return AccountFailure(_message(e));
     }
   }

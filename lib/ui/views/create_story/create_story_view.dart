@@ -9,7 +9,7 @@ import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
 import 'package:provider/provider.dart';
 
-class CreateStoryView extends StatelessWidget{
+class CreateStoryView extends StatelessWidget {
   const CreateStoryView({super.key});
 
   @override
@@ -30,13 +30,17 @@ class CreateStoryView extends StatelessWidget{
                 top: false,
                 bottom: false,
                 child: SingleChildScrollView(
+                  key: ValueKey(viewModel.formVersion),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const CreateStoryHeader(),
 
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 10,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -44,26 +48,42 @@ class CreateStoryView extends StatelessWidget{
                             CustomInputField(
                               hint: "Custom Your Nickname",
                               onChanged: (value) {
-                                context.read<CreateStoryViewModel>().setCharacterName(value);
+                                context
+                                    .read<CreateStoryViewModel>()
+                                    .setCharacterName(value);
                               },
                             ),
 
                             const SectionTitle(title: "Story Length"),
                             ChoiceChipGroup(
-                              options: const ['3 Minutes', '5 Minutes', '7 Minutes'],
+                              options: const [
+                                '3 Minutes',
+                                '5 Minutes',
+                                '7 Minutes',
+                              ],
                               onSelected: (value) {
-                                context.read<CreateStoryViewModel>().setStoryLength(value);
+                                context
+                                    .read<CreateStoryViewModel>()
+                                    .setStoryLength(value);
                               },
                             ),
 
                             const SectionTitle(title: "Mood"),
                             ChoiceChipGroup(
                               options: [
-                                'Calm', 'Curious', 'Warm', 'Joyful',
-                                'Fantasy', 'Cozy', 'Brave', 'Nature'
+                                'Calm',
+                                'Curious',
+                                'Warm',
+                                'Joyful',
+                                'Fantasy',
+                                'Cozy',
+                                'Brave',
+                                'Nature',
                               ],
                               onSelected: (value) {
-                                context.read<CreateStoryViewModel>().toggleMood(value);
+                                context.read<CreateStoryViewModel>().toggleMood(
+                                  value,
+                                );
                               },
                             ),
 
@@ -72,7 +92,9 @@ class CreateStoryView extends StatelessWidget{
                               hint: "Optional, max 30 words",
                               maxLines: 4,
                               onChanged: (value) {
-                                context.read<CreateStoryViewModel>().setDescription(value);
+                                context
+                                    .read<CreateStoryViewModel>()
+                                    .setDescription(value);
                               },
                             ),
 
@@ -80,8 +102,10 @@ class CreateStoryView extends StatelessWidget{
                               onPressed: viewModel.isLoading
                                   ? () {}
                                   : () {
-                                context.read<CreateStoryViewModel>().generateStory(context);
-                              },
+                                      context
+                                          .read<CreateStoryViewModel>()
+                                          .generateStory(context);
+                                    },
                             ),
 
                             if (viewModel.isLoading)
@@ -91,7 +115,6 @@ class CreateStoryView extends StatelessWidget{
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 ),

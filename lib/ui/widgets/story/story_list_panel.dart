@@ -8,6 +8,7 @@ import '../../../data/models/story.dart';
 import '../../view_models/navbar_view_model.dart';
 import '../../view_models/story/story_filter_view_model.dart';
 import '../shared/top_banner.dart';
+import 'delete_story_dialog.dart';
 import 'story_card.dart';
 import 'story_filter_tabs.dart';
 
@@ -25,7 +26,8 @@ class _StoryListPanelState extends State<StoryListPanel> {
   void initState() {
     super.initState();
     _scroll.addListener(() {
-      if (_scroll.hasClients && _scroll.position.pixels >= _scroll.position.maxScrollExtent - 300) {
+      if (_scroll.hasClients &&
+          _scroll.position.pixels >= _scroll.position.maxScrollExtent - 300) {
         context.read<StoryFilterViewModel>().loadMore();
       }
     });
@@ -39,7 +41,11 @@ class _StoryListPanelState extends State<StoryListPanel> {
 
   Future<void> _openDetail(StorySummary story) async {
     final viewModel = context.read<StoryFilterViewModel>();
-    final changed = await Navigator.pushNamed(context, '/story_detail', arguments: story.id);
+    final changed = await Navigator.pushNamed(
+      context,
+      '/story_detail',
+      arguments: story.id,
+    );
     if (changed == true) viewModel.load();
   }
 
@@ -48,6 +54,23 @@ class _StoryListPanelState extends State<StoryListPanel> {
     final overlay = TopBanner.overlayOf(context);
     final result = await viewModel.toggleFavorite(story);
     if (result is AccountFailure) {
+      TopBanner.show(overlay, result.message, type: TopBannerType.error);
+    }
+  }
+
+  Future<void> _confirmDelete(StorySummary story) async {
+    final viewModel = context.read<StoryFilterViewModel>();
+    final overlay = TopBanner.overlayOf(context);
+    final confirmed = await DeleteStoryDialog.confirm(
+      context,
+      story.title.isEmpty ? 'Untitled story' : story.title,
+    );
+    if (!confirmed) return;
+
+    final result = await viewModel.deleteStory(story);
+    if (result is AccountSuccess) {
+      TopBanner.show(overlay, 'Story deleted');
+    } else if (result is AccountFailure) {
       TopBanner.show(overlay, result.message, type: TopBannerType.error);
     }
   }
@@ -74,7 +97,9 @@ class _StoryListPanelState extends State<StoryListPanel> {
 
   Widget _body(BuildContext context, StoryFilterViewModel viewModel) {
     if (viewModel.isLoading && viewModel.stories.isEmpty) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
     }
     if (viewModel.errorMessage != null && viewModel.stories.isEmpty) {
       return _buildMessage(
@@ -88,15 +113,28 @@ class _StoryListPanelState extends State<StoryListPanel> {
     return _buildGrid(viewModel);
   }
 
-  Widget _buildEmptyState(BuildContext context, StoryFilterViewModel viewModel) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    StoryFilterViewModel viewModel,
+  ) {
     if (viewModel.query.isNotEmpty) {
-      return _buildMessage(icon: Icons.search_off, text: 'No stories match "${viewModel.query}".');
+      return _buildMessage(
+        icon: Icons.search_off,
+        text: 'No stories match "${viewModel.query}".',
+      );
     }
     switch (viewModel.tab) {
       case StoryTab.favorites:
-        return _buildMessage(icon: Icons.favorite_border, text: 'No favorite stories yet.\nTap the heart on a story to keep it here.');
+        return _buildMessage(
+          icon: Icons.favorite_border,
+          text:
+              'No favorite stories yet.\nTap the heart on a story to keep it here.',
+        );
       case StoryTab.popular:
-        return _buildMessage(icon: Icons.trending_up, text: 'Stories you play the most will show up here.');
+        return _buildMessage(
+          icon: Icons.trending_up,
+          text: 'Stories you play the most will show up here.',
+        );
       case StoryTab.recent:
         return _buildMessage(
           icon: Icons.auto_stories,
@@ -124,7 +162,11 @@ class _StoryListPanelState extends State<StoryListPanel> {
             Text(
               text,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 24),
@@ -133,12 +175,21 @@ class _StoryListPanelState extends State<StoryListPanel> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF9A88B),
                   foregroundColor: AppColors.darkPurple,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
                 child: Text(
                   actionLabel,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppAssets.fontFamily, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppAssets.fontFamily,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
@@ -182,6 +233,8 @@ class _StoryListPanelState extends State<StoryListPanel> {
                   story: story,
                   onTap: () => _openDetail(story),
                   onFavorite: () => _toggleFavorite(story),
+                  onDelete: () => _confirmDelete(story),
+                  isDeleting: viewModel.isDeleting(story.id),
                 );
               },
             ),
@@ -190,7 +243,14 @@ class _StoryListPanelState extends State<StoryListPanel> {
         if (viewModel.isLoadingMore)
           const Padding(
             padding: EdgeInsets.only(bottom: 80, top: 8),
-            child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)),
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: Colors.white,
+              ),
+            ),
           ),
       ],
     );

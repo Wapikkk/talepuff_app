@@ -16,10 +16,13 @@ void main() {
       ..toggleMood('Brave')
       ..setDescription('  A trip to the moon  ');
 
-    test('always asks for Basic English, now that mixed English + Indonesian is gone', () {
-      expect(filled().buildPayload(childId: 7)['language'], 'Basic English');
-      expect(StoryDefaults.language, 'Basic English');
-    });
+    test(
+      'always asks for Basic English, now that mixed English + Indonesian is gone',
+      () {
+        expect(filled().buildPayload(childId: 7)['language'], 'Basic English');
+        expect(StoryDefaults.language, 'Basic English');
+      },
+    );
 
     test('carries the whole form, tidied up', () {
       expect(filled().buildPayload(childId: 7), {
@@ -33,20 +36,45 @@ void main() {
       });
     });
 
-    test('an unreadable length falls back to 3 minutes, and no moods or description are fine', () {
-      final payload = (CreateStoryViewModel()
-            ..setCategory('Daily')
-            ..setCharacterName('Aira')
-            ..setStoryLength('soon'))
-          .buildPayload(childId: 1);
+    test(
+      'an unreadable length falls back to 3 minutes, and no moods or description are fine',
+      () {
+        final payload =
+            (CreateStoryViewModel()
+                  ..setCategory('Daily')
+                  ..setCharacterName('Aira')
+                  ..setStoryLength('soon'))
+                .buildPayload(childId: 1);
 
-      expect(payload['length_minutes'], 3);
-      expect(payload['mood'], '');
-      expect(payload['description'], '');
-    });
+        expect(payload['length_minutes'], 3);
+        expect(payload['mood'], '');
+        expect(payload['description'], '');
+      },
+    );
   });
 
-  testWidgets('the Create form no longer offers a language choice', (tester) async {
+  test('reset empties the whole form and bumps the form version', () {
+    final vm = CreateStoryViewModel()
+      ..setCategory('Adventure')
+      ..setCharacterName('Aira')
+      ..setStoryLength('5 Minutes')
+      ..toggleMood('Calm')
+      ..setDescription('moon');
+    final before = vm.formVersion;
+
+    vm.reset();
+
+    expect(vm.selectedCategory, '');
+    expect(vm.characterName, '');
+    expect(vm.storyLength, '');
+    expect(vm.selectedMoods, isEmpty);
+    expect(vm.description, '');
+    expect(vm.formVersion, before + 1);
+  });
+
+  testWidgets('the Create form no longer offers a language choice', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
@@ -60,19 +88,25 @@ void main() {
     };
     addTearDown(() => FlutterError.onError = originalOnError);
 
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
-        ChangeNotifierProvider(create: (_) => NavbarViewModel()),
-      ],
-      child: const MaterialApp(home: Scaffold(body: CreateStoryView())),
-    ));
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
+          ChangeNotifierProvider(create: (_) => NavbarViewModel()),
+        ],
+        child: const MaterialApp(home: Scaffold(body: CreateStoryView())),
+      ),
+    );
     await tester.pump();
 
     expect(find.text('Language'), findsNothing);
     expect(find.text('Basic English'), findsNothing);
     expect(find.text('Mixed (EN + ID)'), findsNothing);
-    expect(find.text('Mood'), findsOneWidget, reason: 'the rest of the form is still there');
+    expect(
+      find.text('Mood'),
+      findsOneWidget,
+      reason: 'the rest of the form is still there',
+    );
     expect(find.text('Describe Your Story'), findsOneWidget);
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +15,10 @@ import 'package:talepuff_app/ui/views/story/story_view.dart';
 import '../support/fakes.dart';
 
 /// Layar ukuran ponsel (1080x2400 px pada 3x = 360x800 dp), bukan 800x600 bawaan.
-void phoneTest(String description, Future<void> Function(WidgetTester tester) body) {
+void phoneTest(
+  String description,
+  Future<void> Function(WidgetTester tester) body,
+) {
   testWidgets(description, (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3.0;
@@ -31,7 +36,8 @@ Future<void> settle(WidgetTester tester) async {
 
 class Harness {
   Harness(this.api) {
-    parent = ParentViewModel(photos: fakePhotos())..setInitiateData('7', null, 'Aira');
+    parent = ParentViewModel(photos: fakePhotos())
+      ..setInitiateData('7', null, 'Aira');
     childInfo = ChildInfoViewModel(repository: AuthFixture().repository)
       ..applyProfile(const ChildProfile(id: 7, name: 'Aira'));
     navbar = NavbarViewModel();
@@ -43,23 +49,29 @@ class Harness {
   late final NavbarViewModel navbar;
 
   Future<void> pump(WidgetTester tester) async {
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        Provider.value(value: fakeStories(api)),
-        ChangeNotifierProvider.value(value: parent),
-        ChangeNotifierProvider.value(value: childInfo),
-        ChangeNotifierProvider.value(value: navbar),
-      ],
-      child: MaterialApp(
-        home: const StoryView(),
-        routes: {'/story_detail': (_) => const StoryDetailView()},
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider.value(value: fakeStories(api)),
+          ChangeNotifierProvider.value(value: parent),
+          ChangeNotifierProvider.value(value: childInfo),
+          ChangeNotifierProvider.value(value: navbar),
+        ],
+        child: MaterialApp(
+          home: const StoryView(),
+          routes: {'/story_detail': (_) => const StoryDetailView()},
+        ),
       ),
-    ));
+    );
     await settle(tester);
   }
 }
 
-FakeStoryApi apiWith(List<StorySummary> recent, {List<StorySummary> favorites = const [], List<StorySummary> popular = const []}) {
+FakeStoryApi apiWith(
+  List<StorySummary> recent, {
+  List<StorySummary> favorites = const [],
+  List<StorySummary> popular = const [],
+}) {
   final api = FakeStoryApi();
   api.onList = (call) async {
     final stories = switch (call.tab) {
@@ -67,7 +79,13 @@ FakeStoryApi apiWith(List<StorySummary> recent, {List<StorySummary> favorites = 
       StoryTab.favorites => favorites,
       StoryTab.popular => popular,
     };
-    final matching = call.query.isEmpty ? stories : stories.where((s) => s.title.toLowerCase().contains(call.query.toLowerCase())).toList();
+    final matching = call.query.isEmpty
+        ? stories
+        : stories
+              .where(
+                (s) => s.title.toLowerCase().contains(call.query.toLowerCase()),
+              )
+              .toList();
     return StoryPage(matching, hasMore: false);
   };
   return api;
@@ -75,31 +93,60 @@ FakeStoryApi apiWith(List<StorySummary> recent, {List<StorySummary> favorites = 
 
 void main() {
   group('Story screen', () {
-    phoneTest('shows the real stories (title, how long ago, length) and none of the old sample data', (tester) async {
-      final api = apiWith([
-        makeStory(2, title: 'The Moon Rocket', theme: 'Adventure', minutes: 5, age: const Duration(minutes: 7)),
-        makeStory(1, title: 'The Sleeping Cloud', theme: 'Daily', minutes: 3, age: const Duration(hours: 3)),
-      ]);
-      await Harness(api).pump(tester);
+    phoneTest(
+      'shows the real stories (title, how long ago, length) and none of the old sample data',
+      (tester) async {
+        final api = apiWith([
+          makeStory(
+            2,
+            title: 'The Moon Rocket',
+            theme: 'Adventure',
+            minutes: 5,
+            age: const Duration(minutes: 7),
+          ),
+          makeStory(
+            1,
+            title: 'The Sleeping Cloud',
+            theme: 'Daily',
+            minutes: 3,
+            age: const Duration(hours: 3),
+          ),
+        ]);
+        await Harness(api).pump(tester);
 
-      expect(find.text('The Moon Rocket'), findsOneWidget);
-      expect(find.text('The Sleeping Cloud'), findsOneWidget);
-      expect(find.text('7 min ago'), findsOneWidget);
-      expect(find.text('3 h ago'), findsOneWidget);
-      expect(find.text('5 min'), findsOneWidget);
-      expect(find.text("Aira's stories"), findsOneWidget);
+        expect(find.text('The Moon Rocket'), findsOneWidget);
+        expect(find.text('The Sleeping Cloud'), findsOneWidget);
+        expect(find.text('7 min ago'), findsOneWidget);
+        expect(find.text('3 h ago'), findsOneWidget);
+        expect(find.text('5 min'), findsOneWidget);
+        expect(find.text("Aira's stories"), findsOneWidget);
 
-      expect(find.text("Aira's Space Adventure"), findsNothing, reason: 'the sample player card is gone');
-      expect(find.text('7 min ago'), findsOneWidget, reason: 'times come from the data, not a constant');
-    });
+        expect(
+          find.text("Aira's Space Adventure"),
+          findsNothing,
+          reason: 'the sample player card is gone',
+        );
+        expect(
+          find.text('7 min ago'),
+          findsOneWidget,
+          reason: 'times come from the data, not a constant',
+        );
+      },
+    );
 
-    phoneTest('a story just created appears first, because the page loads fresh each time it opens', (tester) async {
-      final api = apiWith([makeStory(5, title: 'Brand new', age: const Duration(seconds: 20)), makeStory(1)]);
-      await Harness(api).pump(tester);
+    phoneTest(
+      'a story just created appears first, because the page loads fresh each time it opens',
+      (tester) async {
+        final api = apiWith([
+          makeStory(5, title: 'Brand new', age: const Duration(seconds: 20)),
+          makeStory(1),
+        ]);
+        await Harness(api).pump(tester);
 
-      expect(find.text('Brand new'), findsOneWidget);
-      expect(find.text('Just now'), findsOneWidget);
-    });
+        expect(find.text('Brand new'), findsOneWidget);
+        expect(find.text('Just now'), findsOneWidget);
+      },
+    );
 
     phoneTest('empty states explain each tab', (tester) async {
       final harness = Harness(apiWith([]));
@@ -116,7 +163,9 @@ void main() {
       expect(find.textContaining('play the most'), findsOneWidget);
     });
 
-    phoneTest('the empty "Recent" state leads to the Create tab', (tester) async {
+    phoneTest('the empty "Recent" state leads to the Create tab', (
+      tester,
+    ) async {
       final harness = Harness(apiWith([]));
       await harness.pump(tester);
 
@@ -145,7 +194,9 @@ void main() {
       expect(find.text('Popular one'), findsOneWidget);
     });
 
-    phoneTest('a failed load shows the reason and "Try again" recovers', (tester) async {
+    phoneTest('a failed load shows the reason and "Try again" recovers', (
+      tester,
+    ) async {
       final api = apiWith([makeStory(1, title: 'Recovered')]);
       api.listError = const StoryApiException('down', statusCode: 500);
       await Harness(api).pump(tester);
@@ -161,46 +212,70 @@ void main() {
       expect(find.textContaining("Can't reach the server"), findsNothing);
     });
 
-    phoneTest('searching: type, wait, and only the matches remain; closing the search restores the list', (tester) async {
-      final api = apiWith([makeStory(1, title: 'The Moon Rocket'), makeStory(2, title: 'The Sleeping Cloud')]);
-      await Harness(api).pump(tester);
+    phoneTest(
+      'searching: type, wait, and only the matches remain; closing the search restores the list',
+      (tester) async {
+        final api = apiWith([
+          makeStory(1, title: 'The Moon Rocket'),
+          makeStory(2, title: 'The Sleeping Cloud'),
+        ]);
+        await Harness(api).pump(tester);
 
-      await tester.tap(find.byKey(const Key('open-search')));
-      await tester.pump();
-      await tester.enterText(find.byType(TextField), 'moon');
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pump();
+        await tester.tap(find.byKey(const Key('open-search')));
+        await tester.pump();
+        await tester.enterText(find.byType(TextField), 'moon');
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pump();
 
-      expect(find.text('The Moon Rocket'), findsOneWidget);
-      expect(find.text('The Sleeping Cloud'), findsNothing);
+        expect(find.text('The Moon Rocket'), findsOneWidget);
+        expect(find.text('The Sleeping Cloud'), findsNothing);
 
-      await tester.enterText(find.byType(TextField), 'zzz');
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pump();
-      expect(find.text('No stories match "zzz".'), findsOneWidget);
-    });
+        await tester.enterText(find.byType(TextField), 'zzz');
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pump();
+        expect(find.text('No stories match "zzz".'), findsOneWidget);
+      },
+    );
 
-    phoneTest('tapping the heart fills it at once; a server failure puts it back with a red banner', (tester) async {
-      final api = apiWith([makeStory(1, title: 'My story')]);
-      api.favoriteError = const StoryApiException('down', statusCode: 500);
-      await Harness(api).pump(tester);
+    phoneTest(
+      'tapping the heart fills it at once; a server failure puts it back with a red banner',
+      (tester) async {
+        final api = apiWith([makeStory(1, title: 'My story')]);
+        api.favoriteError = const StoryApiException('down', statusCode: 500);
+        await Harness(api).pump(tester);
 
-      final heart = find.byKey(const Key('favorite-1'));
-      expect(find.descendant(of: heart, matching: find.byIcon(Icons.favorite_border)), findsOneWidget);
+        final heart = find.byKey(const Key('favorite-1'));
+        expect(
+          find.descendant(
+            of: heart,
+            matching: find.byIcon(Icons.favorite_border),
+          ),
+          findsOneWidget,
+        );
 
-      await tester.tap(heart);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 600));
+        await tester.tap(heart);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
 
-      expect(find.descendant(of: heart, matching: find.byIcon(Icons.favorite_border)), findsOneWidget, reason: 'rolled back');
-      expect(find.textContaining("Can't reach the server"), findsOneWidget);
-      expect(find.byIcon(Icons.error), findsOneWidget);
+        expect(
+          find.descendant(
+            of: heart,
+            matching: find.byIcon(Icons.favorite_border),
+          ),
+          findsOneWidget,
+          reason: 'rolled back',
+        );
+        expect(find.textContaining("Can't reach the server"), findsOneWidget);
+        expect(find.byIcon(Icons.error), findsOneWidget);
 
-      await tester.pump(const Duration(seconds: 4));
-      await tester.pump(const Duration(seconds: 1));
-    });
+        await tester.pump(const Duration(seconds: 4));
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
 
-    phoneTest('a successful heart tap is saved and the heart stays filled', (tester) async {
+    phoneTest('a successful heart tap is saved and the heart stays filled', (
+      tester,
+    ) async {
       final api = apiWith([makeStory(1, title: 'My story')]);
       await Harness(api).pump(tester);
 
@@ -208,14 +283,144 @@ void main() {
       await settle(tester);
 
       expect(api.favoriteCalls, ['1:true']);
-      expect(find.descendant(of: find.byKey(const Key('favorite-1')), matching: find.byIcon(Icons.favorite)), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('favorite-1')),
+          matching: find.byIcon(Icons.favorite),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    phoneTest('the trash icon asks first, and Cancel keeps the story', (
+      tester,
+    ) async {
+      final api = apiWith([makeStory(1, title: 'My story')]);
+      await Harness(api).pump(tester);
+
+      await tester.tap(find.byKey(const Key('delete-1')));
+      await settle(tester);
+
+      expect(find.text('Delete this story?'), findsOneWidget);
+      expect(find.textContaining('"My story"'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cancel-delete')));
+      await settle(tester);
+
+      expect(api.deleteCalls, isEmpty);
+      expect(find.text('My story'), findsOneWidget);
+    });
+
+    phoneTest('confirming removes the card and shows the green banner', (
+      tester,
+    ) async {
+      final api = apiWith([
+        makeStory(1, title: 'My story'),
+        makeStory(2, title: 'Another one'),
+      ]);
+      await Harness(api).pump(tester);
+
+      await tester.tap(find.byKey(const Key('delete-1')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('confirm-delete')));
+      await settle(tester);
+
+      expect(api.deleteCalls, [1]);
+      expect(find.text('My story'), findsNothing);
+      expect(find.text('Another one'), findsOneWidget);
+      expect(find.text('Story deleted'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    phoneTest(
+      'a failed delete keeps the story and says why in the red banner',
+      (tester) async {
+        final api = apiWith([makeStory(1, title: 'My story')]);
+        api.deleteError = const StoryApiException('down', statusCode: 500);
+        await Harness(api).pump(tester);
+
+        await tester.tap(find.byKey(const Key('delete-1')));
+        await settle(tester);
+        await tester.tap(find.byKey(const Key('confirm-delete')));
+        await settle(tester);
+
+        expect(find.text('My story'), findsOneWidget);
+        expect(find.textContaining("Can't reach the server"), findsOneWidget);
+        expect(find.byIcon(Icons.error), findsOneWidget);
+
+        await tester.pump(const Duration(seconds: 4));
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+
+    phoneTest('while deleting, the card shows a spinner and taps are ignored', (
+      tester,
+    ) async {
+      final api = apiWith([makeStory(1, title: 'My story')]);
+      api.deleteGate = Completer<void>();
+      await Harness(api).pump(tester);
+
+      await tester.tap(find.byKey(const Key('delete-1')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('confirm-delete')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('delete-1')),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key('delete-1')));
+      await tester.pump();
+      expect(
+        find.text('Delete this story?'),
+        findsNothing,
+        reason: 'no second dialog',
+      );
+
+      api.deleteGate!.complete();
+      await settle(tester);
+      expect(api.deleteCalls, [1]);
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    phoneTest('a story that is already gone on the server is simply removed', (
+      tester,
+    ) async {
+      final api = apiWith([makeStory(1, title: 'My story')]);
+      api.deleteError = const StoryApiException('gone', statusCode: 404);
+      await Harness(api).pump(tester);
+
+      await tester.tap(find.byKey(const Key('delete-1')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('confirm-delete')));
+      await settle(tester);
+
+      expect(find.text('My story'), findsNothing);
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 1));
     });
   });
 
   group('Story detail', () {
-    phoneTest('opens from a card and shows the whole story in paragraphs', (tester) async {
-      final api = apiWith([makeStory(1, title: 'The Moon Rocket', theme: 'Adventure')]);
-      api.detail = makeDetail(1, content: 'Aira flies up.\n\nThe moon is bright.');
+    phoneTest('opens from a card and shows the whole story in paragraphs', (
+      tester,
+    ) async {
+      final api = apiWith([
+        makeStory(1, title: 'The Moon Rocket', theme: 'Adventure'),
+      ]);
+      api.detail = makeDetail(
+        1,
+        content: 'Aira flies up.\n\nThe moon is bright.',
+      );
       await Harness(api).pump(tester);
 
       await tester.tap(find.text('The Moon Rocket'));
@@ -242,25 +447,38 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     });
 
-    phoneTest('changing the favorite there refreshes the list when coming back', (tester) async {
-      final api = apiWith([makeStory(1)]);
-      await Harness(api).pump(tester);
-      final callsBefore = api.listCalls.length;
+    phoneTest(
+      'changing the favorite there refreshes the list when coming back',
+      (tester) async {
+        final api = apiWith([makeStory(1)]);
+        await Harness(api).pump(tester);
+        final callsBefore = api.listCalls.length;
 
-      await tester.tap(find.text('Story 1'));
-      await settle(tester);
-      await tester.tap(find.byKey(const Key('detail-favorite')));
-      await settle(tester);
-      expect(api.favoriteCalls, ['1:true']);
+        await tester.tap(find.text('Story 1'));
+        await settle(tester);
+        await tester.tap(find.byKey(const Key('detail-favorite')));
+        await settle(tester);
+        expect(api.favoriteCalls, ['1:true']);
 
-      await tester.tap(find.byIcon(Icons.arrow_back));
-      await settle(tester);
+        await tester.tap(find.byIcon(Icons.arrow_back));
+        await settle(tester);
 
-      expect(find.byKey(const Key('detail-favorite')), findsNothing, reason: 'back on the list');
-      expect(api.listCalls.length, callsBefore + 1, reason: 'the list was reloaded');
-    });
+        expect(
+          find.byKey(const Key('detail-favorite')),
+          findsNothing,
+          reason: 'back on the list',
+        );
+        expect(
+          api.listCalls.length,
+          callsBefore + 1,
+          reason: 'the list was reloaded',
+        );
+      },
+    );
 
-    phoneTest('going back without changing anything does not reload the list', (tester) async {
+    phoneTest('going back without changing anything does not reload the list', (
+      tester,
+    ) async {
       final api = apiWith([makeStory(1)]);
       await Harness(api).pump(tester);
       final callsBefore = api.listCalls.length;

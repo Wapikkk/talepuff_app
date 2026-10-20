@@ -9,9 +9,9 @@ class StoryFilterViewModel extends ChangeNotifier {
     required StoryRepository repository,
     required String? Function() childId,
     Duration searchDelay = const Duration(milliseconds: 350),
-  })  : _repository = repository,
-        _childId = childId,
-        _searchDelay = searchDelay;
+  }) : _repository = repository,
+       _childId = childId,
+       _searchDelay = searchDelay;
 
   final StoryRepository _repository;
   final String? Function() _childId;
@@ -27,6 +27,7 @@ class StoryFilterViewModel extends ChangeNotifier {
   String _query = '';
   String? errorMessage;
 
+  final Set<int> _deleting = {};
   int _request = 0;
   Timer? _debounce;
   bool _disposed = false;
@@ -40,10 +41,13 @@ class StoryFilterViewModel extends ChangeNotifier {
   String get query => _query;
   FocusNode get searchFocusNode => _searchFocusNode;
 
+  bool isDeleting(int id) => _deleting.contains(id);
+
   Future<void> load() async {
     final childId = int.tryParse(_childId() ?? '');
     if (childId == null) {
-      errorMessage = "Child's data has not been loaded yet. Please try again in a moment.";
+      errorMessage =
+          "Child's data has not been loaded yet. Please try again in a moment.";
       _isLoading = false;
       _notify();
       return;
@@ -55,7 +59,11 @@ class StoryFilterViewModel extends ChangeNotifier {
     errorMessage = null;
     _notify();
 
-    final result = await _repository.list(childId: childId, tab: _tab, query: _query);
+    final result = await _repository.list(
+      childId: childId,
+      tab: _tab,
+      query: _query,
+    );
     if (request != _request || _disposed) return;
 
     _isLoading = false;
@@ -103,7 +111,12 @@ class StoryFilterViewModel extends ChangeNotifier {
     _isLoadingMore = true;
     _notify();
 
-    final result = await _repository.list(childId: childId, tab: _tab, query: _query, offset: _stories.length);
+    final result = await _repository.list(
+      childId: childId,
+      tab: _tab,
+      query: _query,
+      offset: _stories.length,
+    );
     if (request != _request || _disposed) return;
 
     _isLoadingMore = false;
@@ -143,6 +156,19 @@ class StoryFilterViewModel extends ChangeNotifier {
       _stories = rolledBack;
       _notify();
     }
+    return result;
+  }
+
+  Future<AccountResult?> deleteStory(StorySummary story) async {
+    if (!_deleting.add(story.id)) return null;
+    _notify();
+
+    final result = await _repository.delete(story.id);
+    _deleting.remove(story.id);
+    if (result is AccountSuccess) {
+      _stories = _stories.where((item) => item.id != story.id).toList();
+    }
+    _notify();
     return result;
   }
 
