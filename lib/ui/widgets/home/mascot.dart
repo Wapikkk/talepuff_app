@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:talepuff_app/core/app_assets.dart';
+import 'package:talepuff_app/core/mascots.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 
 class Mascot extends StatelessWidget{
@@ -12,22 +12,7 @@ class Mascot extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    String assetPath;
-    // 1. Logika pemilihan asset tetap sama seperti permintaanmu
-    switch (mascotId) {
-      case 'OrangUtan':
-        assetPath = AppAssets.mascotOrangUtan;
-        break;
-      case 'Badak':
-        assetPath = AppAssets.mascotBadak;
-        break;
-      case 'Burung':
-        assetPath = AppAssets.mascotBurung;
-        break;
-      case 'Harimau':
-      default:
-        assetPath = AppAssets.mascotHarimauSumatera;
-    }
+    final assetPath = Mascots.byId(mascotId).asset;
 
     final double mascotWidth = MediaQuery.of(context).size.width * 0.75;
 

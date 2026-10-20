@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/app_assets.dart';
+import '../../../core/mascots.dart';
 import '../../../core/validators.dart';
 import '../../../data/models/auth_result.dart';
 import '../../../data/models/child_profile.dart';
@@ -14,6 +15,8 @@ class ChildInfoViewModel extends ChangeNotifier {
   Timer? _errorTimer;
 
   String _childName = "Friend", name = '', age = '', selectedGender = '';
+  String _mascotId = Mascots.defaultId;
+  String get mascotId => _mascotId;
   String get childName => name.trim().isNotEmpty ? name.trim() : _childName;
   String? errorMessage;
   bool isLoading = false;
@@ -105,28 +108,35 @@ class ChildInfoViewModel extends ChangeNotifier {
     selectedGender = '';
     _selectedInterests.clear();
     _childName = "Friend";
+    _mascotId = Mascots.defaultId;
     errorMessage = null;
     isLoading = false;
     notifyListeners();
   }
 
-  /// Memuat ulang nama, usia, dan minat dari profil tersimpan. Profil tersimpan adalah sumber
-  /// kebenarannya, jadi draf formulir pendaftaran yang tersisa ikut dikosongkan.
-  Future<void> syncChildData() async {
-    final lookup = await _repository.currentProfile();
-    if (lookup is! ProfileFound) {
-      debugPrint('[auth] syncChildData skipped: ${lookup.runtimeType}');
-      return;
-    }
-
-    final profile = lookup.profile;
+  void applyProfile(ChildProfile profile) {
     if (profile.name.isNotEmpty) _childName = profile.name;
     name = '';
     age = profile.age?.toString() ?? '';
     _selectedInterests
       ..clear()
       ..addAll(profile.interests);
+    _mascotId = profile.mascotId;
     notifyListeners();
+  }
+
+  void applyMascot(String mascotId) {
+    _mascotId = Mascots.isValid(mascotId) ? mascotId : Mascots.defaultId;
+    notifyListeners();
+  }
+
+  Future<void> syncChildData() async {
+    final lookup = await _repository.currentProfile();
+    if (lookup is! ProfileFound) {
+      debugPrint('[auth] syncChildData skipped: ${lookup.runtimeType}');
+      return;
+    }
+    applyProfile(lookup.profile);
   }
 
   bool _validate() {

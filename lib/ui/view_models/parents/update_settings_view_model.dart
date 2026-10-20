@@ -25,6 +25,15 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     return _run(() => _repository.updateChildName(childId: id, name: name));
   }
 
+  Future<AccountResult?> updateMascot({required String? childId, required String mascotId}) {
+    final id = int.tryParse(childId ?? '');
+    if (id == null) {
+      _setError("Child's data has not been loaded yet. Please try again in a moment.");
+      return Future.value(const AccountFailure(''));
+    }
+    return _run(() => _repository.updateMascot(childId: id, mascotId: mascotId));
+  }
+
   Future<AccountResult?> changePassword({
     required String currentPassword,
     required String newPassword,

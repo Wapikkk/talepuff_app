@@ -1,3 +1,5 @@
+import '../../core/mascots.dart';
+
 class ChildProfile {
   final int id;
   final String name;
@@ -5,6 +7,7 @@ class ChildProfile {
   final String gender;
   final List<String> interests;
   final String? photoUrl;
+  final String mascotId;
 
   const ChildProfile({
     required this.id,
@@ -13,6 +16,7 @@ class ChildProfile {
     this.gender = '',
     this.interests = const [],
     this.photoUrl,
+    this.mascotId = Mascots.defaultId,
   });
 
   factory ChildProfile.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,7 @@ class ChildProfile {
 
     final rawAge = json['age'];
     final rawPhoto = json['profile_photo_url']?.toString();
+    final rawMascot = json['mascot_id']?.toString();
     return ChildProfile(
       id: id,
       name: json['name']?.toString() ?? '',
@@ -29,6 +34,7 @@ class ChildProfile {
       gender: json['gender']?.toString() ?? '',
       interests: (json['interests'] as List?)?.map((e) => e.toString()).toList() ?? const [],
       photoUrl: (rawPhoto == null || rawPhoto.isEmpty) ? null : rawPhoto,
+      mascotId: Mascots.isValid(rawMascot ?? '') ? rawMascot! : Mascots.defaultId,
     );
   }
 }

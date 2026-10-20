@@ -5,9 +5,7 @@ import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
 import 'package:provider/provider.dart';
 
 class CreateNewStoryBtn extends StatelessWidget{
-  final VoidCallback onPressed;
-
-  const CreateNewStoryBtn ({super.key, required this.onPressed});
+  const CreateNewStoryBtn ({super.key});
 
   @override
   Widget build(BuildContext context) {

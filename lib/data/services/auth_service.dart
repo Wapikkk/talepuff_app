@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../models/child_profile.dart';
+import 'api_errors.dart';
 
 sealed class ProfileLookup {
   const ProfileLookup();
@@ -32,7 +33,8 @@ class ProfileUnreachable extends ProfileLookup {
 class ProfileApiException implements Exception {
   final String message;
   final int? statusCode;
-  const ProfileApiException(this.message, {this.statusCode});
+  final bool endpointMissing;
+  const ProfileApiException(this.message, {this.statusCode, this.endpointMissing = false});
 
   @override
   String toString() => 'ProfileApiException($message, status: $statusCode)';
@@ -48,6 +50,8 @@ abstract class ProfileApi {
   });
 
   Future<void> updateChildName({required int childId, required String name});
+
+  Future<void> updateMascot({required int childId, required String mascotId});
 }
 
 class AuthService implements ProfileApi {
@@ -85,7 +89,7 @@ class AuthService implements ProfileApi {
           .timeout(_timeout * 2);
 
       if (response.statusCode != 200) {
-        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode);
+        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode, endpointMissing: isMissingEndpoint(response));
       }
     } on TimeoutException {
       throw const ProfileApiException('Server did not respond in time');
@@ -107,7 +111,29 @@ class AuthService implements ProfileApi {
           )
           .timeout(_timeout);
       if (response.statusCode != 200) {
-        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode);
+        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode, endpointMissing: isMissingEndpoint(response));
+      }
+    } on TimeoutException {
+      throw const ProfileApiException('Server did not respond in time');
+    } on SocketException catch (e) {
+      throw ProfileApiException('Cannot reach the server: ${e.message}');
+    } on http.ClientException catch (e) {
+      throw ProfileApiException('Cannot reach the server: ${e.message}');
+    }
+  }
+
+  @override
+  Future<void> updateMascot({required int childId, required String mascotId}) async {
+    try {
+      final response = await _client
+          .put(
+            Uri.parse('$_baseUrl/child/$childId/mascot'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'mascot_id': mascotId}),
+          )
+          .timeout(_timeout);
+      if (response.statusCode != 200) {
+        throw ProfileApiException('Server responded ${response.statusCode}', statusCode: response.statusCode, endpointMissing: isMissingEndpoint(response));
       }
     } on TimeoutException {
       throw const ProfileApiException('Server did not respond in time');

@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
+import '../../../data/models/story.dart';
 import '../../view_models/story/story_filter_view_model.dart';
 
-class StoryFilterTabs extends StatelessWidget{
+class StoryFilterTabs extends StatelessWidget {
   const StoryFilterTabs({super.key});
 
-  Widget _buildTabButton(BuildContext context, String title, StoryFilterViewModel viewModel) {
-    bool isSelected = viewModel.selectedTab == title;
+  Widget _buildTabButton(StoryTab tab, StoryFilterViewModel viewModel) {
+    final bool isSelected = viewModel.tab == tab;
 
     return GestureDetector(
-      onTap: () => viewModel.setTab(title),
+      key: Key('tab-${tab.name}'),
+      onTap: () => viewModel.setTab(tab),
       child: Container(
         padding: isSelected
             ? const EdgeInsets.symmetric(horizontal: 20, vertical: 8)
             : const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         decoration: isSelected
             ? BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.topRight,
-            colors: [
-              AppColors.btnStory,
-              AppColors.primaryPurple,
-            ],
-          ) : null,
-          borderRadius: BorderRadius.circular(20),
-        )
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.topRight,
+                  colors: [
+                    AppColors.btnStory,
+                    AppColors.primaryPurple,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+              )
             : null,
         child: Text(
-          title,
+          tab.label,
           style: TextStyle(
             color: isSelected ? Colors.black : Colors.white70,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -58,6 +59,8 @@ class StoryFilterTabs extends StatelessWidget{
           ),
           child: TextField(
             focusNode: viewModel.searchFocusNode,
+            onChanged: viewModel.search,
+            textInputAction: TextInputAction.search,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: "Search stories...",
@@ -74,16 +77,23 @@ class StoryFilterTabs extends StatelessWidget{
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            _buildTabButton(context, "Recent", viewModel),
-            const SizedBox(width: 16),
-            _buildTabButton(context, "Favorites", viewModel),
-            const SizedBox(width: 16),
-            _buildTabButton(context, "Popular", viewModel),
-          ],
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                for (final tab in StoryTab.values) ...[
+                  _buildTabButton(tab, viewModel),
+                  if (tab != StoryTab.values.last) const SizedBox(width: 16),
+                ],
+              ],
+            ),
+          ),
         ),
+        const SizedBox(width: 12),
         GestureDetector(
+          key: const Key('open-search'),
           onTap: () {
             viewModel.toggleSearch(true);
             viewModel.searchFocusNode.requestFocus();

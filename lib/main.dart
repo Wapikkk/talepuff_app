@@ -13,7 +13,6 @@ import 'data/services/session_store.dart';
 import 'ui/view_models/startup_view_model.dart';
 import 'ui/views/startup/startup_view.dart';
 
-import 'ui/view_models/home/home_view_model.dart';
 import '/ui/view_models/navbar_view_model.dart';
 import '/ui/views/parent/parent_view.dart';
 import 'ui/view_models/parents/parent_view_model.dart';
@@ -36,10 +35,13 @@ import 'ui/view_models/parents/settings_view_model.dart';
 
 import 'ui/view_models/parents/update_settings_view_model.dart';
 import 'ui/views/settings/update_password_view.dart';
+import 'ui/views/settings/update_mascot_view.dart';
 import 'ui/views/settings/feedback_view.dart';
 import 'ui/views/settings/legal_view.dart';
 import 'ui/view_models/settings/feedback_view_model.dart';
 import 'data/repositories/feedback_repository.dart';
+import 'data/repositories/profile_photo_repository.dart';
+import 'data/services/profile_photo_service.dart';
 import 'data/repositories/legal_repository.dart';
 import 'data/services/app_info.dart';
 import 'data/services/feedback_service.dart';
@@ -50,8 +52,9 @@ import 'ui/views/create_story/create_story_view.dart';
 import 'ui/view_models/create_story/create_story_view_model.dart';
 
 import 'ui/views/story/story_view.dart';
-import 'ui/view_models/story/story_view_model.dart';
-import 'ui/view_models/story/story_filter_view_model.dart';
+import 'ui/views/story/story_detail_view.dart';
+import 'data/repositories/story_repository.dart';
+import 'data/services/story_service.dart';
 
 import 'ui/view_models/loading/loading_view_model.dart';
 import 'ui/view_models/voice/voice_selection_dialog/voice_selection_dialog_view_model.dart';
@@ -79,6 +82,10 @@ void main() async {
       providers: [
         Provider<http.Client>.value(value: httpClient),
         Provider<AppInfo>.value(value: appInfo),
+        Provider<StoryRepository>.value(value: StoryRepository(api: StoryService(client: httpClient))),
+        Provider<ProfilePhotoRepository>.value(
+          value: ProfilePhotoRepository(api: ProfilePhotoService(client: httpClient)),
+        ),
         Provider<LegalRepository>.value(value: LegalRepository()),
         Provider<FeedbackRepository>.value(
           value: FeedbackRepository(api: FeedbackService(client: httpClient), appInfo: appInfo),
@@ -90,7 +97,6 @@ void main() async {
         Provider<AccountRepository>.value(value: accountRepository),
         ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
-        ChangeNotifierProvider(create: (context) => HomeViewModel(repository: context.read<AuthRepository>())),
         ChangeNotifierProvider(
           create: (context) => ChildInfoViewModel(repository: context.read<AuthRepository>()),
         ),
@@ -106,14 +112,12 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => StartupViewModel(repository: context.read<AuthRepository>()),
         ),
-        ChangeNotifierProvider(create: (context) => ParentViewModel(client: context.read<http.Client>())),
+        ChangeNotifierProvider(create: (context) => ParentViewModel(photos: context.read<ProfilePhotoRepository>())),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(
           create: (context) => UpdateSettingsViewModel(repository: context.read<AccountRepository>()),
         ),
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
-        ChangeNotifierProvider(create: (_) => StoryViewModel()),
-        ChangeNotifierProvider(create: (_) => StoryFilterViewModel()),
         ChangeNotifierProvider(create: (context) => LoadingViewModel(client: context.read<http.Client>())),
         ChangeNotifierProvider(create: (_) => VoiceSelectionDialogViewModel()),
         ChangeNotifierProvider(create: (context) => VoiceResultViewModel(client: context.read<http.Client>())),
@@ -144,9 +148,11 @@ class MyApp extends StatelessWidget {
         '/update_child_name': (context) => const UpdateChildNameView(),
         '/update_email': (context) => const UpdateEmailView(),
         '/update_password': (context) => const UpdatePasswordView(),
+        '/update_mascot': (context) => const UpdateMascotView(),
         '/feedback': (context) => const FeedbackView(),
         '/legal': (context) => const LegalView(),
         '/story': (context) => const StoryView(),
+        '/story_detail': (context) => const StoryDetailView(),
         '/create_story': (context) => const CreateStoryView(),
       },
     );

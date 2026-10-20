@@ -5,10 +5,13 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+import 'api_errors.dart';
+
 class FeedbackApiException implements Exception {
   final String message;
   final int? statusCode;
-  const FeedbackApiException(this.message, {this.statusCode});
+  final bool endpointMissing;
+  const FeedbackApiException(this.message, {this.statusCode, this.endpointMissing = false});
 
   @override
   String toString() => 'FeedbackApiException($message, status: $statusCode)';
@@ -41,7 +44,7 @@ class FeedbackService implements FeedbackApi {
           )
           .timeout(_timeout);
       if (response.statusCode != 201 && response.statusCode != 200) {
-        throw FeedbackApiException('Server responded ${response.statusCode}', statusCode: response.statusCode);
+        throw FeedbackApiException('Server responded ${response.statusCode}', statusCode: response.statusCode, endpointMissing: isMissingEndpoint(response));
       }
     } on TimeoutException {
       throw const FeedbackApiException('Server did not respond in time');

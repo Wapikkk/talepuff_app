@@ -1,16 +1,15 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import '/core/app_colors.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../data/models/account_result.dart';
+import '../../../data/repositories/profile_photo_repository.dart';
 
 class ParentViewModel extends ChangeNotifier{
-  ParentViewModel({required http.Client client}) : _client = client;
+  ParentViewModel({required ProfilePhotoRepository photos}) : _photos = photos;
 
-  final http.Client _client;
+  final ProfilePhotoRepository _photos;
 
   File? _imagePreview; get imagePreview => _imagePreview;
   String? _currentChildId, _currentChildName, _currentPhotoUrl;
@@ -36,26 +35,23 @@ class ParentViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> handleImageSelection(ImageSource source, String childId) async{
+  Future<AccountResult?> handleImageSelection(ImageSource source, String childId) async{
+    if (_isUploading) return null;
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
         maxWidth: 1024,
         imageQuality: 80,
       );
+      if (pickedFile == null) return null;
 
-      if(pickedFile != null) {
-        final croppedFile = await _cropImage(pickedFile.path);
+      final croppedFile = await _cropImage(pickedFile.path);
+      if (croppedFile == null) return null;
 
-        if(croppedFile != null) {
-          _imagePreview = File(croppedFile.path);
-          notifyListeners();
-
-          await uploadProfilePhoto(childId);
-        }
-      }
+      return uploadProfilePhoto(childId, File(croppedFile.path));
     } catch (e) {
       debugPrint("Error picking image: $e");
+      return const AccountFailure("We couldn't open the photo picker. Please try again.");
     }
   }
 
@@ -86,40 +82,39 @@ class ParentViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  void removePhoto() {
-    _imagePreview = null;
-    _currentPhotoUrl = null;
+  Future<AccountResult?> uploadProfilePhoto(String childId, File file) async {
+    final id = int.tryParse(childId);
+    if (id == null) return const AccountFailure("Child's data has not been loaded yet. Please try again in a moment.");
+    if (_isUploading) return null;
+
+    _imagePreview = file;
+    _isUploading = true;
     notifyListeners();
+    try {
+      final result = await _photos.upload(childId: id, filePath: file.path);
+      if (result is AccountSuccess) _currentPhotoUrl = result.value;
+      return result;
+    } finally {
+      _imagePreview = null;
+      _isUploading = false;
+      notifyListeners();
+    }
   }
 
-  Future<void> uploadProfilePhoto(String childId) async {
-    if (_imagePreview == null) return;
+  Future<AccountResult?> removePhoto() async {
+    final id = int.tryParse(_currentChildId ?? '');
+    if (id == null) return const AccountFailure("Child's data has not been loaded yet. Please try again in a moment.");
+    if (_isUploading) return null;
 
     _isUploading = true;
     notifyListeners();
-
     try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse("${dotenv.env['API_BASE_URL'] ?? ''}/api/child/upload-photo/$childId"),
-      );
-
-      request.files.add(await http.MultipartFile.fromPath('photo', _imagePreview!.path));
-      final response = await _client.send(request);
-
-      if (response.statusCode == 200) {
-        debugPrint("Upload successful!");
-        final respStr = await response.stream.bytesToString();
-        final Map<String, dynamic> data = json.decode(respStr);
-
-        _currentPhotoUrl = data['url'];
+      final result = await _photos.remove(childId: id);
+      if (result is AccountSuccess) {
         _imagePreview = null;
-        notifyListeners();
-      } else {
-        debugPrint("Upload Gagal: ${response.statusCode}");
+        _currentPhotoUrl = null;
       }
-    } catch (e) {
-      debugPrint("Error Upload: $e");
+      return result;
     } finally {
       _isUploading = false;
       notifyListeners();
@@ -137,6 +132,4 @@ class ParentViewModel extends ChangeNotifier{
     _isAM = am;
     notifyListeners();
   }
-
-
 }

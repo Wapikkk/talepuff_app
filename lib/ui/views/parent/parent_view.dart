@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../ui/widgets/parent/bedtime_story.dart';
-import '../../../ui/widgets/parent/divider_line.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../view_models/auth/login_view_model.dart';
 import '../../../ui/widgets/app_background.dart';
@@ -9,7 +7,6 @@ import '../../../ui/widgets/stars_overlay.dart';
 import '../../../ui/widgets/cloud_overlay.dart';
 import '../../../ui/widgets/parent/child_profile_info.dart';
 import '../../../ui/widgets/parent/parent_header.dart';
-import '../../../ui/widgets/parent/usage_statistic_card.dart';
 import '../../../ui/widgets/parent/child_profile_photo.dart';
 
 class ParentView extends StatelessWidget {
@@ -54,19 +51,6 @@ class ParentView extends StatelessWidget {
                             age: childVM.age,
                             email: loginVM.email,
                             interests: childVM.selectedInterests,
-                          ),
-
-                          const DividerLine(),
-
-                          const BedtimeStory(),
-
-                          const DividerLine(),
-
-                          UsageStatisticCard(
-                            childName: childVM.childName,
-                            storiesCount: 10,
-                            minutesCount: 30,
-                            moodCount: 5,
                           ),
 
                           const SizedBox(height: 5),

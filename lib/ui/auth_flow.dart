@@ -31,6 +31,7 @@ class AuthFlow {
   static void enterApp(BuildContext context, SignedIn session) {
     context.read<LoginViewModel>().applySession(session);
     context.read<NavbarViewModel>().reset();
+    context.read<ChildInfoViewModel>().applyProfile(session.profile);
     context.read<ParentViewModel>().setInitiateData(
           session.profile.id.toString(),
           session.profile.photoUrl,

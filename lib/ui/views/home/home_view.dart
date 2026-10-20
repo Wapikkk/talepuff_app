@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/home/home_view_model.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../widgets/home/create_new_story_btn.dart';
 import '../../widgets/home/play_last_story_btn.dart';
@@ -8,8 +7,8 @@ import '../../widgets/app_background.dart';
 import '../../widgets/cloud_overlay.dart';
 import '../../widgets/stars_overlay.dart';
 import '../../widgets/home/home_greeting.dart';
-import '../../widgets/home/home_search_bar.dart';
 import '../../widgets/home/mascot.dart';
+import '../../widgets/shared/top_banner.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -24,7 +23,6 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChildInfoViewModel>().syncChildData();
-      context.read<HomeViewModel>().prepareHomeData();
     });
   }
 
@@ -61,18 +59,14 @@ class _HomeViewState extends State<HomeView> {
                           children: [
                             SizedBox(height: 30),
                             HomeGreeting(),
-                            SizedBox(height: 16),
-                            HomeSearchBar(),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
-                      Consumer<HomeViewModel>(
-                        builder: (context, hvm, child) {
-                          return Mascot(mascotId: hvm.activeMascot);
-                        },
+                      Consumer<ChildInfoViewModel>(
+                        builder: (context, childInfo, child) => Mascot(mascotId: childInfo.mascotId),
                       ),
 
                       const Spacer(),
@@ -82,14 +76,14 @@ class _HomeViewState extends State<HomeView> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             PlayLastStoryBtn(
-                              onPressed: () {
-                              },
+                              onPressed: () => TopBanner.show(
+                                TopBanner.overlayOf(context),
+                                'Play Last Story is coming soon!',
+                                type: TopBannerType.info,
+                              ),
                             ),
                             const SizedBox(height: 16),
-                            CreateNewStoryBtn(
-                              onPressed: () {
-                              },
-                            ),
+                            const CreateNewStoryBtn(),
                           ],
                         ),
                       ),

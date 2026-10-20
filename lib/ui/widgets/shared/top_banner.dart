@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
 
+enum TopBannerType { success, error, info }
+
 class TopBanner {
   TopBanner._();
 
@@ -13,6 +15,7 @@ class TopBanner {
     OverlayState overlay,
     String message, {
     Duration duration = const Duration(seconds: 3),
+    TopBannerType type = TopBannerType.success,
   }) {
     _current?.remove();
     late final OverlayEntry entry;
@@ -20,6 +23,7 @@ class TopBanner {
       builder: (_) => _TopBannerView(
         message: message,
         duration: duration,
+        type: type,
         onDismissed: () {
           if (entry.mounted) entry.remove();
           if (identical(_current, entry)) _current = null;
@@ -34,11 +38,13 @@ class TopBanner {
 class _TopBannerView extends StatefulWidget {
   final String message;
   final Duration duration;
+  final TopBannerType type;
   final VoidCallback onDismissed;
 
   const _TopBannerView({
     required this.message,
     required this.duration,
+    required this.type,
     required this.onDismissed,
   });
 
@@ -47,7 +53,22 @@ class _TopBannerView extends StatefulWidget {
 }
 
 class _TopBannerViewState extends State<_TopBannerView> with SingleTickerProviderStateMixin {
-  static const _background = Color(0xFF1F9D6B);
+  static const _successBackground = Color(0xFF1F9D6B);
+  static const _errorBackground = Color(0xFFC93C4B);
+
+  static const _infoBackground = Color(0xFF4A3F7A);
+
+  Color get _background => switch (widget.type) {
+        TopBannerType.success => _successBackground,
+        TopBannerType.error => _errorBackground,
+        TopBannerType.info => _infoBackground,
+      };
+
+  IconData get _icon => switch (widget.type) {
+        TopBannerType.success => Icons.check_circle,
+        TopBannerType.error => Icons.error,
+        TopBannerType.info => Icons.info,
+      };
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -113,7 +134,7 @@ class _TopBannerViewState extends State<_TopBannerView> with SingleTickerProvide
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                          Icon(_icon, color: Colors.white, size: 24),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
