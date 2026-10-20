@@ -17,6 +17,9 @@ enum AuthGatewayError {
   tooManyRequests,
   network,
   cancelled,
+  invalidEmail,
+  requiresRecentLogin,
+  sessionExpired,
   unknown,
 }
 
@@ -29,21 +32,21 @@ class AuthFailure implements Exception {
   String toString() => 'AuthFailure($error${detail == null ? '' : ', $detail'})';
 }
 
-/// Satu-satunya pintu ke Firebase Auth dan Google Sign-In. Dipisah dari AuthRepository agar
-/// logika autentikasi bisa diuji tanpa plugin.
 abstract class AuthGateway {
   AuthUser? get currentUser;
 
-  /// Menunggu Firebase selesai memulihkan sesi tersimpan, lalu mengembalikan penggunanya.
   Future<AuthUser?> restoreUser();
-
   Future<AuthUser> signUpWithEmail(String email, String password);
   Future<AuthUser> signInWithEmail(String email, String password);
-
-  /// Melempar [AuthFailure] dengan `cancelled` bila pengguna menutup pemilih akun.
   Future<AuthUser> signInWithGoogle();
 
   Future<void> signOut();
+
+  bool get usesPassword;
+
+  Future<String?> idToken();
+  Future<void> changePassword({required String currentPassword, required String newPassword});
+  Future<void> requestEmailChange({required String currentPassword, required String newEmail});
 }
 
 class FirebaseAuthGateway implements AuthGateway {
@@ -100,9 +103,59 @@ class FirebaseAuthGateway implements AuthGateway {
   }
 
   @override
+  Future<String?> idToken() async {
+    try {
+      return await _auth.currentUser?.getIdToken();
+    } on FirebaseAuthException catch (e) {
+      debugPrint('[auth] could not get an ID token: ${e.code}');
+      return null;
+    }
+  }
+
+  @override
+  bool get usesPassword =>
+      _auth.currentUser?.providerData.any((info) => info.providerId == EmailAuthProvider.PROVIDER_ID) ?? false;
+
+  @override
+  Future<void> changePassword({required String currentPassword, required String newPassword}) {
+    return _withUser((user) async {
+      await _reauthenticate(user, currentPassword);
+      await user.updatePassword(newPassword);
+    });
+  }
+
+  @override
+  Future<void> requestEmailChange({required String currentPassword, required String newEmail}) {
+    return _withUser((user) async {
+      await _reauthenticate(user, currentPassword);
+      await user.verifyBeforeUpdateEmail(newEmail);
+    });
+  }
+
+  Future<void> _reauthenticate(User user, String currentPassword) {
+    final email = user.email;
+    if (email == null) throw const AuthFailure(AuthGatewayError.unknown, 'This account has no email address.');
+    return user.reauthenticateWithCredential(
+      EmailAuthProvider.credential(email: email, password: currentPassword),
+    );
+  }
+
+  Future<void> _withUser(Future<void> Function(User user) action) async {
+    final user = _auth.currentUser;
+    if (user == null) throw const AuthFailure(AuthGatewayError.sessionExpired);
+    try {
+      await action(user);
+    } on FirebaseAuthException catch (e) {
+      throw _mapFirebase(e);
+    } on PlatformException catch (e) {
+      throw _mapPlatform(e);
+    } on TypeError catch (e) {
+      debugPrint('[auth] plugin TypeError after the call (treated as completed): $e');
+    }
+  }
+
+  @override
   Future<void> signOut() async {
-    // Keluar dari Google juga, agar masuk berikutnya menampilkan pemilih akun
-    // (bukan otomatis memakai akun sebelumnya).
     try {
       await _google.signOut();
     } catch (e) {
@@ -111,11 +164,6 @@ class FirebaseAuthGateway implements AuthGateway {
     await _auth.signOut();
   }
 
-  /// Menjalankan [action] lalu memastikan sesi Firebase benar-benar milik pengguna yang diharapkan.
-  ///
-  /// Plugin firebase_auth versi ini kadang melempar error cast (Pigeon) SETELAH operasi berhasil.
-  /// Untuk kasus itu kita memeriksa `currentUser`; email yang diharapkan dicocokkan agar sesi lama
-  /// milik orang lain tidak keliru dianggap hasil operasi ini.
   Future<AuthUser> _perform(Future<void> Function() action, {required String expectedEmail}) async {
     try {
       await action();
@@ -142,12 +190,18 @@ class FirebaseAuthGateway implements AuthGateway {
         return const AuthFailure(AuthGatewayError.emailInUse);
       case 'invalid-credential':
       case 'wrong-password':
-      case 'invalid-email':
         return const AuthFailure(AuthGatewayError.invalidCredentials);
+      case 'invalid-email':
+        return const AuthFailure(AuthGatewayError.invalidEmail);
       case 'user-not-found':
         return const AuthFailure(AuthGatewayError.userNotFound);
       case 'weak-password':
         return const AuthFailure(AuthGatewayError.weakPassword);
+      case 'requires-recent-login':
+        return const AuthFailure(AuthGatewayError.requiresRecentLogin);
+      case 'user-token-expired':
+      case 'user-disabled':
+        return const AuthFailure(AuthGatewayError.sessionExpired);
       case 'too-many-requests':
         return const AuthFailure(AuthGatewayError.tooManyRequests);
       case 'network-request-failed':

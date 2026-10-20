@@ -19,6 +19,31 @@ void fill(ChildInfoViewModel vm) => vm
   ..selectedInterests.add('Space');
 
 void main() {
+  group('child name rule (same as the server and the story generator)', () {
+    test('a name the story would replace with "Pip" makes the form invalid', () {
+      final vm = make(AuthFixture());
+      fill(vm);
+      expect(vm.isFormValid, isTrue);
+
+      for (final bad in ['Aira 2', 'Aira!', '2Aira', 'A' * 31]) {
+        vm.name = bad;
+        expect(vm.isFormValid, isFalse, reason: bad);
+        expect(vm.nameError, isNotNull, reason: bad);
+      }
+    });
+
+    test('saving shows the name message instead of the generic one', () async {
+      final f = AuthFixture(signedInUser: const AuthUser('uid-1', null));
+      final vm = make(f);
+      fill(vm);
+      vm.name = 'Aira 2';
+
+      expect(await vm.completeProfile(), isNull);
+      expect(vm.errorMessage, contains('letters'));
+      expect(f.api.registered, isEmpty, reason: 'the server would reject it with a 400 anyway');
+    });
+  });
+
   group('form validity', () {
     test('needs a name, a gender and at least one interest', () {
       final vm = make(AuthFixture());

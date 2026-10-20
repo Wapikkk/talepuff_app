@@ -14,6 +14,21 @@ class AuthValidators {
     return null;
   }
 
+  static const int maxChildNameLength = 30;
+  static final RegExp _childName = RegExp(r"^[A-Za-z][A-Za-z' \-]*$");
+
+  static String? childName(String value) {
+    final text = value.trim();
+    if (text.isEmpty) return "Child's name is required!";
+    if (text.length > maxChildNameLength) {
+      return 'Name must be at most $maxChildNameLength characters.';
+    }
+    if (!_childName.hasMatch(text)) {
+      return "Use letters only (spaces, ' and - are allowed), starting with a letter.";
+    }
+    return null;
+  }
+
   static String? newPassword(String value) {
     final text = value.trim();
     if (text.isEmpty) return 'Password is required!';

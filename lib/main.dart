@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'data/repositories/account_repository.dart';
 import 'data/repositories/auth_repository.dart';
+import 'data/services/authenticated_client.dart';
 import 'data/services/auth_gateway.dart';
 import 'data/services/auth_service.dart';
 import 'data/services/session_store.dart';
@@ -51,15 +54,24 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await dotenv.load(fileName: ".env");
+  final gateway = FirebaseAuthGateway();
+  final httpClient = AuthenticatedClient(
+    idToken: gateway.idToken,
+    baseUrl: () => dotenv.env['API_BASE_URL'] ?? '',
+  );
+  final api = AuthService(client: httpClient);
   final authRepository = AuthRepository(
-    gateway: FirebaseAuthGateway(),
-    api: AuthService(),
+    gateway: gateway,
+    api: api,
     session: SharedPrefsSessionStore(),
   );
+  final accountRepository = AccountRepository(gateway: gateway, api: api);
   runApp(
     MultiProvider(
       providers: [
+        Provider<http.Client>.value(value: httpClient),
         Provider<AuthRepository>.value(value: authRepository),
+        Provider<AccountRepository>.value(value: accountRepository),
         ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
@@ -78,15 +90,17 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => StartupViewModel(repository: context.read<AuthRepository>()),
         ),
-        ChangeNotifierProvider(create: (_) => ParentViewModel()),
+        ChangeNotifierProvider(create: (context) => ParentViewModel(client: context.read<http.Client>())),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
-        ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
+        ChangeNotifierProvider(
+          create: (context) => UpdateSettingsViewModel(repository: context.read<AccountRepository>()),
+        ),
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryViewModel()),
         ChangeNotifierProvider(create: (_) => StoryFilterViewModel()),
-        ChangeNotifierProvider(create: (_) => LoadingViewModel()),
+        ChangeNotifierProvider(create: (context) => LoadingViewModel(client: context.read<http.Client>())),
         ChangeNotifierProvider(create: (_) => VoiceSelectionDialogViewModel()),
-        ChangeNotifierProvider(create: (_) => VoiceResultViewModel()),
+        ChangeNotifierProvider(create: (context) => VoiceResultViewModel(client: context.read<http.Client>())),
       ],
       child: const MyApp(),
     ),

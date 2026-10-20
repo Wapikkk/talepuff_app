@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/app_assets.dart';
+import '../../../core/validators.dart';
 import '../../../data/models/auth_result.dart';
 import '../../../data/models/child_profile.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -47,7 +48,9 @@ class ChildInfoViewModel extends ChangeNotifier {
   bool get _hasMandatoryFields =>
       name.trim().isNotEmpty && selectedGender.isNotEmpty && selectedInterests.isNotEmpty;
 
-  bool get isFormValid => _hasMandatoryFields && ageError == null;
+  String? get nameError => name.trim().isEmpty ? null : AuthValidators.childName(name);
+
+  bool get isFormValid => _hasMandatoryFields && nameError == null && ageError == null;
 
   ChildDraft toDraft() => ChildDraft(
         name: name.trim(),
@@ -94,6 +97,12 @@ class ChildInfoViewModel extends ChangeNotifier {
     }
   }
 
+  void applySavedName(String newName) {
+    _childName = newName.trim();
+    name = '';
+    notifyListeners();
+  }
+
   void reset() {
     name = '';
     age = '';
@@ -128,11 +137,9 @@ class ChildInfoViewModel extends ChangeNotifier {
     }
   }
 
-  // ---------- internal ----------
-
   bool _validate() {
     if (isFormValid) return true;
-    _showError(_hasMandatoryFields ? ageError! : 'Please fill in all mandatory fields!');
+    _showError(_hasMandatoryFields ? (nameError ?? ageError!) : 'Please fill in all mandatory fields!');
     return false;
   }
 

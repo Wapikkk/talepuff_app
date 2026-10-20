@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
+import '../../view_models/parents/update_settings_view_model.dart';
 
 class AccountSettings extends StatelessWidget{
   const AccountSettings ({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final canManageCredentials = context.watch<UpdateSettingsViewModel>().canManageCredentials;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,16 +30,18 @@ class AccountSettings extends StatelessWidget{
           title: "Child's Name",
           onTap: () => Navigator.pushNamed(context, '/update_child_name'),
         ),
-        _buildSettingItem(
-          context: context,
-          title: 'Email',
-          onTap: () => Navigator.pushNamed(context, '/update_email'),
-        ),
-        _buildSettingItem(
-          context: context,
-          title: 'Update Password',
-          onTap: () => Navigator.pushNamed(context, '/update_password'),
-        ),
+        if (canManageCredentials) ...[
+          _buildSettingItem(
+            context: context,
+            title: 'Email',
+            onTap: () => Navigator.pushNamed(context, '/update_email'),
+          ),
+          _buildSettingItem(
+            context: context,
+            title: 'Update Password',
+            onTap: () => Navigator.pushNamed(context, '/update_password'),
+          ),
+        ],
       ],
     );
   }
