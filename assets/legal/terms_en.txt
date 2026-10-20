@@ -1,0 +1,33 @@
+# Terms and Conditions
+Last updated: 20 October 2026
+
+## 1. About TalePuff
+TalePuff is a bedtime-story app for young children, used together with the TalePuff storytelling device. It is operated for parents and guardians. By creating an account you confirm that you are an adult and the parent or legal guardian of the child whose profile you create.
+
+## 2. Your account
+- You are responsible for keeping your login details secure and for everything that happens under your account.
+- Give accurate information and do not use someone else's account.
+- You can stop using TalePuff at any time. To close your account and have its data deleted, contact us (see section 9).
+
+## 3. AI-generated stories
+- Stories are written by an artificial-intelligence model from the details you enter, such as the character's name, theme, mood, length and an optional description.
+- We apply safety checks, but AI-generated content can still contain mistakes or unsuitable text. A parent or guardian should review a story before sharing it with a child.
+- Do not enter personal details (such as addresses or phone numbers) or inappropriate content in the story description.
+
+## 4. Acceptable use
+Do not misuse the service. This includes trying to access other people's data, disrupting the service, or using it to create harmful or unlawful content.
+
+## 5. Your content
+You keep ownership of what you enter. You may use the stories created for you for personal, non-commercial purposes. You allow us to store and process your content only as needed to run TalePuff for you.
+
+## 6. The TalePuff device
+The device plays stories over your local network. You are responsible for placing and using it safely, including keeping the volume at a level that is comfortable for your child.
+
+## 7. Availability and changes
+TalePuff is provided "as is". We may change, pause or stop features, and we may update these terms. If you keep using the app after an update, you accept the updated terms.
+
+## 8. Limitation of liability
+To the extent allowed by law, TalePuff is not liable for indirect or consequential damages arising from the use of the app, including from AI-generated content. Nothing in these terms limits any right that cannot be limited by law.
+
+## 9. Contact
+Questions about these terms: {{CONTACT_EMAIL}}. You can also use Settings > Send Feedback.

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/app_assets.dart';
 import '../../../core/validators.dart';
@@ -9,12 +8,9 @@ import '../../../data/repositories/auth_repository.dart';
 import '../../../data/services/auth_service.dart';
 
 class ChildInfoViewModel extends ChangeNotifier {
-  ChildInfoViewModel({required AuthRepository repository, AuthService? authService})
-      : _repository = repository,
-        _authService = authService ?? AuthService();
+  ChildInfoViewModel({required AuthRepository repository}) : _repository = repository;
 
   final AuthRepository _repository;
-  final AuthService _authService;
   Timer? _errorTimer;
 
   String _childName = "Friend", name = '', age = '', selectedGender = '';
@@ -114,27 +110,23 @@ class ChildInfoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Memuat ulang nama, usia, dan minat dari profil tersimpan. Profil tersimpan adalah sumber
+  /// kebenarannya, jadi draf formulir pendaftaran yang tersisa ikut dikosongkan.
   Future<void> syncChildData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final data = await _authService.getChildInfo(user.uid);
-      if (data != null) {
-        if (data['name'] != null) {
-          _childName = data['name'];
-        }
-
-        if (data['age'] != null) {
-          age = data['age'].toString();
-        }
-
-        if (data['interests'] != null) {
-          _selectedInterests.clear();
-          _selectedInterests.addAll(List<String>.from(data['interests']));
-        }
-
-        notifyListeners();
-      }
+    final lookup = await _repository.currentProfile();
+    if (lookup is! ProfileFound) {
+      debugPrint('[auth] syncChildData skipped: ${lookup.runtimeType}');
+      return;
     }
+
+    final profile = lookup.profile;
+    if (profile.name.isNotEmpty) _childName = profile.name;
+    name = '';
+    age = profile.age?.toString() ?? '';
+    _selectedInterests
+      ..clear()
+      ..addAll(profile.interests);
+    notifyListeners();
   }
 
   bool _validate() {

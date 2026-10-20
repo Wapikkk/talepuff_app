@@ -1,0 +1,42 @@
+# Privacy Policy
+Last updated: 20 October 2026
+
+## 1. What this policy covers
+This policy explains what information TalePuff collects, how it is used and who handles it. It is written for parents and guardians. We do not knowingly collect information directly from children: a parent or guardian creates the account and the child's profile.
+
+## 2. Information we collect
+- Account: your email address and a unique account ID. If you sign in with Google, we receive the email address of your Google account.
+- Child profile: your child's name, and optionally their age, gender, interests and a profile photo.
+- Stories: the details you enter to create a story (character name, theme, mood, length, language and an optional description), the generated story text and the generated audio file.
+- Feedback: messages you send through Settings > Send Feedback, together with the app version.
+- Preferences: settings such as the volume limit are stored on your phone.
+
+We do not use advertising or third-party analytics tools in the app.
+
+## 3. How we use it
+We use this information to create your account and sign you in, to write stories for your child, to turn stories into audio, to play them on your TalePuff device, to answer your feedback and to keep the service secure.
+
+## 4. Who handles your information
+- Sign-in: Firebase Authentication, a service of Google, handles email and Google sign-in.
+- Story writing: stories are currently written by an AI model that runs on our own server. The details you enter are not sent to an outside AI provider.
+- Audio: to create the audio, the text of a story is sent to an online text-to-speech service operated by Microsoft. Story text can therefore leave our servers for this purpose.
+
+We do not sell your information and we do not share it for advertising.
+
+## 5. The TalePuff device
+When a story is played, a link to its audio is sent to your TalePuff device through a messaging service (MQTT), and the device plays the audio.
+
+## 6. Storage and security
+Your data is stored on our servers. Requests to our servers for your profile and stories require you to be signed in. No system is perfectly secure, and we cannot guarantee absolute security.
+
+## 7. Your choices
+You can ask us to give you a copy of your data, to correct it, or to delete it, including your child's profile and stories, by contacting us. We keep your data while your account is active and delete it when you ask us to.
+
+## 8. Children
+TalePuff is meant to be used by parents and guardians. You decide what information to give about your child, and we use it only to provide the service. If you believe a child has given us information without a parent's consent, contact us and we will delete it.
+
+## 9. Changes to this policy
+We may update this policy. The date at the top shows when it last changed, and we will tell you in the app about important changes.
+
+## 10. Contact
+Questions about privacy: {{CONTACT_EMAIL}}. You can also use Settings > Send Feedback.

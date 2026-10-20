@@ -120,6 +120,13 @@ class AuthRepository {
     return _registerThenEnter(user, child);
   }
 
+  /// Profil anak untuk pengguna yang sedang masuk, lewat API bertoken. Tanpa pengguna -> ProfileNotFound.
+  Future<ProfileLookup> currentProfile() async {
+    final user = _gateway.currentUser;
+    if (user == null) return const ProfileNotFound();
+    return _api.fetchProfile(user.uid);
+  }
+
   Future<void> signOut() async {
     await _gateway.signOut();
     await _session.clear();

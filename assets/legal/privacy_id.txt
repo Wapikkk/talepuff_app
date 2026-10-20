@@ -1,0 +1,42 @@
+# Kebijakan Privasi
+Terakhir diperbarui: 20 Oktober 2026
+
+## 1. Cakupan kebijakan ini
+Kebijakan ini menjelaskan informasi apa yang dikumpulkan TalePuff, bagaimana informasi itu dipakai, dan siapa yang menanganinya. Kebijakan ini ditulis untuk orang tua dan wali. Kami tidak dengan sengaja mengumpulkan informasi langsung dari anak-anak: akun dan profil anak dibuat oleh orang tua atau wali.
+
+## 2. Informasi yang kami kumpulkan
+- Akun: alamat email Anda dan ID akun unik. Jika Anda masuk dengan Google, kami menerima alamat email akun Google Anda.
+- Profil anak: nama anak Anda, serta secara opsional usia, jenis kelamin, minat, dan foto profil.
+- Cerita: detail yang Anda isi untuk membuat cerita (nama karakter, tema, suasana, durasi, bahasa, dan deskripsi opsional), teks cerita yang dihasilkan, dan berkas audio yang dihasilkan.
+- Masukan: pesan yang Anda kirim lewat Pengaturan > Send Feedback, beserta versi aplikasi.
+- Preferensi: pengaturan seperti batas volume disimpan di ponsel Anda.
+
+Kami tidak memakai alat iklan atau analitik pihak ketiga di dalam aplikasi.
+
+## 3. Cara kami memakainya
+Kami memakai informasi ini untuk membuat akun dan memasukkan Anda, menulis cerita untuk anak Anda, mengubah cerita menjadi audio, memutarnya di perangkat TalePuff Anda, menjawab masukan Anda, dan menjaga keamanan layanan.
+
+## 4. Siapa yang menangani informasi Anda
+- Masuk akun: Firebase Authentication, layanan milik Google, menangani masuk dengan email dan Google.
+- Penulisan cerita: saat ini cerita ditulis oleh model AI yang berjalan di server kami sendiri. Detail yang Anda isi tidak dikirim ke penyedia AI di luar.
+- Audio: untuk membuat audio, teks cerita dikirim ke layanan teks-ke-suara daring yang dioperasikan Microsoft. Karena itu, teks cerita dapat keluar dari server kami untuk keperluan ini.
+
+Kami tidak menjual informasi Anda dan tidak membagikannya untuk iklan.
+
+## 5. Perangkat TalePuff
+Saat cerita diputar, tautan ke audionya dikirim ke perangkat TalePuff Anda melalui layanan pesan (MQTT), lalu perangkat memutar audionya.
+
+## 6. Penyimpanan dan keamanan
+Data Anda disimpan di server kami. Permintaan ke server kami untuk profil dan cerita Anda mengharuskan Anda sudah masuk. Tidak ada sistem yang sepenuhnya aman, dan kami tidak dapat menjamin keamanan mutlak.
+
+## 7. Pilihan Anda
+Anda dapat meminta kami memberikan salinan data Anda, memperbaikinya, atau menghapusnya, termasuk profil dan cerita anak Anda, dengan menghubungi kami. Kami menyimpan data Anda selama akun aktif dan menghapusnya saat Anda memintanya.
+
+## 8. Anak-anak
+TalePuff dimaksudkan untuk dipakai oleh orang tua dan wali. Anda yang menentukan informasi apa yang diberikan tentang anak Anda, dan kami memakainya hanya untuk menyediakan layanan. Jika Anda yakin seorang anak memberikan informasi kepada kami tanpa persetujuan orang tua, hubungi kami dan kami akan menghapusnya.
+
+## 9. Perubahan kebijakan ini
+Kami dapat memperbarui kebijakan ini. Tanggal di bagian atas menunjukkan kapan terakhir diubah, dan kami akan memberi tahu perubahan penting lewat aplikasi.
+
+## 10. Kontak
+Pertanyaan tentang privasi: {{CONTACT_EMAIL}}. Anda juga dapat memakai Pengaturan > Send Feedback.

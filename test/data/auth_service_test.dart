@@ -164,11 +164,4 @@ void main() {
     });
   });
 
-  test('legacy getChildInfo returns the raw map when found and null otherwise', () async {
-    final found = serviceWith((_) async => http.Response(jsonEncode({'ID': 1, 'name': 'A'}), 200));
-    expect((await found.getChildInfo('u'))?['name'], 'A');
-
-    final missing = serviceWith((_) async => http.Response('', 404));
-    expect(await missing.getChildInfo('u'), isNull);
-  });
 }

@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
+import '../../../data/models/legal_document.dart';
+import '../../../data/services/app_info.dart';
 
-class About extends StatelessWidget{
-  const About ({super.key});
+class About extends StatefulWidget {
+  const About({super.key});
+
+  @override
+  State<About> createState() => _AboutState();
+}
+
+class _AboutState extends State<About> {
+  late final Future<String> _version = context.read<AppInfo>().versionLabel();
 
   @override
   Widget build(BuildContext context) {
@@ -20,36 +30,32 @@ class About extends StatelessWidget{
           ),
         ),
         const SizedBox(height: 8),
-
         _buildAboutItem(
           title: 'Version',
-          trailing: const Text(
-            '1.0',
-            style: TextStyle(
-              color: AppColors.slideBubble,
-              fontSize: 16,
-              fontFamily: AppAssets.fontFamily,
-              fontWeight: FontWeight.bold,
+          trailing: FutureBuilder<String>(
+            future: _version,
+            builder: (context, snapshot) => Text(
+              snapshot.data ?? '',
+              style: const TextStyle(
+                color: AppColors.slideBubble,
+                fontSize: 16,
+                fontFamily: AppAssets.fontFamily,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
         _buildAboutItem(
           title: 'Send Feedback',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/feedback'),
         ),
         _buildAboutItem(
           title: 'Terms and Conditions',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.terms),
         ),
         _buildAboutItem(
           title: 'Privacy Policy',
-          onTap: () {
-
-          },
+          onTap: () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.privacy),
         ),
       ],
     );
@@ -59,7 +65,7 @@ class About extends StatelessWidget{
     required String title,
     Widget? trailing,
     VoidCallback? onTap,
-  }){
+  }) {
     return Column(
       children: [
         ListTile(
@@ -73,10 +79,11 @@ class About extends StatelessWidget{
               fontFamily: AppAssets.fontFamily,
             ),
           ),
-          trailing: trailing ?? const Icon(
-            Icons.chevron_right,
-            color: AppColors.slideBubble,
-          ),
+          trailing: trailing ??
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.slideBubble,
+              ),
           onTap: onTap,
         ),
         const Divider(
