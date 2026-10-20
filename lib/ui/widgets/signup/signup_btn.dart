@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../data/models/auth_result.dart';
+import '../../auth_flow.dart';
 import '../../view_models/auth/signup_view_model.dart';
-import 'package:talepuff_app/core/app_assets.dart';
+import '../shared/auth_button.dart';
 
 class SignUpBtn extends StatelessWidget {
   const SignUpBtn({super.key});
@@ -12,52 +14,33 @@ class SignUpBtn extends StatelessWidget {
 
     return Column(
       children: [
-        _buildBtn(
-            "Sign Up",
-            Colors.white,
-            Colors.black,
-            (){
-              FocusManager.instance.primaryFocus?.unfocus();
-              viewModel.signUpManual(context);
-            },
+        AuthButton(
+          label: 'Sign Up',
+          background: Colors.white,
+          foreground: Colors.black,
+          isBusy: viewModel.isLoading,
+          showSpinner: viewModel.activeMethod == AuthMethod.email,
+          onPressed: () => _submit(context, viewModel.signUpManual),
         ),
-
         const SizedBox(height: 12),
-        _buildBtn(
-            "Sign Up with Google",
-            const Color(0xFFFF8C39),
-            Colors.white,
-              () {
-            FocusManager.instance.primaryFocus?.unfocus();
-            viewModel.signUpWithGoogle(context);
-          },
+        AuthButton(
+          label: 'Sign Up with Google',
+          background: const Color(0xFFFF8C39),
+          isBusy: viewModel.isLoading,
+          showSpinner: viewModel.activeMethod == AuthMethod.google,
+          onPressed: () => _submit(context, viewModel.signUpWithGoogle),
         ),
       ],
     );
   }
 
-  Widget _buildBtn(String text, Color bgColor, Color textColor, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15)
-          ),
-        ),
-        child: Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              fontFamily: AppAssets.fontFamily,
-            ),
-        ),
-      ),
-    );
+  Future<void> _submit(BuildContext context, Future<AuthResult> Function() action) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await action();
+    if (!context.mounted) {
+      debugPrint('[auth] result ${result.runtimeType} dropped: the screen was already closed');
+      return;
+    }
+    AuthFlow.proceed(context, result);
   }
 }

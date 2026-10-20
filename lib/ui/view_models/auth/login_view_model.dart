@@ -1,24 +1,39 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../data/services/auth_service.dart';
-import '../parents/parent_view_model.dart';
+import 'dart:async';
 
-class LoginViewModel extends ChangeNotifier{
-  final AuthService _authService = AuthService();
-  String? _currentChildId, _currentPhotoUrl, _childName, errorMessage;
-  String? get currentChildId => _currentChildId; get currentPhotoUrl => _currentPhotoUrl; get childName => _childName;
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../data/models/auth_result.dart';
+import '../../../data/repositories/auth_repository.dart';
+
+/// Logika layar login, sekaligus pemegang data sesi yang dibaca layar lain
+/// (`currentChildId`, `currentPhotoUrl`, `childName`, `email`) lewat [applySession].
+class LoginViewModel extends ChangeNotifier {
+  LoginViewModel({required AuthRepository repository}) : _repository = repository;
+
+  static const savedEmailKey = 'saved_email';
+
+  final AuthRepository _repository;
+  Timer? _errorTimer;
+
+  String? _currentChildId, _currentPhotoUrl, _childName;
+  String? get currentChildId => _currentChildId;
+  String? get currentPhotoUrl => _currentPhotoUrl;
+  String? get childName => _childName;
+
+  String? errorMessage;
   String email = '', password = '';
-  bool rememberMe = false, isLoading = false, _isPasswordObscured = true;
+  bool rememberMe = false;
+  bool _isPasswordObscured = true;
   bool get isPasswordObscured => _isPasswordObscured;
+
+  AuthMethod? _activeMethod;
+  AuthMethod? get activeMethod => _activeMethod;
+  bool get isLoading => _activeMethod != null;
 
   Future<void> loadSavedEmail() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('saved_email');
-
-    debugPrint("DEBUG VM: Email that found in SharedPreferences: '$savedEmail'");
-
+    final savedEmail = prefs.getString(savedEmailKey);
     if (savedEmail != null && savedEmail.isNotEmpty) {
       email = savedEmail;
       rememberMe = true;
@@ -48,114 +63,98 @@ class LoginViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> login(BuildContext context) async {
+  Future<AuthResult> login() async {
     if (email.trim().isEmpty || password.trim().isEmpty) {
-      _setErrorMessage("Email and Password are required!");
-      return;
+      return _reject('Email and Password are required!');
     }
+    final emailError = _emailError(email);
+    if (emailError != null) return _reject(emailError);
 
-    final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(email.trim())) {
-      _setErrorMessage("Invalid email format, please check again!");
-      return;
-    }
+    return _run(AuthMethod.email, () => _repository.signInWithEmail(email.trim(), password.trim()),
+        remember: true);
+  }
 
+  Future<AuthResult> loginWithGoogle() => _run(AuthMethod.google, _repository.continueWithGoogle);
+
+  /// Mengisi data sesi setelah masuk berhasil.
+  void applySession(SignedIn session) {
+    _currentChildId = session.profile.id.toString();
+    _currentPhotoUrl = session.profile.photoUrl;
+    _childName = session.profile.name;
+    if (session.email != null) email = session.email!;
+    password = '';
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await _repository.signOut();
+    _currentChildId = null;
+    _currentPhotoUrl = null;
+    _childName = null;
+    email = '';
+    password = '';
+    rememberMe = false;
+    errorMessage = null;
+    notifyListeners();
+  }
+
+  // ---------- internal ----------
+
+  String? _emailError(String value) {
+    // Pemeriksaan format yang sama dengan pendaftaran, tanpa aturan kata sandi
+    // (kata sandi lama tetap boleh dipakai untuk masuk).
+    return RegExp(r'^[\w.+-]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(value.trim())
+        ? null
+        : 'Invalid email format, please check again!';
+  }
+
+  Future<AuthResult> _run(
+    AuthMethod method,
+    Future<AuthResult> Function() action, {
+    bool remember = false,
+  }) async {
+    if (isLoading) return const AuthCancelled(); // abaikan ketukan ganda
+    _activeMethod = method;
+    errorMessage = null;
+    notifyListeners();
     try {
-      isLoading = true;
-      notifyListeners();
-
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
-
-      if(!context.mounted) return;
-      await _handleSuccessfulLogin(context);
-
-    } on FirebaseAuthException catch (e) {
-
-      if (e.code == 'user-not-found') {
-        _setErrorMessage("Don't have an account, please sign up first!");
-      } else {
-        _setErrorMessage("Incorrect Email and Password, Please Try Again!");
-      }
-
-    } catch (e) {
-      debugPrint("ERROR SYSTEM: $e");
-      if(!context.mounted) return;
-      if (FirebaseAuth.instance.currentUser != null) {
-        debugPrint("User success login to background, next to backend...");
-        await _handleSuccessfulLogin(context);
-      } else {
-        _setErrorMessage("An unexpected error occurred");
-      }
+      final result = await action();
+      if (result is AuthFailed) _setErrorMessage(result.message);
+      if (remember && (result is SignedIn || result is NeedsProfile)) await _persistEmail();
+      return result;
     } finally {
-      isLoading = false;
+      _activeMethod = null;
       notifyListeners();
+    }
+  }
+
+  AuthResult _reject(String message) {
+    _setErrorMessage(message);
+    return AuthFailed(message, AuthFailureReason.invalidInput);
+  }
+
+  Future<void> _persistEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString(savedEmailKey, email.trim());
+    } else {
+      await prefs.remove(savedEmailKey);
     }
   }
 
   void _setErrorMessage(String message) {
     errorMessage = message;
     notifyListeners();
-    Future.delayed(const Duration(seconds: 3), () {
+    _errorTimer?.cancel();
+    _errorTimer = Timer(const Duration(seconds: 3), () {
       errorMessage = null;
       notifyListeners();
     });
   }
 
-  Future<void> _handleSuccessfulLogin(BuildContext context) async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    if (rememberMe) {
-      await prefs.setString('saved_email', email.trim());
-      debugPrint("DEBUG: BERHASIL SIMPAN ke prefs: ${email.trim()}");
-    } else {
-      await prefs.remove('saved_email');
-    }
-
-    final childData = await _authService.getChildInfo(user.uid);
-    if (childData == null) {
-      _setErrorMessage("Please fill child's information first");
-      return;
-    }
-
-    _currentChildId = childData['ID']?.toString() ?? childData['id']?.toString();
-    _currentPhotoUrl = childData['profile_photo_url'];
-    _childName = childData['name'];
-    notifyListeners();
-
-    if (_currentChildId != null) {
-      await prefs.setInt('active_child_id', int.parse(_currentChildId!));
-      debugPrint("DEBUG: Child ID saved to local: $_currentChildId");
-    }
-
-    if (context.mounted) {
-      Provider.of<ParentViewModel>(context, listen: false)
-        .setInitiateData(_currentChildId, _currentPhotoUrl, _childName);
-      Navigator.pushReplacementNamed(context, '/main_nav');
-    }
-  }
-
-  Future<void> logout(BuildContext context) async {
-    try {
-      await FirebaseAuth.instance.signOut();
-
-      _currentChildId = null;
-      _currentPhotoUrl = null;
-      email = '';
-      password = '';
-      rememberMe = false;
-      notifyListeners();
-
-      if (context.mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-      }
-    } catch (e) {
-      debugPrint("Error saat logout: $e");
-    }
+  @override
+  void dispose() {
+    _errorTimer?.cancel();
+    super.dispose();
   }
 }

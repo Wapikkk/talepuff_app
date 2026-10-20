@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 import 'package:provider/provider.dart';
 import '../shared/app_ui_helper.dart';
@@ -49,6 +50,11 @@ class _NameAgeInputState extends State<NameAgeInput> {
         AppUIHelper.buildTextField(
           controller: ageController,
           hint: "Enter age (optional)",
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(2),
+          ],
           onChanged: (value) => viewModel.age = value,
         ),
       ],
