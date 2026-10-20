@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../views/voice/voice_result/voice_result_view.dart';
 
 class LoadingViewModel extends ChangeNotifier {
-  LoadingViewModel({http.Client? client}) : _client = client ?? http.Client();
+  LoadingViewModel({required http.Client client}) : _client = client;
 
   final http.Client _client;
 

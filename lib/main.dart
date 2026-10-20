@@ -36,6 +36,13 @@ import 'ui/view_models/parents/settings_view_model.dart';
 
 import 'ui/view_models/parents/update_settings_view_model.dart';
 import 'ui/views/settings/update_password_view.dart';
+import 'ui/views/settings/feedback_view.dart';
+import 'ui/views/settings/legal_view.dart';
+import 'ui/view_models/settings/feedback_view_model.dart';
+import 'data/repositories/feedback_repository.dart';
+import 'data/repositories/legal_repository.dart';
+import 'data/services/app_info.dart';
+import 'data/services/feedback_service.dart';
 import 'ui/views/settings/update_child_name_view.dart';
 import 'ui/views/settings/update_email_view.dart';
 
@@ -60,6 +67,7 @@ void main() async {
     baseUrl: () => dotenv.env['API_BASE_URL'] ?? '',
   );
   final api = AuthService(client: httpClient);
+  final appInfo = PackageInfoAppInfo();
   final authRepository = AuthRepository(
     gateway: gateway,
     api: api,
@@ -70,11 +78,19 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<http.Client>.value(value: httpClient),
+        Provider<AppInfo>.value(value: appInfo),
+        Provider<LegalRepository>.value(value: LegalRepository()),
+        Provider<FeedbackRepository>.value(
+          value: FeedbackRepository(api: FeedbackService(client: httpClient), appInfo: appInfo),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FeedbackViewModel(repository: context.read<FeedbackRepository>()),
+        ),
         Provider<AuthRepository>.value(value: authRepository),
         Provider<AccountRepository>.value(value: accountRepository),
         ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
-        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (context) => HomeViewModel(repository: context.read<AuthRepository>())),
         ChangeNotifierProvider(
           create: (context) => ChildInfoViewModel(repository: context.read<AuthRepository>()),
         ),
@@ -128,6 +144,8 @@ class MyApp extends StatelessWidget {
         '/update_child_name': (context) => const UpdateChildNameView(),
         '/update_email': (context) => const UpdateEmailView(),
         '/update_password': (context) => const UpdatePasswordView(),
+        '/feedback': (context) => const FeedbackView(),
+        '/legal': (context) => const LegalView(),
         '/story': (context) => const StoryView(),
         '/create_story': (context) => const CreateStoryView(),
       },

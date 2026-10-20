@@ -6,7 +6,7 @@ import '../voice_selection_dialog/voice_selection_dialog_view_model.dart';
 import 'package:talepuff_app/data/services/mqtt_service.dart';
 
 class VoiceResultViewModel extends ChangeNotifier{
-  VoiceResultViewModel({http.Client? client}) : _client = client ?? http.Client();
+  VoiceResultViewModel({required http.Client client}) : _client = client;
 
   final http.Client _client;
 

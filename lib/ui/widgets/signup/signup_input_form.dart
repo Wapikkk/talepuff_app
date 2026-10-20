@@ -1,9 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import '../../view_models/auth/signup_view_model.dart';
 import '../shared/app_ui_helper.dart';
 import '../../../core/app_assets.dart';
+import '../../../data/models/legal_document.dart';
 
 class SignUpInputForm extends StatefulWidget {
   const SignUpInputForm({super.key});
@@ -15,6 +17,10 @@ class SignUpInputForm extends StatefulWidget {
 class _SignUpInputFormState extends State<SignUpInputForm> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()
+    ..onTap = () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.terms);
+  late final TapGestureRecognizer _privacyTap = TapGestureRecognizer()
+    ..onTap = () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.privacy);
 
   @override
   void initState() {
@@ -28,6 +34,8 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _termsTap.dispose();
+    _privacyTap.dispose();
     super.dispose();
   }
 
@@ -88,6 +96,7 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
                     TextSpan(text: "I accept the "),
                     TextSpan(
                       text: "terms of service",
+                      recognizer: _termsTap,
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Colors.white,
@@ -96,6 +105,7 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
                     TextSpan(text: " & "),
                     TextSpan(
                       text: "privacy policy",
+                      recognizer: _privacyTap,
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Colors.white,

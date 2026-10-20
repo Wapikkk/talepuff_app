@@ -1,0 +1,33 @@
+# Syarat dan Ketentuan
+Terakhir diperbarui: 20 Oktober 2026
+
+## 1. Tentang TalePuff
+TalePuff adalah aplikasi cerita pengantar tidur untuk anak kecil, yang dipakai bersama perangkat pencerita TalePuff. Aplikasi ini ditujukan untuk orang tua dan wali. Dengan membuat akun, Anda menyatakan bahwa Anda sudah dewasa dan merupakan orang tua atau wali sah dari anak yang profilnya Anda buat.
+
+## 2. Akun Anda
+- Anda bertanggung jawab menjaga kerahasiaan data login dan atas semua yang terjadi pada akun Anda.
+- Berikan informasi yang benar dan jangan memakai akun orang lain.
+- Anda dapat berhenti memakai TalePuff kapan saja. Untuk menutup akun dan menghapus datanya, hubungi kami (lihat bagian 9).
+
+## 3. Cerita buatan AI
+- Cerita ditulis oleh model kecerdasan buatan berdasarkan detail yang Anda isi, seperti nama karakter, tema, suasana, durasi, dan deskripsi opsional.
+- Kami menerapkan pemeriksaan keamanan, tetapi cerita buatan AI tetap bisa mengandung kesalahan atau teks yang kurang pantas. Orang tua atau wali sebaiknya memeriksa cerita sebelum diperdengarkan kepada anak.
+- Jangan memasukkan data pribadi (misalnya alamat atau nomor telepon) atau konten yang tidak pantas pada deskripsi cerita.
+
+## 4. Penggunaan yang wajar
+Jangan menyalahgunakan layanan. Ini termasuk mencoba mengakses data orang lain, mengganggu layanan, atau memakainya untuk membuat konten yang berbahaya atau melanggar hukum.
+
+## 5. Konten Anda
+Anda tetap memiliki apa yang Anda masukkan. Anda boleh memakai cerita yang dibuat untuk Anda untuk keperluan pribadi dan non-komersial. Anda mengizinkan kami menyimpan dan memproses konten Anda hanya sejauh diperlukan untuk menjalankan TalePuff bagi Anda.
+
+## 6. Perangkat TalePuff
+Perangkat memutar cerita melalui jaringan lokal Anda. Anda bertanggung jawab menempatkan dan memakainya dengan aman, termasuk menjaga volume pada tingkat yang nyaman bagi anak Anda.
+
+## 7. Ketersediaan dan perubahan
+TalePuff disediakan "apa adanya". Kami dapat mengubah, menghentikan sementara, atau mengakhiri fitur, dan dapat memperbarui syarat ini. Jika Anda tetap memakai aplikasi setelah pembaruan, Anda menerima syarat yang baru.
+
+## 8. Batasan tanggung jawab
+Sejauh diizinkan hukum, TalePuff tidak bertanggung jawab atas kerugian tidak langsung atau lanjutan yang timbul dari penggunaan aplikasi, termasuk dari konten buatan AI. Tidak ada ketentuan di sini yang membatasi hak yang menurut hukum tidak dapat dibatasi.
+
+## 9. Kontak
+Pertanyaan tentang syarat ini: {{CONTACT_EMAIL}}. Anda juga dapat memakai Pengaturan > Send Feedback.

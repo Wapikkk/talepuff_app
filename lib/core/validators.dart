@@ -38,3 +38,18 @@ class AuthValidators {
     return null;
   }
 }
+
+class FeedbackValidators {
+  FeedbackValidators._();
+
+  static const int minLength = 5;
+  static const int maxLength = 1000;
+
+  static String? message(String value) {
+    final text = value.trim();
+    if (text.isEmpty) return 'Please write your feedback first.';
+    if (text.runes.length < minLength) return 'Your message is too short. Please add a little more detail.';
+    if (text.runes.length > maxLength) return 'Your message is too long. Please keep it under $maxLength characters.';
+    return null;
+  }
+}

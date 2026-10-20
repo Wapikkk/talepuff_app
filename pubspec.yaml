@@ -47,6 +47,7 @@ dependencies:
   audioplayers: ^6.6.0
   animated_text_kit: ^4.3.0
   mqtt_client: ^10.11.11
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +81,7 @@ flutter:
     - assets/icon_edit_photo/
     - assets/icon_voice/
     - assets/icon_create_story/
+    - assets/legal/
     - .env
 
   fonts:

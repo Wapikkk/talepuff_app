@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ParentViewModel extends ChangeNotifier{
-  ParentViewModel({http.Client? client}) : _client = client ?? http.Client();
+  ParentViewModel({required http.Client client}) : _client = client;
 
   final http.Client _client;
 

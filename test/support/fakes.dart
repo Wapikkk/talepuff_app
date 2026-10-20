@@ -1,9 +1,14 @@
 import 'dart:async';
 
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+
 import 'package:talepuff_app/data/models/child_profile.dart';
 import 'package:talepuff_app/data/repositories/account_repository.dart';
 import 'package:talepuff_app/data/repositories/auth_repository.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
+import 'package:talepuff_app/data/services/feedback_service.dart';
+import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/session_store.dart';
 
@@ -158,3 +163,36 @@ const childDraft = ChildDraft(
   gender: 'Girl',
   interests: ['Space', 'Music'],
 );
+
+/// Informasi aplikasi palsu.
+class FakeAppInfo implements AppInfo {
+  FakeAppInfo({this.label = '1.0.0 (1)', this.code = '1.0.0+1', this.fails = false});
+
+  final String label;
+  final String code;
+  final bool fails;
+
+  @override
+  Future<String> versionLabel() async => label;
+
+  @override
+  Future<String> versionCode() async {
+    if (fails) throw StateError('plugin tidak tersedia');
+    return code;
+  }
+}
+
+/// API feedback palsu: mencatat kiriman, dan bisa dipaksa gagal.
+class FakeFeedbackApi implements FeedbackApi {
+  FeedbackApiException? error;
+  final sent = <Map<String, String>>[];
+
+  @override
+  Future<void> send({required String category, required String message, required String appVersion}) async {
+    if (error != null) throw error!;
+    sent.add({'category': category, 'message': message, 'version': appVersion});
+  }
+}
+
+/// Klien HTTP untuk tes yang tidak boleh menyentuh jaringan: memakainya akan menggagalkan tes.
+http.Client unusedHttpClient() => MockClient((_) async => throw StateError('network is not expected in this test'));

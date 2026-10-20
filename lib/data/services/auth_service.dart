@@ -51,8 +51,8 @@ abstract class ProfileApi {
 }
 
 class AuthService implements ProfileApi {
-  AuthService({http.Client? client, String? baseUrl, Duration timeout = const Duration(seconds: 8)})
-      : _client = client ?? http.Client(),
+  AuthService({required http.Client client, String? baseUrl, Duration timeout = const Duration(seconds: 8)})
+      : _client = client,
         _baseUrlOverride = baseUrl,
         _timeout = timeout;
 
@@ -124,6 +124,9 @@ class AuthService implements ProfileApi {
     if (lookup is ProfileUnreachable) {
       debugPrint('[auth] fetchProfile failed against $_baseUrl: ${lookup.reason}');
     }
+    if (lookup is ProfileRejected) {
+      debugPrint('[auth] fetchProfile was rejected (401/403) by $_baseUrl: the Firebase token is missing or invalid');
+    }
     return lookup;
   }
 
@@ -153,10 +156,4 @@ class AuthService implements ProfileApi {
     }
   }
 
-  Future<Map<String, dynamic>?> getChildInfo(String uid) async {
-    final result = await fetchProfile(uid);
-    if (result is ProfileFound) return result.raw;
-    if (result is ProfileUnreachable) debugPrint('Failed to fetch child info: ${result.reason}');
-    return null;
-  }
 }

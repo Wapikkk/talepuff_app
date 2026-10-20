@@ -20,7 +20,7 @@ Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
     providers: [
       Provider<AuthRepository>.value(value: f.repository),
       ChangeNotifierProvider(create: (_) => LoginViewModel(repository: f.repository)),
-      ChangeNotifierProvider(create: (_) => ParentViewModel()),
+      ChangeNotifierProvider(create: (_) => ParentViewModel(client: unusedHttpClient())),
       ChangeNotifierProvider.value(value: navbar ?? NavbarViewModel()),
       ChangeNotifierProvider(create: (_) => StartupViewModel(repository: f.repository)),
       ChangeNotifierProvider(create: (_) => ChildInfoViewModel(repository: f.repository)),
