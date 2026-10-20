@@ -35,10 +35,12 @@ class FakeGateway implements AuthGateway {
   Future<AuthUser?> restoreUser() async => user;
 
   @override
-  Future<AuthUser> signUpWithEmail(String email, String password) => _run('signUp:$email');
+  Future<AuthUser> signUpWithEmail(String email, String password) =>
+      _run('signUp:$email');
 
   @override
-  Future<AuthUser> signInWithEmail(String email, String password) => _run('signIn:$email');
+  Future<AuthUser> signInWithEmail(String email, String password) =>
+      _run('signIn:$email');
 
   @override
   Future<AuthUser> signInWithGoogle() => _run('google');
@@ -56,14 +58,20 @@ class FakeGateway implements AuthGateway {
   Future<String?> idToken() async => 'fake-token';
 
   @override
-  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
     calls.add('changePassword:$currentPassword->$newPassword');
     await gate?.future;
     if (failure != null) throw failure!;
   }
 
   @override
-  Future<void> requestEmailChange({required String currentPassword, required String newEmail}) async {
+  Future<void> requestEmailChange({
+    required String currentPassword,
+    required String newEmail,
+  }) async {
     calls.add('requestEmailChange:$newEmail');
     await gate?.future;
     if (failure != null) throw failure!;
@@ -94,17 +102,25 @@ class FakeProfileApi implements ProfileApi {
     fetchCalls++;
     if (forcedLookup != null) return forcedLookup!;
     final profile = store[firebaseUid];
-    return profile == null ? const ProfileNotFound() : ProfileFound(profile, const {});
+    return profile == null
+        ? const ProfileNotFound()
+        : ProfileFound(profile, const {});
   }
 
   @override
-  Future<void> updateMascot({required int childId, required String mascotId}) async {
+  Future<void> updateMascot({
+    required int childId,
+    required String mascotId,
+  }) async {
     if (mascotError != null) throw mascotError!;
     mascots.add('$childId:$mascotId');
   }
 
   @override
-  Future<void> updateChildName({required int childId, required String name}) async {
+  Future<void> updateChildName({
+    required int childId,
+    required String name,
+  }) async {
     if (renameError != null) throw renameError!;
     renamed.add('$childId:$name');
   }
@@ -142,7 +158,8 @@ class FakeSessionStore implements SessionStore {
 }
 
 class AuthFixture {
-  AuthFixture({AuthUser? signedInUser}) : gateway = FakeGateway(user: signedInUser) {
+  AuthFixture({AuthUser? signedInUser})
+    : gateway = FakeGateway(user: signedInUser) {
     repository = AuthRepository(gateway: gateway, api: api, session: session);
   }
 
@@ -151,8 +168,18 @@ class AuthFixture {
   final session = FakeSessionStore();
   late final AuthRepository repository;
 
-  ChildProfile seedProfile({String uid = 'uid-1', String name = 'Aira', int id = 7}) {
-    final profile = ChildProfile(id: id, name: name, age: 3, gender: 'Girl', interests: const ['Space']);
+  ChildProfile seedProfile({
+    String uid = 'uid-1',
+    String name = 'Aira',
+    int id = 7,
+  }) {
+    final profile = ChildProfile(
+      id: id,
+      name: name,
+      age: 3,
+      gender: 'Girl',
+      interests: const ['Space'],
+    );
     api.store[uid] = profile;
     return profile;
   }
@@ -160,7 +187,7 @@ class AuthFixture {
 
 class AccountFixture {
   AccountFixture({bool hasPassword = true, String email = 'parent@example.com'})
-      : gateway = FakeGateway(user: AuthUser('uid-1', email)) {
+    : gateway = FakeGateway(user: AuthUser('uid-1', email)) {
     gateway.hasPassword = hasPassword;
     repository = AccountRepository(gateway: gateway, api: api);
   }
@@ -179,7 +206,11 @@ const childDraft = ChildDraft(
 
 /// Informasi aplikasi palsu.
 class FakeAppInfo implements AppInfo {
-  FakeAppInfo({this.label = '1.0.0 (1)', this.code = '1.0.0+1', this.fails = false});
+  FakeAppInfo({
+    this.label = '1.0.0 (1)',
+    this.code = '1.0.0+1',
+    this.fails = false,
+  });
 
   final String label;
   final String code;
@@ -201,14 +232,20 @@ class FakeFeedbackApi implements FeedbackApi {
   final sent = <Map<String, String>>[];
 
   @override
-  Future<void> send({required String category, required String message, required String appVersion}) async {
+  Future<void> send({
+    required String category,
+    required String message,
+    required String appVersion,
+  }) async {
     if (error != null) throw error!;
     sent.add({'category': category, 'message': message, 'version': appVersion});
   }
 }
 
 /// Klien HTTP untuk tes yang tidak boleh menyentuh jaringan: memakainya akan menggagalkan tes.
-http.Client unusedHttpClient() => MockClient((_) async => throw StateError('network is not expected in this test'));
+http.Client unusedHttpClient() => MockClient(
+  (_) async => throw StateError('network is not expected in this test'),
+);
 
 /// API foto profil palsu: mencatat panggilan, dan bisa dipaksa gagal atau ditahan.
 class FakePhotoApi implements ProfilePhotoApi {
@@ -219,7 +256,10 @@ class FakePhotoApi implements ProfilePhotoApi {
   final removals = <int>[];
 
   @override
-  Future<String> upload({required int childId, required String filePath}) async {
+  Future<String> upload({
+    required int childId,
+    required String filePath,
+  }) async {
     await gate?.future;
     if (error != null) throw error!;
     uploads.add('$childId:$filePath');
@@ -234,7 +274,8 @@ class FakePhotoApi implements ProfilePhotoApi {
   }
 }
 
-ProfilePhotoRepository fakePhotos([FakePhotoApi? api]) => ProfilePhotoRepository(api: api ?? FakePhotoApi());
+ProfilePhotoRepository fakePhotos([FakePhotoApi? api]) =>
+    ProfilePhotoRepository(api: api ?? FakePhotoApi());
 
 StorySummary makeStory(
   int id, {
@@ -263,7 +304,11 @@ StorySummary makeStory(
   );
 }
 
-StoryDetail makeDetail(int id, {String content = 'First paragraph.\n\nSecond paragraph.', bool favorite = false}) {
+StoryDetail makeDetail(
+  int id, {
+  String content = 'First paragraph.\n\nSecond paragraph.',
+  bool favorite = false,
+}) {
   final base = makeStory(id, favorite: favorite);
   return StoryDetail(
     id: base.id,
@@ -302,6 +347,9 @@ class FakeStoryApi implements StoryApi {
   StoryApiException? detailError;
   StoryApiException? favoriteError;
   Completer<void>? favoriteGate;
+  StoryApiException? deleteError;
+  Completer<void>? deleteGate;
+  final deleteCalls = <int>[];
   final listCalls = <StoryListCall>[];
   final favoriteCalls = <String>[];
 
@@ -317,13 +365,22 @@ class FakeStoryApi implements StoryApi {
     listCalls.add(call);
     if (listError != null) throw listError!;
     final handler = onList;
-    return handler == null ? const StoryPage([], hasMore: false) : handler(call);
+    return handler == null
+        ? const StoryPage([], hasMore: false)
+        : handler(call);
   }
 
   @override
   Future<StoryDetail> get(int id) async {
     if (detailError != null) throw detailError!;
     return detail ?? makeDetail(id);
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    await deleteGate?.future;
+    if (deleteError != null) throw deleteError!;
+    deleteCalls.add(id);
   }
 
   @override
@@ -334,4 +391,5 @@ class FakeStoryApi implements StoryApi {
   }
 }
 
-StoryRepository fakeStories([FakeStoryApi? api]) => StoryRepository(api: api ?? FakeStoryApi());
+StoryRepository fakeStories([FakeStoryApi? api]) =>
+    StoryRepository(api: api ?? FakeStoryApi());

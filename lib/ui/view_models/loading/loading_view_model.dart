@@ -23,9 +23,13 @@ class LoadingViewModel extends ChangeNotifier {
 
   Timer? _sliderTimer;
 
-  void startGeneratingStory(BuildContext context, Map<String, dynamic> payload) {
+  void startGeneratingStory(
+    BuildContext context,
+    Map<String, dynamic> payload, {
+    VoidCallback? onCreated,
+  }) {
     _startSimulatedProgress();
-    _callBackendAPI(context, payload);
+    _callBackendAPI(context, payload, onCreated: onCreated);
   }
 
   void _startSimulatedProgress() {
@@ -37,7 +41,7 @@ class LoadingViewModel extends ChangeNotifier {
 
         if (_progress > 0.6) {
           _timeRemaining = "remain 1 minute";
-        } else if (_progress > 0.3){
+        } else if (_progress > 0.3) {
           _timeRemaining = "remain 2 minutes";
         }
         notifyListeners();
@@ -64,7 +68,11 @@ class LoadingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _callBackendAPI(BuildContext context, Map<String, dynamic> payload) async {
+  Future<void> _callBackendAPI(
+    BuildContext context,
+    Map<String, dynamic> payload, {
+    VoidCallback? onCreated,
+  }) async {
     try {
       final baseUrl = '${dotenv.env['API_BASE_URL'] ?? ''}/api/story/generate';
       debugPrint("Starting process AI to: $baseUrl");
@@ -75,17 +83,18 @@ class LoadingViewModel extends ChangeNotifier {
         body: jsonEncode(payload),
       );
 
-      if(response.statusCode == 200 || response.statusCode == 201){
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final resultData = jsonDecode(response.body);
         debugPrint("The story was successfully created!");
 
+        onCreated?.call();
         _simulatedTimer?.cancel();
         _progress = 1.0;
         notifyListeners();
 
         await Future.delayed(const Duration(milliseconds: 500));
 
-        if(!context.mounted) return;
+        if (!context.mounted) return;
 
         final storyData = resultData['data'] ?? {};
 
@@ -106,11 +115,11 @@ class LoadingViewModel extends ChangeNotifier {
       }
     } catch (e) {
       _simulatedTimer?.cancel();
-      if(!context.mounted) return;
+      if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to generate story: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to generate story: $e")));
       Navigator.pop(context);
     }
   }

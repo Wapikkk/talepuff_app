@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 
-class AudioPlayerCard extends StatelessWidget{
+class AudioPlayerCard extends StatelessWidget {
   const AudioPlayerCard({super.key});
 
   @override
@@ -62,10 +62,7 @@ class AudioPlayerCard extends StatelessWidget{
               inactiveTrackColor: Colors.white,
               thumbColor: AppColors.darkPurple,
             ),
-            child: Slider(
-              value: 0.4,
-              onChanged: (value) {},
-            ),
+            child: Slider(value: 0.4, onChanged: (value) {}),
           ),
 
           const Padding(
@@ -111,10 +108,7 @@ class AudioPlayerCard extends StatelessWidget{
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.linearButton,
-                    width: 3,
-                  ),
+                  border: Border.all(color: AppColors.linearButton, width: 3),
                 ),
                 child: IconButton(
                   icon: const Icon(

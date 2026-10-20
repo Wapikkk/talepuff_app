@@ -5,21 +5,41 @@ import 'package:http/http.dart' as http;
 import '../voice_selection_dialog/voice_selection_dialog_view_model.dart';
 import 'package:talepuff_app/data/services/mqtt_service.dart';
 
-class VoiceResultViewModel extends ChangeNotifier{
-  VoiceResultViewModel({required http.Client client}) : _client = client;
+typedef AudioPublisher = Future<void> Function(String audioUrl);
+
+class VoiceResultViewModel extends ChangeNotifier {
+  VoiceResultViewModel({required http.Client client, AudioPublisher? publisher})
+    : _client = client,
+      _publish = publisher ?? ((url) => MqttService().publishAudioUrl(url));
 
   final http.Client _client;
+  final AudioPublisher _publish;
 
   bool _isProcessingAudio = false;
   bool get isProcessingAudio => _isProcessingAudio;
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
 
-  Future<void> processAndSendAudio(VoiceOption selectedVoice, int storyId) async {
+  void clearError() {
+    if (_errorMessage == null) return;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  Future<bool> processAndSendAudio(
+    VoiceOption selectedVoice,
+    int storyId,
+  ) async {
+    if (_isProcessingAudio) return false;
+
     _isProcessingAudio = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      final baseUrl = "${dotenv.env['API_BASE_URL'] ?? ''}/api/audio/generate_audio";
+      final baseUrl =
+          "${dotenv.env['API_BASE_URL'] ?? ''}/api/audio/generate_audio";
 
       final response = await _client.post(
         Uri.parse(baseUrl),
@@ -30,22 +50,26 @@ class VoiceResultViewModel extends ChangeNotifier{
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final audioUrl = data['audio_url'];
-
-        debugPrint("Success! URL Audio: $audioUrl");
-
-        final mqttService = MqttService();
-        await mqttService.publishAudioUrl(audioUrl);
-
-      } else {
+      if (response.statusCode != 200) {
         debugPrint("Failed to create audio: ${response.body}");
-        // TODO: Show alert fail to User
+        _errorMessage = "We couldn't create the voice. Please try again.";
+        return false;
       }
 
+      final audioUrl = jsonDecode(response.body)['audio_url'];
+      debugPrint("Success! URL Audio: $audioUrl");
+
+      try {
+        await _publish(audioUrl);
+      } catch (e) {
+        debugPrint("The totem could not be reached: $e");
+      }
+      return true;
     } catch (e) {
       debugPrint("A connection error occurred: $e");
+      _errorMessage =
+          "Can't reach the server. Check your connection and try again.";
+      return false;
     } finally {
       _isProcessingAudio = false;
       notifyListeners();

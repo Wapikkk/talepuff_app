@@ -22,10 +22,7 @@ class StoryFilterTabs extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.topRight,
-                  colors: [
-                    AppColors.btnStory,
-                    AppColors.primaryPurple,
-                  ],
+                  colors: [AppColors.btnStory, AppColors.primaryPurple],
                 ),
                 borderRadius: BorderRadius.circular(20),
               )
@@ -67,7 +64,10 @@ class StoryFilterTabs extends StatelessWidget {
               hintStyle: TextStyle(color: Colors.white54),
               prefixIcon: Icon(Icons.search, color: Colors.white70),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
             ),
           ),
         ),
