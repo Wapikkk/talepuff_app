@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../view_models/auth/login_view_model.dart';
+import '../../auth_flow.dart';
 import '../../../ui/widgets/settings/about.dart';
 import '../../../ui/widgets/settings/volume_limit.dart';
 import '../../../ui/widgets/settings/account_settings.dart';
@@ -39,9 +38,7 @@ class _SettingsViewState extends State<SettingsView>{
               const SizedBox(height: 15),
 
               TextButton(
-                onPressed: () {
-                  context.read<LoginViewModel>().logout(context);
-                },
+                onPressed: () => AuthFlow.logout(context),
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
                   alignment: Alignment.centerLeft,

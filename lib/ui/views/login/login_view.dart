@@ -82,7 +82,7 @@ class _LoginViewState extends State<LoginView> {
 
                 Center(
                   child: GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/signup'),
+                    onTap: () => Navigator.pushNamed(context, '/child_info'),
                     child: RichText(
                       text: TextSpan(
                         style: TextStyle(

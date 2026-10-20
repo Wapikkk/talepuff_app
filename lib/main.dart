@@ -3,6 +3,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'data/repositories/auth_repository.dart';
+import 'data/services/auth_gateway.dart';
+import 'data/services/auth_service.dart';
+import 'data/services/session_store.dart';
+import 'ui/view_models/startup_view_model.dart';
+import 'ui/views/startup/startup_view.dart';
+
 import 'ui/view_models/home/home_view_model.dart';
 import '/ui/view_models/navbar_view_model.dart';
 import '/ui/views/parent/parent_view.dart';
@@ -44,22 +51,33 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await dotenv.load(fileName: ".env");
+  final authRepository = AuthRepository(
+    gateway: FirebaseAuthGateway(),
+    api: AuthService(),
+    session: SharedPrefsSessionStore(),
+  );
   runApp(
     MultiProvider(
       providers: [
+        Provider<AuthRepository>.value(value: authRepository),
         ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ChangeNotifierProvider(create: (_) => LandingViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => ChildInfoViewModel()),
-        ChangeNotifierProxyProvider<ChildInfoViewModel, SignUpViewModel>(
-          create: (context) => SignUpViewModel(
-            childInfoViewModel: Provider.of<ChildInfoViewModel>(context, listen: false),
-          ),
-          update: (context, childInfo, signUp){
-            return SignUpViewModel(childInfoViewModel: childInfo);
-          },
+        ChangeNotifierProvider(
+          create: (context) => ChildInfoViewModel(repository: context.read<AuthRepository>()),
         ),
-        ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(
+          create: (context) => SignUpViewModel(
+            repository: context.read<AuthRepository>(),
+            childInfoViewModel: context.read<ChildInfoViewModel>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => LoginViewModel(repository: context.read<AuthRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => StartupViewModel(repository: context.read<AuthRepository>()),
+        ),
         ChangeNotifierProvider(create: (_) => ParentViewModel()),
         ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel()),
@@ -85,7 +103,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => const LandingView(),
+        '/': (context) => const StartupView(),
+        '/landing': (context) => const LandingView(),
         '/child_info': (context) => const ChildInfoView(),
         '/signup': (context) => const SignUpView(),
         '/login': (context) => const LoginView(),

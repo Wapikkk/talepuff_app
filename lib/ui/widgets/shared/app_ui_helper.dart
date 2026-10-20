@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
 
@@ -58,11 +59,15 @@ class AppUIHelper {
     TextEditingController? controller,
     bool obscureText = false,
     Widget? suffixIcon,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextField(
       controller: controller,
       onChanged: onChanged,
       obscureText: obscureText,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       autofocus: false,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../auth_flow.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
@@ -7,6 +8,7 @@ import '../../widgets/child_info/gender_picker.dart';
 import '../../widgets/child_info/interest_picker.dart';
 import '../../widgets/child_info/name_age_input.dart';
 import '../../widgets/child_info/child_info_header.dart';
+import 'child_info_args.dart';
 
 class ChildInfoView extends StatelessWidget{
   const ChildInfoView ({super.key});
@@ -14,6 +16,8 @@ class ChildInfoView extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildInfoViewModel>();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final completeProfile = args is ChildInfoArgs && args.completeProfile;
 
     return Scaffold(
       backgroundColor: AppColors.darkPurple,
@@ -48,7 +52,7 @@ class ChildInfoView extends StatelessWidget{
                 const InterestPicker(), // Widget 3
                 const SizedBox(height: 60),
 
-                _buildSaveButton(viewModel, context),
+                _buildSaveButton(viewModel, context, completeProfile),
               ],
             ),
           ),
@@ -57,30 +61,45 @@ class ChildInfoView extends StatelessWidget{
     );
   }
 
-  Widget _buildSaveButton(ChildInfoViewModel viewModel, BuildContext context) {
+  Widget _buildSaveButton(ChildInfoViewModel viewModel, BuildContext context, bool completeProfile) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           height: 55,
           child: ElevatedButton(
-            onPressed: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              viewModel.saveInfo(context);
-            },
+            onPressed: viewModel.isLoading
+                ? null
+                : () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (!completeProfile) {
+                      viewModel.saveInfo(context);
+                      return;
+                    }
+                    final result = await viewModel.completeProfile();
+                    if (!context.mounted || result == null) return;
+                    AuthFlow.proceed(context, result);
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF8C39),
+              disabledBackgroundColor: const Color(0xFFFF8C39).withValues(alpha: 0.6),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
-            child: const Text(
-              "Save",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: AppAssets.fontFamily,
-              ),
-            ),
+            child: viewModel.isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                  )
+                : Text(
+                    completeProfile ? "Save & Continue" : "Save",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: AppAssets.fontFamily,
+                    ),
+                  ),
           ),
         ),
 
@@ -111,6 +130,20 @@ class ChildInfoView extends StatelessWidget{
             )
           ),
         ),
+
+        if (completeProfile)
+          TextButton(
+            onPressed: viewModel.isLoading ? null : () => AuthFlow.logout(context),
+            child: Text(
+              "Use a different account",
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+                fontFamily: AppAssets.fontFamily,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
       ],
     );
   }
