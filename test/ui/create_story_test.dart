@@ -14,6 +14,7 @@ void main() {
       ..setStoryLength('5 Minutes')
       ..toggleMood('Calm')
       ..toggleMood('Brave')
+      ..setVoiceTone('Warm')
       ..setDescription('  A trip to the moon  ');
 
     test(
@@ -33,6 +34,7 @@ void main() {
         'length_minutes': 5,
         'language': 'Basic English',
         'description': 'A trip to the moon',
+        'voice_tone': 'Warm',
       });
     });
 
@@ -59,6 +61,7 @@ void main() {
       ..setCharacterName('Aira')
       ..setStoryLength('5 Minutes')
       ..toggleMood('Calm')
+      ..setVoiceTone('Gentle')
       ..setDescription('moon');
     final before = vm.formVersion;
 
@@ -69,6 +72,7 @@ void main() {
     expect(vm.storyLength, '');
     expect(vm.selectedMoods, isEmpty);
     expect(vm.description, '');
+    expect(vm.voiceTone, '');
     expect(vm.formVersion, before + 1);
   });
 

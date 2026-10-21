@@ -53,21 +53,22 @@ import 'ui/view_models/create_story/create_story_view_model.dart';
 
 import 'ui/views/story/story_view.dart';
 import 'ui/views/story/story_detail_view.dart';
+import 'ui/views/settings/server_address_view.dart';
+import 'core/server_address.dart';
 import 'data/repositories/story_repository.dart';
+import 'data/services/server_check_service.dart';
 import 'data/services/story_service.dart';
 
-import 'ui/view_models/loading/loading_view_model.dart';
-import 'ui/view_models/voice/voice_selection_dialog/voice_selection_dialog_view_model.dart';
-import 'ui/view_models/voice/voice_result/voice_result_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await dotenv.load(fileName: ".env");
+  await ServerAddress.load();
   final gateway = FirebaseAuthGateway();
   final httpClient = AuthenticatedClient(
     idToken: gateway.idToken,
-    baseUrl: () => dotenv.env['API_BASE_URL'] ?? '',
+    baseUrl: () => ServerAddress.baseUrl,
   );
   final api = AuthService(client: httpClient);
   final appInfo = PackageInfoAppInfo();
@@ -81,6 +82,7 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<http.Client>.value(value: httpClient),
+        Provider<ServerChecker>.value(value: ServerCheckService()),
         Provider<AppInfo>.value(value: appInfo),
         Provider<StoryRepository>.value(value: StoryRepository(api: StoryService(client: httpClient))),
         Provider<ProfilePhotoRepository>.value(
@@ -118,9 +120,6 @@ void main() async {
           create: (context) => UpdateSettingsViewModel(repository: context.read<AccountRepository>()),
         ),
         ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
-        ChangeNotifierProvider(create: (context) => LoadingViewModel(client: context.read<http.Client>())),
-        ChangeNotifierProvider(create: (_) => VoiceSelectionDialogViewModel()),
-        ChangeNotifierProvider(create: (context) => VoiceResultViewModel(client: context.read<http.Client>())),
       ],
       child: const MyApp(),
     ),
@@ -151,6 +150,7 @@ class MyApp extends StatelessWidget {
         '/update_mascot': (context) => const UpdateMascotView(),
         '/feedback': (context) => const FeedbackView(),
         '/legal': (context) => const LegalView(),
+        '/server_address': (context) => const ServerAddressView(),
         '/story': (context) => const StoryView(),
         '/story_detail': (context) => const StoryDetailView(),
         '/create_story': (context) => const CreateStoryView(),

@@ -10,6 +10,7 @@ import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/data/repositories/story_repository.dart';
 import 'package:talepuff_app/data/models/story.dart';
+import 'package:talepuff_app/data/models/story_job.dart';
 import 'package:talepuff_app/data/services/profile_photo_service.dart';
 import 'package:talepuff_app/data/repositories/profile_photo_repository.dart';
 import 'package:talepuff_app/data/services/feedback_service.dart';
@@ -350,6 +351,11 @@ class FakeStoryApi implements StoryApi {
   StoryApiException? deleteError;
   Completer<void>? deleteGate;
   final deleteCalls = <int>[];
+  final startedJobs = <Map<String, dynamic>>[];
+  StoryApiException? startError;
+  int startedJobId = 11;
+  final jobCalls = <int>[];
+  final jobScript = <Object>[];
   final listCalls = <StoryListCall>[];
   final favoriteCalls = <String>[];
 
@@ -374,6 +380,21 @@ class FakeStoryApi implements StoryApi {
   Future<StoryDetail> get(int id) async {
     if (detailError != null) throw detailError!;
     return detail ?? makeDetail(id);
+  }
+
+  @override
+  Future<int> startJob(Map<String, dynamic> payload) async {
+    if (startError != null) throw startError!;
+    startedJobs.add(payload);
+    return startedJobId;
+  }
+
+  @override
+  Future<StoryJob> getJob(int id) async {
+    jobCalls.add(id);
+    final next = jobScript.length > 1 ? jobScript.removeAt(0) : jobScript.first;
+    if (next is StoryApiException) throw next;
+    return next as StoryJob;
   }
 
   @override

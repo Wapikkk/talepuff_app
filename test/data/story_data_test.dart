@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:talepuff_app/core/relative_time.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
 import 'package:talepuff_app/data/models/story.dart';
+import 'package:talepuff_app/data/models/story_job.dart';
 import 'package:talepuff_app/data/repositories/story_repository.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 
@@ -228,6 +229,88 @@ void main() {
       api.favoriteError = const StoryApiException('x', statusCode: 500);
       expect(await repository.get(5), isA<StoryDetailFailed>());
       expect(await repository.setFavorite(5, false), isA<AccountFailure>());
+    });
+  });
+
+  group('story jobs', () {
+    StoryService serviceWith(MockClientHandler handler) =>
+        StoryService(client: MockClient(handler), baseUrl: 'http://backend/api');
+
+    test('startJob posts the form and returns the job id from a 202', () async {
+      late http.Request seen;
+      final service = serviceWith((request) async {
+        seen = request;
+        return http.Response(jsonEncode({'job_id': 42, 'status': 'queued'}), 202);
+      });
+
+      final id = await service.startJob({'child_id': 7, 'voice_tone': 'Warm'});
+
+      expect(id, 42);
+      expect(seen.method, 'POST');
+      expect(seen.url.path, '/api/story/generate');
+      expect(jsonDecode(seen.body), {'child_id': 7, 'voice_tone': 'Warm'});
+    });
+
+    test('a 409 means a story is already being made, so it resumes that job instead of failing', () async {
+      final service = serviceWith((_) async => http.Response(jsonEncode({'error': 'busy', 'job_id': 9}), 409));
+
+      expect(await service.startJob({'child_id': 7}), 9);
+    });
+
+    test('other start failures keep their status code', () async {
+      final service = serviceWith((_) async => http.Response('{"error":"bad"}', 400));
+
+      await expectLater(service.startJob({}), throwsA(isA<StoryApiException>().having((e) => e.statusCode, 'status', 400)));
+    });
+
+    test('getJob reads the stage, the story, the error code and the idea flag', () async {
+      late Uri seen;
+      final service = serviceWith((request) async {
+        seen = request.url;
+        return http.Response(
+          jsonEncode({
+            'id': 9,
+            'status': 'failed',
+            'error_code': 'voice_failed',
+            'idea_dropped': true,
+            'story': {...storyJson(), 'content': 'Once upon a time.'},
+          }),
+          200,
+        );
+      });
+
+      final job = await service.getJob(9);
+
+      expect(seen.path, '/api/story/jobs/9');
+      expect(job.status, StoryJobStatus.failed);
+      expect(job.errorCode, 'voice_failed');
+      expect(job.ideaDropped, isTrue);
+      expect(job.story?.content, 'Once upon a time.');
+    });
+
+    test('every backend status is understood, and an unknown one is reported instead of guessed', () async {
+      for (final entry in {
+        'queued': StoryJobStatus.queued,
+        'writing_story': StoryJobStatus.writingStory,
+        'creating_voice': StoryJobStatus.creatingVoice,
+        'done': StoryJobStatus.done,
+        'failed': StoryJobStatus.failed,
+      }.entries) {
+        final service = serviceWith((_) async => http.Response(jsonEncode({'id': 1, 'status': entry.key}), 200));
+        expect((await service.getJob(1)).status, entry.value, reason: entry.key);
+      }
+
+      final service = serviceWith((_) async => http.Response(jsonEncode({'id': 1, 'status': 'teleporting'}), 200));
+      await expectLater(service.getJob(1), throwsA(isA<StoryApiException>()));
+    });
+
+    test('a backend without the job routes is reported as outdated', () async {
+      final service = serviceWith((_) async => http.Response('404 page not found', 404));
+
+      final result = await StoryRepository(api: service).startJob({'child_id': 7});
+
+      expect(result, isA<JobStartFailed>());
+      expect((result as JobStartFailed).message, contains('restart'));
     });
   });
 }

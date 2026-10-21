@@ -2,20 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../core/server_address.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/story.dart';
+import '../models/story_job.dart';
 import 'api_errors.dart';
 
 class StoryApiException implements Exception {
   final String message;
   final int? statusCode;
   final bool endpointMissing;
+  final String body;
   const StoryApiException(
     this.message, {
     this.statusCode,
     this.endpointMissing = false,
+    this.body = '',
   });
 
   @override
@@ -35,6 +38,10 @@ abstract class StoryApi {
 
   Future<void> setFavorite(int id, bool favorite);
   Future<void> delete(int id);
+
+  Future<int> startJob(Map<String, dynamic> payload);
+
+  Future<StoryJob> getJob(int id);
 }
 
 class StoryService implements StoryApi {
@@ -53,7 +60,7 @@ class StoryService implements StoryApi {
   final Duration _timeout;
 
   String get _baseUrl =>
-      _baseUrlOverride ?? "${dotenv.env['API_BASE_URL'] ?? ''}/api";
+      _baseUrlOverride ?? "${ServerAddress.baseUrl}/api";
 
   @override
   Future<StoryPage> list({
@@ -124,6 +131,49 @@ class StoryService implements StoryApi {
     );
   }
 
+  @override
+  Future<int> startJob(Map<String, dynamic> payload) async {
+    try {
+      final body = await _send(
+        () => _client.post(
+          Uri.parse('$_baseUrl/story/generate'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(payload),
+        ),
+        expectedStatus: 202,
+      );
+      return _jobId(body);
+    } on StoryApiException catch (e) {
+      if (e.statusCode == 409) return _jobId(e.body);
+      rethrow;
+    }
+  }
+
+  int _jobId(String body) {
+    try {
+      return (jsonDecode(body) as Map<String, dynamic>)['job_id'] as int;
+    } on FormatException {
+      throw const StoryApiException('Unexpected response from the server');
+    } on TypeError {
+      throw const StoryApiException('Unexpected response from the server');
+    }
+  }
+
+  @override
+  Future<StoryJob> getJob(int id) async {
+    final body = await _send(
+      () => _client.get(Uri.parse('$_baseUrl/story/jobs/$id')),
+      expectedStatus: 200,
+    );
+    try {
+      return StoryJob.fromJson(jsonDecode(body) as Map<String, dynamic>);
+    } on FormatException {
+      throw const StoryApiException('Unexpected response from the server');
+    } on TypeError {
+      throw const StoryApiException('Unexpected response from the server');
+    }
+  }
+
   Future<String> _send(
     Future<http.Response> Function() request, {
     required int expectedStatus,
@@ -135,6 +185,7 @@ class StoryService implements StoryApi {
           'Server responded ${response.statusCode}',
           statusCode: response.statusCode,
           endpointMissing: isMissingEndpoint(response),
+          body: response.body,
         );
       }
       return response.body;
