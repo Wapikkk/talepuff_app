@@ -46,6 +46,13 @@ class _AboutState extends State<About> {
           ),
         ),
         _buildAboutItem(
+          title: 'Server Address',
+          onTap: () async {
+            await Navigator.pushNamed(context, '/server_address');
+            if (mounted) setState(() {});
+          },
+        ),
+        _buildAboutItem(
           title: 'Send Feedback',
           onTap: () => Navigator.pushNamed(context, '/feedback'),
         ),

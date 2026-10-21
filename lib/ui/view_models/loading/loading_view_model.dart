@@ -1,61 +1,84 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../views/voice/voice_result/voice_result_view.dart';
+import '../../../data/models/story.dart';
+import '../../../data/models/story_job.dart';
+import '../../../data/repositories/story_repository.dart';
+
+enum LoadingStage { starting, writing, voice, done, failed }
 
 class LoadingViewModel extends ChangeNotifier {
-  LoadingViewModel({required http.Client client}) : _client = client;
+  LoadingViewModel({
+    required StoryRepository repository,
+    Duration pollInterval = const Duration(seconds: 2),
+    int maxPollFailures = 5,
+  })  : _repository = repository,
+        _pollInterval = pollInterval,
+        _maxPollFailures = maxPollFailures;
 
-  final http.Client _client;
+  static const connectionLostMessage =
+      'We lost the connection to the server. Your story may still be finishing, so check the Story page in a moment.';
+  static const nameReplacedNotice = "That character name can't be used in stories, so we called them Pip instead.";
+  static const bothReplacedNotice =
+      "We couldn't use that character name or part of your idea, so we wrote a gentle story about Pip instead.";
+  static const ideaDroppedNotice = "We couldn't use part of your idea, so we wrote a gentle story instead.";
 
-  double _progress = 0.0;
-  double get progress => _progress;
+  final StoryRepository _repository;
+  final Duration _pollInterval;
+  final int _maxPollFailures;
 
-  String _timeRemaining = "remaining 3 minutes";
-  String get timeRemaining => _timeRemaining;
-
-  Timer? _simulatedTimer;
+  LoadingStage _stage = LoadingStage.starting;
+  String? _failureMessage;
+  StoryDetail? _story;
+  bool _ideaDropped = false;
+  bool _nameReplaced = false;
+  bool _canRetry = true;
 
   int _currentMascotIndex = 0;
-  int get currentMascotIndex => _currentMascotIndex;
-
   Timer? _sliderTimer;
 
-  void startGeneratingStory(
-    BuildContext context,
-    Map<String, dynamic> payload, {
-    VoidCallback? onCreated,
-  }) {
-    _startSimulatedProgress();
-    _callBackendAPI(context, payload, onCreated: onCreated);
+  int _run = 0;
+  Timer? _timer;
+  bool _disposed = false;
+
+  LoadingStage get stage => _stage;
+  String? get failureMessage => _failureMessage;
+  StoryDetail? get story => _story;
+  bool get ideaDropped => _ideaDropped;
+  bool get nameReplaced => _nameReplaced;
+
+  String? get notice {
+    if (_ideaDropped && _nameReplaced) return bothReplacedNotice;
+    if (_nameReplaced) return nameReplacedNotice;
+    if (_ideaDropped) return ideaDroppedNotice;
+    return null;
   }
+  bool get canRetry => _canRetry;
+  bool get isWorking => _stage == LoadingStage.starting || _stage == LoadingStage.writing || _stage == LoadingStage.voice;
+  bool get storyWasSaved => _stage == LoadingStage.failed && _story != null;
 
-  void _startSimulatedProgress() {
-    _progress = 0.0;
+  int get currentMascotIndex => _currentMascotIndex;
 
-    _simulatedTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_progress < 0.9) {
-        _progress += 0.01;
+  int get step => switch (_stage) {
+        LoadingStage.starting => 0,
+        LoadingStage.writing => 1,
+        LoadingStage.voice => 2,
+        _ => 0,
+      };
 
-        if (_progress > 0.6) {
-          _timeRemaining = "remain 1 minute";
-        } else if (_progress > 0.3) {
-          _timeRemaining = "remain 2 minutes";
-        }
-        notifyListeners();
-      }
-    });
-  }
+  String get stageLabel => switch (_stage) {
+        LoadingStage.starting => 'Getting ready...',
+        LoadingStage.writing => 'Writing your story...',
+        LoadingStage.voice => 'Creating the voice...',
+        LoadingStage.done => 'Your story is ready',
+        LoadingStage.failed => 'Something went wrong',
+      };
 
   void startAutoplay(PageController controller, int itemCount) {
     _sliderTimer?.cancel();
     _sliderTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (controller.hasClients) {
-        int nextIndex = (_currentMascotIndex + 1) % itemCount;
         controller.animateToPage(
-          nextIndex,
+          (_currentMascotIndex + 1) % itemCount,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeIn,
         );
@@ -65,68 +88,102 @@ class LoadingViewModel extends ChangeNotifier {
 
   void updateMascotIndex(int index) {
     _currentMascotIndex = index;
-    notifyListeners();
+    _notify();
   }
 
-  Future<void> _callBackendAPI(
-    BuildContext context,
-    Map<String, dynamic> payload, {
-    VoidCallback? onCreated,
-  }) async {
-    try {
-      final baseUrl = '${dotenv.env['API_BASE_URL'] ?? ''}/api/story/generate';
-      debugPrint("Starting process AI to: $baseUrl");
+  Future<void> start(Map<String, dynamic> payload, {VoidCallback? onCreated}) async {
+    final run = ++_run;
+    _timer?.cancel();
+    _stage = LoadingStage.starting;
+    _failureMessage = null;
+    _story = null;
+    _ideaDropped = false;
+    _nameReplaced = false;
+    _canRetry = true;
+    _notify();
 
-      final response = await _client.post(
-        Uri.parse(baseUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(payload),
-      );
+    final started = await _repository.startJob(payload);
+    if (_stale(run)) return;
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final resultData = jsonDecode(response.body);
-        debugPrint("The story was successfully created!");
-
+    switch (started) {
+      case JobStartFailed(:final message):
+        _fail(message);
+        return;
+      case JobStarted(:final jobId):
         onCreated?.call();
-        _simulatedTimer?.cancel();
-        _progress = 1.0;
-        notifyListeners();
-
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        if (!context.mounted) return;
-
-        final storyData = resultData['data'] ?? {};
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => VoiceResultView(
-              title: storyData['title'] ?? 'Story Title',
-              generatedText: storyData['content'] ?? 'Story text not available',
-              imageUrl: storyData['image_url'] ?? '',
-              payload: payload,
-              storyId: storyData['id'] ?? 0,
-            ),
-          ),
-        );
-      } else {
-        throw Exception("Status server response: ${response.statusCode}");
-      }
-    } catch (e) {
-      _simulatedTimer?.cancel();
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Failed to generate story: $e")));
-      Navigator.pop(context);
+        await _poll(run, jobId);
     }
+  }
+
+  Future<void> _poll(int run, int jobId) async {
+    var failures = 0;
+    var first = true;
+    while (!_stale(run)) {
+      if (!first) await _wait(_pollInterval);
+      first = false;
+      if (_stale(run)) return;
+
+      final result = await _repository.checkJob(jobId);
+      if (_stale(run)) return;
+
+      switch (result) {
+        case JobChecked(:final job):
+          failures = 0;
+          _apply(job);
+          if (job.status.isFinished) return;
+        case JobCheckFailed():
+          failures++;
+          if (failures >= _maxPollFailures) {
+            _fail(connectionLostMessage);
+            return;
+          }
+      }
+    }
+  }
+
+  void _apply(StoryJob job) {
+    _story = job.story ?? _story;
+    _ideaDropped = job.ideaDropped;
+    _nameReplaced = job.nameReplaced;
+    switch (job.status) {
+      case StoryJobStatus.queued:
+        _stage = LoadingStage.starting;
+      case StoryJobStatus.writingStory:
+        _stage = LoadingStage.writing;
+      case StoryJobStatus.creatingVoice:
+        _stage = LoadingStage.voice;
+      case StoryJobStatus.done:
+        _stage = LoadingStage.done;
+      case StoryJobStatus.failed:
+        _canRetry = job.errorCode != 'voice_failed';
+        _fail(StoryRepository.jobFailureMessage(job));
+        return;
+    }
+    _notify();
+  }
+
+  void _fail(String message) {
+    _stage = LoadingStage.failed;
+    _failureMessage = message;
+    _notify();
+  }
+
+  Future<void> _wait(Duration duration) {
+    final completer = Completer<void>();
+    _timer = Timer(duration, completer.complete);
+    return completer.future;
+  }
+
+  bool _stale(int run) => _disposed || run != _run;
+
+  void _notify() {
+    if (!_disposed) notifyListeners();
   }
 
   @override
   void dispose() {
-    _simulatedTimer?.cancel();
+    _disposed = true;
+    _timer?.cancel();
     _sliderTimer?.cancel();
     super.dispose();
   }

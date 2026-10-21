@@ -29,6 +29,18 @@ class AuthValidators {
     return null;
   }
 
+  static String? characterName(String value) {
+    final text = value.trim();
+    if (text.isEmpty) return 'Please enter a character name.';
+    if (text.length > maxChildNameLength) {
+      return 'The name must be at most $maxChildNameLength characters.';
+    }
+    if (!_childName.hasMatch(text)) {
+      return "Use letters only (spaces, ' and - are allowed), starting with a letter.";
+    }
+    return null;
+  }
+
   static String? newPassword(String value) {
     final text = value.trim();
     if (text.isEmpty) return 'Password is required!';

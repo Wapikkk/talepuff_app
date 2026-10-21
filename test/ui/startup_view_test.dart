@@ -32,6 +32,7 @@ Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
         '/': (_) => const StartupView(),
         '/landing': (_) => const Text('LANDING', textDirection: TextDirection.ltr),
         '/main_nav': (_) => const Text('MAIN', textDirection: TextDirection.ltr),
+        '/server_address': (_) => const Text('SERVER', textDirection: TextDirection.ltr),
         '/child_info': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
           final complete = args is ChildInfoArgs && args.completeProfile;
@@ -120,6 +121,38 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('MAIN'), findsOneWidget);
+  });
+
+  testWidgets('a network failure offers to change the server address, and coming back retries', (tester) async {
+    final f = AuthFixture(signedInUser: const AuthUser('uid-1', null));
+    f.seedProfile();
+    f.api.forcedLookup = const ProfileUnreachable('down');
+
+    await tester.pumpWidget(buildApp(f));
+    await tester.pumpAndSettle();
+    final callsBefore = f.api.fetchCalls;
+
+    await tester.tap(find.byKey(const Key('change-server')));
+    await tester.pumpAndSettle();
+    expect(find.text('SERVER'), findsOneWidget);
+
+    f.api.forcedLookup = null;
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    navigator.pop();
+    await tester.pumpAndSettle();
+
+    expect(f.api.fetchCalls, greaterThan(callsBefore), reason: 'it asks the server again with the new address');
+    expect(find.text('MAIN'), findsOneWidget);
+  });
+
+  testWidgets('a failure that is not about the network does not offer to change the address', (tester) async {
+    final f = AuthFixture(signedInUser: const AuthUser('uid-1', null));
+    f.api.forcedLookup = const ProfileRejected();
+
+    await tester.pumpWidget(buildApp(f));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('change-server')), findsNothing);
   });
 
   testWidgets('"Use a different account" signs out and goes to the landing page', (tester) async {

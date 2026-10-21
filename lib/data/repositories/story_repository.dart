@@ -1,5 +1,6 @@
 import '../models/account_result.dart';
 import '../models/story.dart';
+import '../models/story_job.dart';
 import '../services/api_errors.dart';
 import '../services/story_service.dart';
 
@@ -30,6 +31,34 @@ class StoryDetailLoaded extends StoryDetailResult {
 class StoryDetailFailed extends StoryDetailResult {
   final String message;
   const StoryDetailFailed(this.message);
+}
+
+sealed class StartJobResult {
+  const StartJobResult();
+}
+
+class JobStarted extends StartJobResult {
+  final int jobId;
+  const JobStarted(this.jobId);
+}
+
+class JobStartFailed extends StartJobResult {
+  final String message;
+  const JobStartFailed(this.message);
+}
+
+sealed class JobCheckResult {
+  const JobCheckResult();
+}
+
+class JobChecked extends JobCheckResult {
+  final StoryJob job;
+  const JobChecked(this.job);
+}
+
+class JobCheckFailed extends JobCheckResult {
+  final String message;
+  const JobCheckFailed(this.message);
 }
 
 class StoryRepository {
@@ -88,6 +117,39 @@ class StoryRepository {
         return const AccountSuccess('Story deleted.');
       }
       return AccountFailure(_message(e));
+    }
+  }
+
+  Future<StartJobResult> startJob(Map<String, dynamic> payload) async {
+    try {
+      return JobStarted(await _api.startJob(payload));
+    } on StoryApiException catch (e) {
+      return JobStartFailed(_message(e));
+    }
+  }
+
+  Future<JobCheckResult> checkJob(int id) async {
+    try {
+      return JobChecked(await _api.getJob(id));
+    } on StoryApiException catch (e) {
+      return JobCheckFailed(_message(e));
+    }
+  }
+
+  static String jobFailureMessage(StoryJob job) {
+    switch (job.errorCode) {
+      case 'ai_unavailable':
+        return "The story service isn't running right now. Please try again in a moment.";
+      case 'ai_failed':
+        return "We couldn't write the story this time. Please try again.";
+      case 'voice_failed':
+        return "Your story was saved, but we couldn't create its voice.";
+      case 'save_failed':
+        return "We couldn't save the story. Please try again.";
+      case 'interrupted':
+        return 'The story was interrupted. Please try again.';
+      default:
+        return 'Something went wrong while creating the story. Please try again.';
     }
   }
 

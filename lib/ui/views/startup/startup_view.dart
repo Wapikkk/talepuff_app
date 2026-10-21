@@ -44,6 +44,11 @@ class _StartupViewState extends State<StartupView> {
     }
   }
 
+  Future<void> _changeServer() async {
+    await Navigator.pushNamed(context, '/server_address');
+    if (mounted) _start();
+  }
+
   Future<void> _signOut() async {
     final viewModel = context.read<StartupViewModel>();
     final navigator = Navigator.of(context);
@@ -77,6 +82,12 @@ class _StartupViewState extends State<StartupView> {
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.btnSave),
                         child: const Text('Try again', style: TextStyle(color: Colors.white)),
                       ),
+                      if (viewModel.canChangeServer)
+                        TextButton(
+                          key: const Key('change-server'),
+                          onPressed: _changeServer,
+                          child: const Text('Change server address', style: textStyle),
+                        ),
                       TextButton(
                         onPressed: _signOut,
                         child: const Text('Use a different account', style: textStyle),

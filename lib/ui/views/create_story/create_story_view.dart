@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/story_defaults.dart';
 import '../../view_models/create_story/create_story_view_model.dart';
 import '../../widgets/create_story/create_story_header.dart';
 import '../../widgets/create_story/choice_chip_group.dart';
@@ -53,6 +54,15 @@ class CreateStoryView extends StatelessWidget {
                                     .setCharacterName(value);
                               },
                             ),
+                            if (viewModel.nameError != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  viewModel.nameError!,
+                                  key: const Key('name-error'),
+                                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                                ),
+                              ),
 
                             const SectionTitle(title: "Story Length"),
                             ChoiceChipGroup(
@@ -87,9 +97,17 @@ class CreateStoryView extends StatelessWidget {
                               },
                             ),
 
+                            const SectionTitle(title: "Voice"),
+                            ChoiceChipGroup(
+                              options: StoryDefaults.voices,
+                              onSelected: (value) {
+                                context.read<CreateStoryViewModel>().setVoiceTone(value);
+                              },
+                            ),
+
                             const SectionTitle(title: "Describe Your Story"),
                             CustomInputField(
-                              hint: "Optional, max 30 words",
+                              hint: "Optional, max 30 words. English or Indonesian is fine.",
                               maxLines: 4,
                               onChanged: (value) {
                                 context
@@ -97,6 +115,15 @@ class CreateStoryView extends StatelessWidget {
                                     .setDescription(value);
                               },
                             ),
+
+                            if (viewModel.errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Text(
+                                  viewModel.errorMessage!,
+                                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                                ),
+                              ),
 
                             GenerateButton(
                               onPressed: viewModel.isLoading
