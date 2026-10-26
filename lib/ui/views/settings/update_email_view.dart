@@ -1,3 +1,4 @@
+import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,7 +49,11 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
     );
 
     if (result is! AccountSuccess) return;
-    TopBanner.show(overlay, result.message, duration: const Duration(seconds: 6));
+    TopBanner.show(
+      overlay,
+      result.message,
+      duration: const Duration(seconds: 6),
+    );
     navigator.pop();
   }
 
@@ -56,44 +61,50 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const UpdateHeaderSettings(title: 'Email'),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: 'New email',
-                hint: 'user123@gmail.com',
-                controller: _emailController,
-              ),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: 'Current password',
-                hint: 'Enter your current password',
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
-                  ),
-                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+    return DismissKeyboard(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const UpdateHeaderSettings(title: 'Email'),
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: 'New email',
+                  hint: 'user123@gmail.com',
+                  controller: _emailController,
                 ),
-              ),
-              const SizedBox(height: 40),
-              UpdateBtnSettings(
-                text: 'Update Email',
-                isBusy: updateVM.isLoading,
-                onPressed: _submit,
-              ),
-              const SizedBox(height: 12),
-              InlineError(message: updateVM.errorMessage),
-            ],
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: 'Current password',
+                  hint: 'Enter your current password',
+                  controller: _passwordController,
+                  obscureText: !_isPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () => setState(
+                      () => _isPasswordVisible = !_isPasswordVisible,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                UpdateBtnSettings(
+                  text: 'Update Email',
+                  isBusy: updateVM.isLoading,
+                  onPressed: _submit,
+                ),
+                const SizedBox(height: 12),
+                InlineError(message: updateVM.errorMessage),
+              ],
+            ),
           ),
         ),
       ),

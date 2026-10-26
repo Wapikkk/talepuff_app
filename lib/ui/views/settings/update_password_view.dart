@@ -1,3 +1,4 @@
+import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,45 +59,47 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const UpdateHeaderSettings(title: 'Update Password'),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: 'Current password',
-                hint: 'Enter current password',
-                controller: _currentPasswordController,
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: 'New password',
-                hint: 'At least 8 characters, letters and numbers',
-                controller: _newPasswordController,
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: 'Confirm password',
-                hint: 'Confirm your new password',
-                controller: _confirmPasswordController,
-                obscureText: true,
-              ),
-              const SizedBox(height: 40),
-              UpdateBtnSettings(
-                text: 'Update Password',
-                isBusy: updateVM.isLoading,
-                onPressed: _submit,
-              ),
-              const SizedBox(height: 12),
-              InlineError(message: updateVM.errorMessage),
-            ],
+    return DismissKeyboard(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const UpdateHeaderSettings(title: 'Update Password'),
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: 'Current password',
+                  hint: 'Enter current password',
+                  controller: _currentPasswordController,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: 'New password',
+                  hint: 'At least 8 characters, letters and numbers',
+                  controller: _newPasswordController,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: 'Confirm password',
+                  hint: 'Confirm your new password',
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 40),
+                UpdateBtnSettings(
+                  text: 'Update Password',
+                  isBusy: updateVM.isLoading,
+                  onPressed: _submit,
+                ),
+                const SizedBox(height: 12),
+                InlineError(message: updateVM.errorMessage),
+              ],
+            ),
           ),
         ),
       ),

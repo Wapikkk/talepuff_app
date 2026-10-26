@@ -1,3 +1,4 @@
+import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/account_result.dart';
@@ -59,30 +60,32 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const UpdateHeaderSettings(title: "Child's Name"),
-              const SizedBox(height: 20),
-              UpdateInputSettings(
-                label: "Child's Name",
-                hint: "Enter your child's name",
-                controller: _nameController,
-              ),
-              const SizedBox(height: 40),
-              UpdateBtnSettings(
-                text: 'Update Name',
-                isBusy: updateVM.isLoading,
-                onPressed: _submit,
-              ),
-              const SizedBox(height: 12),
-              InlineError(message: updateVM.errorMessage),
-            ],
+    return DismissKeyboard(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const UpdateHeaderSettings(title: "Child's Name"),
+                const SizedBox(height: 20),
+                UpdateInputSettings(
+                  label: "Child's Name",
+                  hint: "Enter your child's name",
+                  controller: _nameController,
+                ),
+                const SizedBox(height: 40),
+                UpdateBtnSettings(
+                  text: 'Update Name',
+                  isBusy: updateVM.isLoading,
+                  onPressed: _submit,
+                ),
+                const SizedBox(height: 12),
+                InlineError(message: updateVM.errorMessage),
+              ],
+            ),
           ),
         ),
       ),

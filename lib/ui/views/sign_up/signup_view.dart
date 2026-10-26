@@ -1,3 +1,4 @@
+import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 import '/ui/view_models/auth/signup_view_model.dart';
@@ -13,72 +14,77 @@ class SignUpView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SignUpViewModel>();
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SignUpHeader(),
-              const SizedBox(height: 40),
+    return DismissKeyboard(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 20.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SignUpHeader(),
+                const SizedBox(height: 40),
 
-              const SignUpInputForm(),
-              const SizedBox(height: 30),
+                const SignUpInputForm(),
+                const SizedBox(height: 30),
 
-              const SignUpBtn(),
-              const SizedBox(height: 12),
+                const SignUpBtn(),
+                const SizedBox(height: 12),
 
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
-                curve: Curves.easeInOut,
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  child: Text(
-                    viewModel.errorMessage ?? "",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: AppAssets.fontFamily,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              Center(
-                child: GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, '/login'),
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 15,
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
+                  curve: Curves.easeInOut,
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Text(
+                      viewModel.errorMessage ?? "",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         fontFamily: AppAssets.fontFamily,
                       ),
-                      children: [
-                        TextSpan(text: "Already have an account? "),
-                        TextSpan(
-                          text: "Login",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                            color: Color(0xFFFF8C39),
-                            fontFamily: AppAssets.fontFamily,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 28),
+
+                Center(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/login'),
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 15,
+                          fontFamily: AppAssets.fontFamily,
+                        ),
+                        children: [
+                          TextSpan(text: "Already have an account? "),
+                          TextSpan(
+                            text: "Login",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                              color: Color(0xFFFF8C39),
+                              fontFamily: AppAssets.fontFamily,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
