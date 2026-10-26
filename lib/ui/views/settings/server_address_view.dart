@@ -1,3 +1,4 @@
+import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
@@ -36,7 +37,8 @@ class _ServerAddressViewState extends State<ServerAddressView> {
     super.dispose();
   }
 
-  static String _display(String url) => url.replaceFirst(RegExp(r'^https?://'), '');
+  static String _display(String url) =>
+      url.replaceFirst(RegExp(r'^https?://'), '');
 
   Future<void> _test() async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -68,79 +70,92 @@ class _ServerAddressViewState extends State<ServerAddressView> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _viewModel,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Consumer<ServerAddressViewModel>(
-              builder: (context, viewModel, _) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const UpdateHeaderSettings(title: 'Server Address'),
-                  const SizedBox(height: 20),
-                  UpdateInputSettings(
-                    label: 'Server address',
-                    hint: '192.168.1.5:8080',
-                    controller: _controller,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Use your computer's address on the same Wi-Fi. On the computer, run ipconfig and look for the IPv4 address.",
-                    style: TextStyle(
-                      color: AppColors.slideBubble,
-                      fontSize: 13,
-                      fontFamily: AppAssets.fontFamily,
+      child: DismissKeyboard(
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Consumer<ServerAddressViewModel>(
+                builder: (context, viewModel, _) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const UpdateHeaderSettings(title: 'Server Address'),
+                    const SizedBox(height: 20),
+                    UpdateInputSettings(
+                      label: 'Server address',
+                      hint: '192.168.1.5:8080',
+                      controller: _controller,
                     ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: OutlinedButton(
-                      key: const Key('test-connection'),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.btnSave, width: 2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Use your computer's address on the same Wi-Fi. On the computer, run ipconfig and look for the IPv4 address.",
+                      style: TextStyle(
+                        color: AppColors.slideBubble,
+                        fontSize: 13,
+                        fontFamily: AppAssets.fontFamily,
                       ),
-                      onPressed: viewModel.isChecking ? null : _test,
-                      child: viewModel.isChecking
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.btnSave),
-                            )
-                          : const Text(
-                              'Test connection',
-                              style: TextStyle(
-                                color: AppColors.btnSave,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: AppAssets.fontFamily,
-                              ),
-                            ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  UpdateBtnSettings(
-                    text: 'Save',
-                    enabled: !viewModel.isChecking,
-                    onPressed: _save,
-                  ),
-                  const SizedBox(height: 12),
-                  InlineError(message: viewModel.errorMessage),
-                  if (ServerAddress.isCustom)
-                    Center(
-                      child: TextButton(
-                        key: const Key('use-default'),
-                        onPressed: _useDefault,
-                        child: const Text(
-                          'Use the built-in address',
-                          style: TextStyle(color: AppColors.slideBubble, fontFamily: AppAssets.fontFamily),
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: OutlinedButton(
+                        key: const Key('test-connection'),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: AppColors.btnSave,
+                            width: 2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        onPressed: viewModel.isChecking ? null : _test,
+                        child: viewModel.isChecking
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: AppColors.btnSave,
+                                ),
+                              )
+                            : const Text(
+                                'Test connection',
+                                style: TextStyle(
+                                  color: AppColors.btnSave,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: AppAssets.fontFamily,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    UpdateBtnSettings(
+                      text: 'Save',
+                      enabled: !viewModel.isChecking,
+                      onPressed: _save,
+                    ),
+                    const SizedBox(height: 12),
+                    InlineError(message: viewModel.errorMessage),
+                    if (ServerAddress.isCustom)
+                      Center(
+                        child: TextButton(
+                          key: const Key('use-default'),
+                          onPressed: _useDefault,
+                          child: const Text(
+                            'Use the built-in address',
+                            style: TextStyle(
+                              color: AppColors.slideBubble,
+                              fontFamily: AppAssets.fontFamily,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
