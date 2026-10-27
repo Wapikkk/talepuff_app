@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../auth_flow.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/settings/about.dart';
+import '../../../ui/widgets/settings/language_setting.dart';
 import '../../../ui/widgets/settings/volume_limit.dart';
 import '../../../ui/widgets/settings/account_settings.dart';
 import '../../../ui/widgets/settings/settings_header.dart';
@@ -17,6 +19,7 @@ class SettingsView extends StatefulWidget{
 class _SettingsViewState extends State<SettingsView>{
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -34,6 +37,9 @@ class _SettingsViewState extends State<SettingsView>{
               const VolumeLimit(),
               const SizedBox(height: 15),
 
+              const LanguageSetting(),
+              const SizedBox(height: 15),
+
               const About(),
               const SizedBox(height: 15),
 
@@ -43,9 +49,9 @@ class _SettingsViewState extends State<SettingsView>{
                   padding: EdgeInsets.zero,
                   alignment: Alignment.centerLeft,
                 ),
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(
+                child: Text(
+                  l10n.logout,
+                  style: const TextStyle(
                     color: AppColors.dailyBox,
                     fontSize: 18,
                     fontFamily: AppAssets.fontFamily,

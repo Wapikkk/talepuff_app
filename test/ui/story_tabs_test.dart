@@ -6,6 +6,7 @@ import 'package:talepuff_app/ui/view_models/story/story_filter_view_model.dart';
 import 'package:talepuff_app/ui/widgets/story/story_filter_tabs.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 void main() {
   late StoryFilterViewModel viewModel;
@@ -31,7 +32,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: viewModel,
-        child: const MaterialApp(
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Scaffold(
             body: Column(
               children: [

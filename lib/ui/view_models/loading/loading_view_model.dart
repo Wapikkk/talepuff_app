@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/models/story.dart';
 import '../../../data/models/story_job.dart';
 import '../../../data/repositories/story_repository.dart';
@@ -15,19 +16,12 @@ class LoadingViewModel extends ChangeNotifier {
         _pollInterval = pollInterval,
         _maxPollFailures = maxPollFailures;
 
-  static const connectionLostMessage =
-      'We lost the connection to the server. Your story may still be finishing, so check the Story page in a moment.';
-  static const nameReplacedNotice = "That character name can't be used in stories, so we called them Pip instead.";
-  static const bothReplacedNotice =
-      "We couldn't use that character name or part of your idea, so we wrote a gentle story about Pip instead.";
-  static const ideaDroppedNotice = "We couldn't use part of your idea, so we wrote a gentle story instead.";
-
   final StoryRepository _repository;
   final Duration _pollInterval;
   final int _maxPollFailures;
 
   LoadingStage _stage = LoadingStage.starting;
-  String? _failureMessage;
+  AppMessage? _failure;
   StoryDetail? _story;
   bool _ideaDropped = false;
   bool _nameReplaced = false;
@@ -41,15 +35,15 @@ class LoadingViewModel extends ChangeNotifier {
   bool _disposed = false;
 
   LoadingStage get stage => _stage;
-  String? get failureMessage => _failureMessage;
+  AppMessage? get failure => _failure;
   StoryDetail? get story => _story;
   bool get ideaDropped => _ideaDropped;
   bool get nameReplaced => _nameReplaced;
 
-  String? get notice {
-    if (_ideaDropped && _nameReplaced) return bothReplacedNotice;
-    if (_nameReplaced) return nameReplacedNotice;
-    if (_ideaDropped) return ideaDroppedNotice;
+  AppMessage? get notice {
+    if (_ideaDropped && _nameReplaced) return AppMessage.noticeBothReplaced;
+    if (_nameReplaced) return AppMessage.noticeNameReplaced;
+    if (_ideaDropped) return AppMessage.noticeIdeaDropped;
     return null;
   }
   bool get canRetry => _canRetry;
@@ -63,14 +57,6 @@ class LoadingViewModel extends ChangeNotifier {
         LoadingStage.writing => 1,
         LoadingStage.voice => 2,
         _ => 0,
-      };
-
-  String get stageLabel => switch (_stage) {
-        LoadingStage.starting => 'Getting ready...',
-        LoadingStage.writing => 'Writing your story...',
-        LoadingStage.voice => 'Creating the voice...',
-        LoadingStage.done => 'Your story is ready',
-        LoadingStage.failed => 'Something went wrong',
       };
 
   void startAutoplay(PageController controller, int itemCount) {
@@ -95,7 +81,7 @@ class LoadingViewModel extends ChangeNotifier {
     final run = ++_run;
     _timer?.cancel();
     _stage = LoadingStage.starting;
-    _failureMessage = null;
+    _failure = null;
     _story = null;
     _ideaDropped = false;
     _nameReplaced = false;
@@ -134,7 +120,7 @@ class LoadingViewModel extends ChangeNotifier {
         case JobCheckFailed():
           failures++;
           if (failures >= _maxPollFailures) {
-            _fail(connectionLostMessage);
+            _fail(AppMessage.connectionLost);
             return;
           }
       }
@@ -156,15 +142,15 @@ class LoadingViewModel extends ChangeNotifier {
         _stage = LoadingStage.done;
       case StoryJobStatus.failed:
         _canRetry = job.errorCode != 'voice_failed';
-        _fail(StoryRepository.jobFailureMessage(job));
+        _fail(StoryRepository.jobFailure(job));
         return;
     }
     _notify();
   }
 
-  void _fail(String message) {
+  void _fail(AppMessage message) {
     _stage = LoadingStage.failed;
-    _failureMessage = message;
+    _failure = message;
     _notify();
   }
 

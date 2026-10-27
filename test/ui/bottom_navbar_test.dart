@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talepuff_app/ui/widgets/bottom_navbar.dart';
+import '../support/l10n.dart';
 
 void main() {
   Future<void> open(WidgetTester tester, ValueNotifier<int> index) async {
@@ -9,7 +10,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      MaterialApp(
+      MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
         home: ValueListenableBuilder<int>(
           valueListenable: index,
           builder: (context, value, _) => Scaffold(

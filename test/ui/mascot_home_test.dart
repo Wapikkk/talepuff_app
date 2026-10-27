@@ -15,6 +15,8 @@ import 'package:talepuff_app/ui/widgets/home/mascot.dart';
 import 'package:talepuff_app/ui/widgets/settings/account_settings.dart';
 
 import '../support/fakes.dart';
+import 'package:talepuff_app/l10n/l10n_labels.dart';
+import '../support/l10n.dart';
 
 /// Animasi baru mulai pada frame berikutnya, jadi dua pump: mulai, lalu selesai.
 Future<void> settle(WidgetTester tester) async {
@@ -38,13 +40,13 @@ void main() {
   group('Mascot widget', () {
     phoneTest('shows the image of the chosen mascot', (tester) async {
       for (final mascot in Mascots.all) {
-        await tester.pumpWidget(MaterialApp(home: Scaffold(body: Mascot(mascotId: mascot.id))));
+        await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: Mascot(mascotId: mascot.id))));
         expect(assetOf(tester, find.byType(Image)), mascot.asset, reason: mascot.id);
       }
     });
 
     phoneTest('an unknown id shows the default mascot', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: Mascot(mascotId: 'Naga'))));
+      await tester.pumpWidget(const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: Mascot(mascotId: 'Naga'))));
       expect(assetOf(tester, find.byType(Image)), Mascots.all.first.asset);
     });
   });
@@ -57,7 +59,7 @@ void main() {
           ChangeNotifierProvider.value(value: parent),
           ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel(repository: account.repository)),
         ],
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Builder(
             builder: (home) => Scaffold(
               body: ElevatedButton(
@@ -85,7 +87,7 @@ void main() {
       await tester.pumpAndSettle();
 
       for (final mascot in Mascots.all) {
-        expect(find.text(mascot.label), findsOneWidget, reason: mascot.id);
+        expect(find.text(lookupAppLocalizations(testLocale).mascotLabel(mascot.id)), findsOneWidget, reason: mascot.id);
       }
     });
 
@@ -155,7 +157,7 @@ void main() {
       return tester.pumpWidget(
         ChangeNotifierProvider(
           create: (_) => UpdateSettingsViewModel(repository: AccountFixture(hasPassword: hasPassword).repository),
-          child: const MaterialApp(home: Scaffold(body: AccountSettings())),
+          child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: AccountSettings())),
         ),
       );
     }
@@ -182,7 +184,7 @@ void main() {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: navbar),
         ],
-        child: const MaterialApp(home: HomeView()),
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: HomeView()),
       ));
       await tester.pump();
       return (childInfo, navbar);

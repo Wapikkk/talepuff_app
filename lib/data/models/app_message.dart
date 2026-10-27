@@ -1,0 +1,102 @@
+enum AppMessage {
+  // Pemeriksaan input
+  credentialsRequired,
+  emailRequired,
+  emailInvalid,
+  passwordRequired,
+  passwordRules,
+  termsNotAccepted,
+  childInfoMissing,
+  fillMandatory,
+  ageInvalid,
+  childNameRequired,
+  childNameTooLong,
+  childNameInvalid,
+
+  // Hasil proses masuk/daftar
+  sessionRejected,
+  serverUnreachable,
+  profileSyncFailed,
+  googleAlreadyRegistered,
+  emailInUse,
+  invalidCredentials,
+  userNotFound,
+  weakPassword,
+  tooManyRequests,
+  noConnection,
+  sessionExpired,
+  googleSignInFailed,
+  genericError,
+
+  // Umum (balasan server)
+  reloginRequired,
+  backendOutdated,
+  requestRejected,
+  requestNotUnderstood,
+  unreadableResponse,
+
+  // Pengaturan akun
+  managedByGoogle,
+  childDataNotLoaded,
+  childProfileNotFound,
+  childNameRejected,
+  nameUpdated,
+  mascotInvalid,
+  mascotRejected,
+  mascotUpdated,
+  currentPasswordRequired,
+  currentPasswordIncorrect,
+  passwordsMismatch,
+  passwordSameAsCurrent,
+  passwordUpdated,
+  sameEmail,
+  verificationSent,
+
+  // Umpan balik
+  feedbackCategoryRequired,
+  feedbackEmpty,
+  feedbackTooShort,
+  feedbackTooLong,
+  feedbackRejected,
+  accountNotFound,
+  feedbackRateLimited,
+  feedbackSent,
+
+  // Foto profil
+  photoUpdated,
+  photoRemoved,
+  photoUnsupported,
+  photoTooLarge,
+  photoUnreadable,
+  photoPickerFailed,
+
+  // Cerita (favorit/hapus)
+  favoriteAdded,
+  favoriteRemoved,
+  storyDeleted,
+  storyNotFound,
+
+  // Alamat server
+  addressRequired,
+  addressInvalid,
+  addressBadScheme,
+  addressExtraParts,
+  addressNotLocal,
+  addressNotTalepuff,
+  addressUnreachable,
+
+  // Membuat cerita
+  connectionLost,
+  noticeNameReplaced,
+  noticeBothReplaced,
+  noticeIdeaDropped,
+  jobAiUnavailable,
+  jobAiFailed,
+  jobVoiceFailed,
+  jobSaveFailed,
+  jobInterrupted,
+  jobFailed,
+  characterNameRequired,
+  childProfileMissing,
+  chooseMissing,
+}

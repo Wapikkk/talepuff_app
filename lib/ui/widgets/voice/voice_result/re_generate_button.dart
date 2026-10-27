@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class ReGenerateButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -20,9 +21,9 @@ class ReGenerateButton extends StatelessWidget {
         ),
         child: TextButton(
           onPressed: onPressed,
-          child: const Text(
-            "Re-Generate",
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context).regenerate,
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.white70,

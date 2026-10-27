@@ -47,6 +47,9 @@ dependencies:
   animated_text_kit: ^4.3.0
   mqtt_client: ^10.11.11
   package_info_plus: ^9.0.1
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +72,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  # Menghasilkan kelas terjemahan dari lib/l10n/*.arb (lihat l10n.yaml).
+  generate: true
   assets:
     - assets/icon_navbar/
     - assets/icon_home/

@@ -8,6 +8,8 @@ import '../../widgets/child_info/gender_picker.dart';
 import '../../widgets/child_info/interest_picker.dart';
 import '../../widgets/child_info/name_age_input.dart';
 import '../../widgets/child_info/child_info_header.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import 'child_info_args.dart';
 
 class ChildInfoView extends StatelessWidget{
@@ -16,6 +18,7 @@ class ChildInfoView extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildInfoViewModel>();
+    final l10n = AppLocalizations.of(context);
     final args = ModalRoute.of(context)?.settings.arguments;
     final completeProfile = args is ChildInfoArgs && args.completeProfile;
 
@@ -32,9 +35,9 @@ class ChildInfoView extends StatelessWidget{
                 const ChildInfoHeader(),
                 const SizedBox(height: 30),
 
-                const Text(
-                    "Basic Info",
-                    style: TextStyle(
+                Text(
+                    l10n.basicInfo,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -62,6 +65,7 @@ class ChildInfoView extends StatelessWidget{
   }
 
   Widget _buildSaveButton(ChildInfoViewModel viewModel, BuildContext context, bool completeProfile) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         SizedBox(
@@ -92,7 +96,7 @@ class ChildInfoView extends StatelessWidget{
                     child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
                   )
                 : Text(
-                    completeProfile ? "Save & Continue" : "Save",
+                    completeProfile ? l10n.saveAndContinue : l10n.save,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -106,7 +110,7 @@ class ChildInfoView extends StatelessWidget{
         const SizedBox(height: 12),
         AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
-          opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
+          opacity: viewModel.error != null ? 1.0 : 0.0,
           curve: Curves.easeInOut,
           child: Container(
             width: double.infinity,
@@ -116,7 +120,7 @@ class ChildInfoView extends StatelessWidget{
               children: [
                 Flexible(
                   child: Text(
-                    viewModel.errorMessage ?? "",
+                    viewModel.error == null ? '' : l10n.appMessage(viewModel.error!),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.redAccent,
@@ -135,7 +139,7 @@ class ChildInfoView extends StatelessWidget{
           TextButton(
             onPressed: viewModel.isLoading ? null : () => AuthFlow.logout(context),
             child: Text(
-              "Use a different account",
+              l10n.useDifferentAccount,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 14,

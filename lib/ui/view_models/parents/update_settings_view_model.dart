@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/repositories/account_repository.dart';
 
 class UpdateSettingsViewModel extends ChangeNotifier {
@@ -12,15 +13,15 @@ class UpdateSettingsViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  String? errorMessage;
+  AppMessage? error;
 
   bool get canManageCredentials => _repository.canManageCredentials;
 
   Future<AccountResult?> updateChildName({required String? childId, required String name}) {
     final id = int.tryParse(childId ?? '');
     if (id == null) {
-      _setError("Child's data has not been loaded yet. Please try again in a moment.");
-      return Future.value(const AccountFailure(''));
+      _setError(AppMessage.childDataNotLoaded);
+      return Future.value(const AccountFailure(AppMessage.childDataNotLoaded));
     }
     return _run(() => _repository.updateChildName(childId: id, name: name));
   }
@@ -28,8 +29,8 @@ class UpdateSettingsViewModel extends ChangeNotifier {
   Future<AccountResult?> updateMascot({required String? childId, required String mascotId}) {
     final id = int.tryParse(childId ?? '');
     if (id == null) {
-      _setError("Child's data has not been loaded yet. Please try again in a moment.");
-      return Future.value(const AccountFailure(''));
+      _setError(AppMessage.childDataNotLoaded);
+      return Future.value(const AccountFailure(AppMessage.childDataNotLoaded));
     }
     return _run(() => _repository.updateMascot(childId: id, mascotId: mascotId));
   }
@@ -51,16 +52,16 @@ class UpdateSettingsViewModel extends ChangeNotifier {
   }
 
   void clearError() {
-    if (errorMessage == null) return;
+    if (error == null) return;
     _errorTimer?.cancel();
-    errorMessage = null;
+    error = null;
     notifyListeners();
   }
 
   Future<AccountResult?> _run(Future<AccountResult> Function() action) async {
     if (_isLoading) return null;
     _isLoading = true;
-    errorMessage = null;
+    error = null;
     notifyListeners();
     try {
       final result = await action();
@@ -72,12 +73,12 @@ class UpdateSettingsViewModel extends ChangeNotifier {
     }
   }
 
-  void _setError(String message) {
-    errorMessage = message;
+  void _setError(AppMessage message) {
+    error = message;
     notifyListeners();
     _errorTimer?.cancel();
     _errorTimer = Timer(const Duration(seconds: 3), () {
-      errorMessage = null;
+      error = null;
       notifyListeners();
     });
   }

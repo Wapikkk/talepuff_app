@@ -1,6 +1,6 @@
 import '../../core/validators.dart';
 import '../models/account_result.dart';
-import '../services/api_errors.dart';
+import '../models/app_message.dart';
 import '../services/app_info.dart';
 import '../services/feedback_service.dart';
 
@@ -15,8 +15,8 @@ class FeedbackRepository {
   static const categories = ['bug', 'idea', 'other'];
 
   Future<AccountResult> send({required String category, required String message}) async {
-    if (!categories.contains(category)) return const AccountFailure('Please choose a category.');
-    final error = FeedbackValidators.message(message);
+    if (!categories.contains(category)) return const AccountFailure(AppMessage.feedbackCategoryRequired);
+    final error = FeedbackValidators.issue(message);
     if (error != null) return AccountFailure(error);
 
     String version;
@@ -29,23 +29,15 @@ class FeedbackRepository {
     try {
       await _api.send(category: category, message: message.trim(), appVersion: version);
     } on FeedbackApiException catch (e) {
-      if (e.endpointMissing) return const AccountFailure(outdatedBackendMessage);
-      switch (e.statusCode) {
-        case 400:
-          return const AccountFailure("The server didn't accept this message. Please check it and try again.");
-        case 401:
-        case 403:
-          return const AccountFailure('For security, please log out and login again, then try once more.');
-        case 404:
-          return const AccountFailure("We couldn't find your account. Please log out and login again.");
-        case 429:
-          return const AccountFailure('You have sent a lot of feedback recently. Please try again later.');
-        default:
-          return const AccountFailure(
-            "Can't reach the server. Make sure the backend is running and you're on the same network.",
-          );
-      }
+      if (e.endpointMissing) return const AccountFailure(AppMessage.backendOutdated);
+      return AccountFailure(switch (e.statusCode) {
+        400 => AppMessage.feedbackRejected,
+        401 || 403 => AppMessage.reloginRequired,
+        404 => AppMessage.accountNotFound,
+        429 => AppMessage.feedbackRateLimited,
+        _ => AppMessage.serverUnreachable,
+      });
     }
-    return const AccountSuccess('Thank you for your feedback!');
+    return const AccountSuccess(AppMessage.feedbackSent);
   }
 }

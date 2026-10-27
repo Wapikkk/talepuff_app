@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 import 'package:provider/provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../shared/app_ui_helper.dart';
 
 class NameAgeInput extends StatefulWidget {
@@ -33,23 +34,24 @@ class _NameAgeInputState extends State<NameAgeInput> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildInfoViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppUIHelper.buildLabel("Child’s Name", isRequired: true),
+        AppUIHelper.buildLabel(l10n.childName, isRequired: true),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
           controller: nameController,
-          hint: "Enter the name of your child",
+          hint: l10n.enterChildName,
           onChanged: (value) => viewModel.updateName(value),
         ),
         const SizedBox(height: 20),
-        AppUIHelper.buildLabel("Age", isRequired: false),
+        AppUIHelper.buildLabel(l10n.age, isRequired: false),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
           controller: ageController,
-          hint: "Enter age (optional)",
+          hint: l10n.enterAgeOptional,
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,

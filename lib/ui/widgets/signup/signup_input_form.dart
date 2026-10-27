@@ -6,6 +6,7 @@ import '../../view_models/auth/signup_view_model.dart';
 import '../shared/app_ui_helper.dart';
 import '../../../core/app_assets.dart';
 import '../../../data/models/legal_document.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SignUpInputForm extends StatefulWidget {
   const SignUpInputForm({super.key});
@@ -42,23 +43,24 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SignUpViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppUIHelper.buildLabel("Email", isRequired: true),
+        AppUIHelper.buildLabel(l10n.email, isRequired: true),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
-          hint: "Enter your email",
+          hint: l10n.enterEmail,
           onChanged: (v) => viewModel.updateEmail(v),
         ),
 
         const SizedBox(height: 20),
 
-        AppUIHelper.buildLabel("Password", isRequired: true),
+        AppUIHelper.buildLabel(l10n.password, isRequired: true),
         const SizedBox(height: 8),
         AppUIHelper.buildTextField(
-          hint: "Enter your password",
+          hint: l10n.enterPassword,
           onChanged: (v) => viewModel.updatePassword(v),
           obscureText: viewModel.isPasswordObscured,
           suffixIcon: IconButton(
@@ -93,18 +95,18 @@ class _SignUpInputFormState extends State<SignUpInputForm> {
                     fontFamily: AppAssets.fontFamily,
                   ),
                   children: [
-                    TextSpan(text: "I accept the "),
+                    TextSpan(text: l10n.acceptTermsPrefix),
                     TextSpan(
-                      text: "terms of service",
+                      text: l10n.termsOfService,
                       recognizer: _termsTap,
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Colors.white,
                       ),
                     ),
-                    TextSpan(text: " & "),
+                    TextSpan(text: l10n.acceptTermsAnd),
                     TextSpan(
-                      text: "privacy policy",
+                      text: l10n.privacyPolicyLink,
                       recognizer: _privacyTap,
                       style: TextStyle(
                         decoration: TextDecoration.underline,

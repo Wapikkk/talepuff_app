@@ -12,6 +12,8 @@ import '../../../ui/widgets/loading_screen/loading_progress.dart';
 import '../../../ui/widgets/loading_screen/loading_text.dart';
 import '../../../ui/widgets/shared/top_banner.dart';
 import '../voice/voice_result/voice_result_view.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/app_message_text.dart';
 
 class LoadingScreenView extends StatefulWidget {
   final Map<String, dynamic> payload;
@@ -54,7 +56,8 @@ class _LoadingScreenState extends State<LoadingScreenView> {
     _leaving = true;
 
     final story = _viewModel.story!;
-    final notice = _viewModel.notice;
+    final noticeCode = _viewModel.notice;
+    final notice = noticeCode == null ? null : AppLocalizations.of(context).appMessage(noticeCode);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final overlay = _overlay;
@@ -73,7 +76,7 @@ class _LoadingScreenState extends State<LoadingScreenView> {
     if (didPop && !_leaving && _viewModel.isWorking && overlay != null) {
       TopBanner.show(
         overlay,
-        "We'll keep working on it. Your story will appear in Story when it's ready.",
+        AppLocalizations.of(context).loadingKeepWorking,
         type: TopBannerType.info,
       );
     }
@@ -120,15 +123,16 @@ class _LoadingScreenState extends State<LoadingScreenView> {
   }
 
   Widget _bottom(BuildContext context, LoadingViewModel viewModel) {
+    final l10n = AppLocalizations.of(context);
     if (viewModel.stage != LoadingStage.failed) return const LoadingProgress();
 
     return LoadingFailure(
-      message: viewModel.failureMessage ?? '',
-      primaryLabel: viewModel.storyWasSaved ? 'Open story' : 'Try again',
+      message: viewModel.failure == null ? '' : l10n.appMessage(viewModel.failure!),
+      primaryLabel: viewModel.storyWasSaved ? l10n.openStory : l10n.tryAgain,
       onPrimary: viewModel.storyWasSaved
           ? _openSavedStory
           : () => _viewModel.start(widget.payload, onCreated: widget.onCreated),
-      secondaryLabel: 'Back',
+      secondaryLabel: l10n.back,
       onSecondary: () => Navigator.pop(context),
     );
   }

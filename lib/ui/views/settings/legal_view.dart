@@ -5,6 +5,7 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../data/models/legal_document.dart';
 import '../../../data/repositories/legal_repository.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/update_settings/update_header_settings.dart';
 
 class LegalView extends StatefulWidget {
@@ -15,19 +16,21 @@ class LegalView extends StatefulWidget {
 }
 
 class _LegalViewState extends State<LegalView> {
-  late LegalLanguage _language = _deviceLanguage();
+  LegalLanguage? _languageChoice;
   LegalDocument? _document;
   Future<List<LegalBlock>>? _blocks;
 
-  static LegalLanguage _deviceLanguage() {
-    final code = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-    return code == 'id' ? LegalLanguage.id : LegalLanguage.en;
+  LegalLanguage get _language => _languageChoice!;
+
+  LegalLanguage _appLanguage() {
+    return Localizations.localeOf(context).languageCode == 'id' ? LegalLanguage.id : LegalLanguage.en;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_document != null) return;
+    _languageChoice = _appLanguage();
     final argument = ModalRoute.of(context)?.settings.arguments;
     _document = argument is LegalDocument ? argument : LegalDocument.terms;
     _reload();
@@ -40,15 +43,14 @@ class _LegalViewState extends State<LegalView> {
   void _selectLanguage(LegalLanguage language) {
     if (language == _language) return;
     setState(() {
-      _language = language;
+      _languageChoice = language;
       _reload();
     });
   }
 
   String get _title {
-    final isPrivacy = _document == LegalDocument.privacy;
-    if (_language == LegalLanguage.id) return isPrivacy ? 'Kebijakan Privasi' : 'Syarat dan Ketentuan';
-    return isPrivacy ? 'Privacy Policy' : 'Terms and Conditions';
+    final l10n = lookupAppLocalizations(Locale(_language.name));
+    return _document == LegalDocument.privacy ? l10n.privacyPolicy : l10n.termsAndConditions;
   }
 
   @override
@@ -78,10 +80,10 @@ class _LegalViewState extends State<LegalView> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (snapshot.hasError || snapshot.data == null) {
-                      return const Center(
+                      return Center(
                         child: Text(
-                          'This document could not be loaded.',
-                          style: TextStyle(color: Colors.redAccent, fontFamily: AppAssets.fontFamily),
+                          AppLocalizations.of(context).legalLoadFailed,
+                          style: const TextStyle(color: Colors.redAccent, fontFamily: AppAssets.fontFamily),
                         ),
                       );
                     }

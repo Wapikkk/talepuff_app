@@ -7,6 +7,8 @@ import '../../widgets/signup/signup_header.dart';
 import '../../widgets/signup/signup_input_form.dart';
 import '../../widgets/signup/signup_btn.dart';
 import 'package:talepuff_app/core/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 
 class SignUpView extends StatelessWidget {
   const SignUpView({super.key});
@@ -14,6 +16,7 @@ class SignUpView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SignUpViewModel>();
+    final l10n = AppLocalizations.of(context);
     return DismissKeyboard(
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -37,13 +40,13 @@ class SignUpView extends StatelessWidget {
 
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 500),
-                  opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
+                  opacity: viewModel.error != null ? 1.0 : 0.0,
                   curve: Curves.easeInOut,
                   child: Container(
                     width: double.infinity,
                     alignment: Alignment.center,
                     child: Text(
-                      viewModel.errorMessage ?? "",
+                      viewModel.error == null ? '' : l10n.appMessage(viewModel.error!),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.redAccent,
@@ -68,9 +71,9 @@ class SignUpView extends StatelessWidget {
                           fontFamily: AppAssets.fontFamily,
                         ),
                         children: [
-                          TextSpan(text: "Already have an account? "),
+                          TextSpan(text: l10n.alreadyHaveAccount),
                           TextSpan(
-                            text: "Login",
+                            text: l10n.login,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,

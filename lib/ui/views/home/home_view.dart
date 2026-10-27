@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../widgets/home/create_new_story_btn.dart';
 import '../../widgets/home/play_last_story_btn.dart';
@@ -78,7 +79,7 @@ class _HomeViewState extends State<HomeView> {
                             PlayLastStoryBtn(
                               onPressed: () => TopBanner.show(
                                 TopBanner.overlayOf(context),
-                                'Play Last Story is coming soon!',
+                                AppLocalizations.of(context).playLastStoryComingSoon,
                                 type: TopBannerType.info,
                               ),
                             ),

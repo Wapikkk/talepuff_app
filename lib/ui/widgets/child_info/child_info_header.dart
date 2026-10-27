@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChildInfoHeader extends StatelessWidget{
   const ChildInfoHeader ({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         IconButton(
@@ -18,9 +20,9 @@ class ChildInfoHeader extends StatelessWidget{
           onPressed: () => Navigator.pop(context),
         ),
         const SizedBox(width: 16),
-        const Text(
-          "Child’s Information",
-          style: TextStyle(
+        Text(
+          l10n.childInfoTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.bold,

@@ -1,6 +1,8 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/models/app_message.dart';
+
 sealed class ServerAddressResult {
   const ServerAddressResult();
 }
@@ -11,7 +13,7 @@ class ValidServerAddress extends ServerAddressResult {
 }
 
 class InvalidServerAddress extends ServerAddressResult {
-  final String message;
+  final AppMessage message;
   const InvalidServerAddress(this.message);
 }
 
@@ -55,23 +57,21 @@ class ServerAddress {
 
   static ServerAddressResult parse(String input) {
     var text = input.trim();
-    if (text.isEmpty) return const InvalidServerAddress('Enter the address of your computer, like 192.168.1.5:8080.');
+    if (text.isEmpty) return const InvalidServerAddress(AppMessage.addressRequired);
 
     if (!text.contains('://')) text = 'http://$text';
     final uri = Uri.tryParse(text);
     if (uri == null || uri.host.isEmpty) {
-      return const InvalidServerAddress("That doesn't look like an address. Try something like 192.168.1.5:8080.");
+      return const InvalidServerAddress(AppMessage.addressInvalid);
     }
     if (uri.scheme != 'http' && uri.scheme != 'https') {
-      return const InvalidServerAddress('The address must start with http:// or https://.');
+      return const InvalidServerAddress(AppMessage.addressBadScheme);
     }
     if ((uri.path.isNotEmpty && uri.path != '/') || uri.hasQuery || uri.hasFragment || uri.userInfo.isNotEmpty) {
-      return const InvalidServerAddress('Enter only the address and port, like 192.168.1.5:8080.');
+      return const InvalidServerAddress(AppMessage.addressExtraParts);
     }
     if (!_isLocalNetwork(uri.host)) {
-      return const InvalidServerAddress(
-        "Use your computer's address on the same Wi-Fi (like 192.168.1.5), not an internet address.",
-      );
+      return const InvalidServerAddress(AppMessage.addressNotLocal);
     }
 
     final port = uri.hasPort ? uri.port : defaultPort;

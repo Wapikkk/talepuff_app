@@ -4,6 +4,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'l10n/app_localizations.dart';
+import 'data/services/language_store.dart';
+import 'ui/view_models/settings/language_view_model.dart';
+import 'ui/views/settings/language_view.dart';
+
 import 'data/repositories/account_repository.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/services/authenticated_client.dart';
@@ -78,9 +83,12 @@ void main() async {
     session: SharedPrefsSessionStore(),
   );
   final accountRepository = AccountRepository(gateway: gateway, api: api);
+  final languageViewModel = LanguageViewModel(store: SharedPrefsLanguageStore());
+  await languageViewModel.load();
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<LanguageViewModel>.value(value: languageViewModel),
         Provider<http.Client>.value(value: httpClient),
         Provider<ServerChecker>.value(value: ServerCheckService()),
         Provider<AppInfo>.value(value: appInfo),
@@ -131,11 +139,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.watch<LanguageViewModel>();
     return MaterialApp(
       title: 'TalePuff',
       debugShowCheckedModeBanner: false,
+      locale: language.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       initialRoute: '/',
       routes: {
+        '/language': (context) => const LanguageView(),
         '/': (context) => const StartupView(),
         '/landing': (context) => const LandingView(),
         '/child_info': (context) => const ChildInfoView(),

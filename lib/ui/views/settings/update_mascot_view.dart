@@ -5,6 +5,9 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/mascots.dart';
 import '../../../data/models/account_result.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
+import '../../../l10n/l10n_labels.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../view_models/parents/parent_view_model.dart';
 import '../../view_models/parents/update_settings_view_model.dart';
@@ -38,18 +41,20 @@ class _UpdateMascotViewState extends State<UpdateMascotView> {
     final updateVM = context.read<UpdateSettingsViewModel>();
     final parentVM = context.read<ParentViewModel>();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
 
     final result = await updateVM.updateMascot(childId: parentVM.currentChildId, mascotId: _selected);
 
     if (result is! AccountSuccess) return;
     childInfo.applyMascot(result.value ?? _selected);
-    TopBanner.show(overlay, result.message);
+    TopBanner.show(overlay, l10n.appMessage(result.message, detail: result.value));
     navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
     final changed = _selected != context.watch<ChildInfoViewModel>().mascotId;
 
     return Scaffold(
@@ -60,10 +65,10 @@ class _UpdateMascotViewState extends State<UpdateMascotView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const UpdateHeaderSettings(title: 'Mascot'),
-              const Text(
-                'Choose the friend who greets your child on the home screen.',
-                style: TextStyle(color: AppColors.slideBubble, fontSize: 14, fontFamily: AppAssets.fontFamily),
+              UpdateHeaderSettings(title: l10n.mascot),
+              Text(
+                l10n.mascotIntro,
+                style: const TextStyle(color: AppColors.slideBubble, fontSize: 14, fontFamily: AppAssets.fontFamily),
               ),
               const SizedBox(height: 20),
               GridView.count(
@@ -73,17 +78,17 @@ class _UpdateMascotViewState extends State<UpdateMascotView> {
                 mainAxisSpacing: 14,
                 crossAxisSpacing: 14,
                 childAspectRatio: 0.9,
-                children: [for (final mascot in Mascots.all) _card(mascot)],
+                children: [for (final mascot in Mascots.all) _card(mascot, l10n.mascotLabel(mascot.id))],
               ),
               const SizedBox(height: 30),
               UpdateBtnSettings(
-                text: 'Update Mascot',
+                text: l10n.updateMascot,
                 isBusy: updateVM.isLoading,
                 enabled: changed,
                 onPressed: _submit,
               ),
               const SizedBox(height: 12),
-              InlineError(message: updateVM.errorMessage),
+              InlineError(message: updateVM.error),
             ],
           ),
         ),
@@ -91,12 +96,12 @@ class _UpdateMascotViewState extends State<UpdateMascotView> {
     );
   }
 
-  Widget _card(MascotOption mascot) {
+  Widget _card(MascotOption mascot, String label) {
     final selected = mascot.id == _selected;
     return Semantics(
       button: true,
       selected: selected,
-      label: mascot.label,
+      label: label,
       child: GestureDetector(
         onTap: () => setState(() => _selected = mascot.id),
         child: AnimatedContainer(
@@ -115,7 +120,7 @@ class _UpdateMascotViewState extends State<UpdateMascotView> {
               Expanded(child: Image.asset(mascot.asset, fit: BoxFit.contain)),
               const SizedBox(height: 6),
               Text(
-                mascot.label,
+                label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppAssets.fontFamily,

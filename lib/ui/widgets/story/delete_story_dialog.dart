@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../voice/voice_selection_dialog/voice_dialog_container.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class DeleteStoryDialog extends StatelessWidget {
   final String storyTitle;
@@ -19,13 +20,14 @@ class DeleteStoryDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return VoiceDialogContainer(
-      title: 'Delete this story?',
+      title: l10n.deleteStoryTitle,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '"$storyTitle" and its voice will be removed. This can\'t be undone.',
+            l10n.deleteStoryBody(storyTitle),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 15,
@@ -40,7 +42,7 @@ class DeleteStoryDialog extends StatelessWidget {
               Expanded(
                 child: _DialogButton(
                   key: const Key('cancel-delete'),
-                  label: 'Cancel',
+                  label: l10n.cancel,
                   background: Colors.white,
                   foreground: AppColors.gradient4,
                   bordered: true,
@@ -51,7 +53,7 @@ class DeleteStoryDialog extends StatelessWidget {
               Expanded(
                 child: _DialogButton(
                   key: const Key('confirm-delete'),
-                  label: 'Delete',
+                  label: l10n.delete,
                   background: AppColors.logout,
                   foreground: Colors.white,
                   onPressed: () => Navigator.pop(context, true),

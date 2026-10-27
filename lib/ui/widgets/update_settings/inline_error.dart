@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
+import '../../../data/models/app_message.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 
 class InlineError extends StatelessWidget {
-  final String? message;
+  final AppMessage? message;
   const InlineError({super.key, required this.message});
 
   @override
@@ -14,7 +17,7 @@ class InlineError extends StatelessWidget {
         width: double.infinity,
         alignment: Alignment.center,
         child: Text(
-          message ?? '',
+          message == null ? '' : AppLocalizations.of(context).appMessage(message!),
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: Colors.redAccent,

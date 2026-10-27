@@ -5,6 +5,8 @@ import '../../../../data/models/story.dart';
 import '../../../../data/repositories/story_repository.dart';
 import '../../../widgets/app_background.dart';
 import '../../../widgets/shared/top_banner.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/app_message_text.dart';
 import '../../loading_screen/loading_screen_view.dart';
 import '../../../widgets/voice/voice_result/voice_image_header.dart';
 import '../../../widgets/voice/voice_result/voice_text_content.dart';
@@ -28,6 +30,7 @@ class _VoiceResultViewState extends State<VoiceResultView> {
     if (_saving) return;
     final repository = context.read<StoryRepository>();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
     final wanted = !_isFavorite;
 
     setState(() {
@@ -42,7 +45,7 @@ class _VoiceResultViewState extends State<VoiceResultView> {
       if (result is AccountFailure) _isFavorite = !wanted;
     });
     if (result is AccountFailure) {
-      TopBanner.show(overlay, result.message, type: TopBannerType.error);
+      TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/profile_photo_service.dart';
 import 'package:talepuff_app/ui/view_models/auth/login_view_model.dart';
@@ -18,8 +19,9 @@ import 'package:talepuff_app/ui/widgets/parent/child_profile_info.dart';
 import 'package:talepuff_app/ui/widgets/shared/top_banner.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
-String failureOf(AccountResult result) => (result as AccountFailure).message;
+AppMessage failureOf(AccountResult result) => (result as AccountFailure).message;
 
 void main() {
   group('ProfilePhotoService', () {
@@ -142,40 +144,39 @@ void main() {
     test('the user is told to restart the backend, not to log in again', () async {
       final api = FakePhotoApi()..error = const PhotoApiException('x', statusCode: 404, endpointMissing: true);
       final message = failureOf(await fakePhotos(api).remove(childId: 7));
-      expect(message, contains('restart the backend'));
-      expect(message, isNot(contains('login again')));
+      expect(message, AppMessage.backendOutdated);
     });
 
     test('a real "child not found" still asks to log in again', () async {
       final api = FakePhotoApi()..error = const PhotoApiException('x', statusCode: 404);
-      expect(failureOf(await fakePhotos(api).remove(childId: 7)), contains('login again'));
+      expect(failureOf(await fakePhotos(api).remove(childId: 7)), AppMessage.childProfileNotFound);
     });
   });
 
   group('ProfilePhotoRepository messages', () {
     test('map to clear sentences', () async {
       final expectations = {
-        400: 'supported photo',
-        415: 'supported photo',
-        413: 'too large',
-        401: 'login again',
-        403: 'login again',
-        404: "couldn't find this child's profile",
-        500: "Can't reach the server",
+        400: AppMessage.photoUnsupported,
+        415: AppMessage.photoUnsupported,
+        413: AppMessage.photoTooLarge,
+        401: AppMessage.reloginRequired,
+        403: AppMessage.reloginRequired,
+        404: AppMessage.childProfileNotFound,
+        500: AppMessage.serverUnreachable,
       };
       for (final entry in expectations.entries) {
         final api = FakePhotoApi()..error = PhotoApiException('x', statusCode: entry.key);
         final result = await fakePhotos(api).upload(childId: 7, filePath: 'a.jpg');
-        expect(failureOf(result), contains(entry.value), reason: '${entry.key}');
+        expect(failureOf(result), entry.value, reason: '${entry.key}');
       }
     });
 
     test('an unreadable file and a network failure are told apart', () async {
-      final unreadable = FakePhotoApi()..error = const PhotoApiException('Cannot read the photo: gone');
-      expect(failureOf(await fakePhotos(unreadable).upload(childId: 7, filePath: 'a.jpg')), contains("couldn't read"));
+      final unreadable = FakePhotoApi()..error = const PhotoApiException('gone', unreadable: true);
+      expect(failureOf(await fakePhotos(unreadable).upload(childId: 7, filePath: 'a.jpg')), AppMessage.photoUnreadable);
 
       final down = FakePhotoApi()..error = const PhotoApiException('Cannot reach the server: refused');
-      expect(failureOf(await fakePhotos(down).upload(childId: 7, filePath: 'a.jpg')), contains("Can't reach the server"));
+      expect(failureOf(await fakePhotos(down).upload(childId: 7, filePath: 'a.jpg')), AppMessage.serverUnreachable);
     });
   });
 
@@ -203,7 +204,7 @@ void main() {
 
       final result = await viewModel.uploadProfilePhoto('7', File('big.jpg'));
 
-      expect(failureOf(result!), contains('too large'));
+      expect(failureOf(result!), AppMessage.photoTooLarge);
       expect(viewModel.currentPhotoUrl, '/uploads/profiles/old.jpg', reason: 'the old photo stays');
       expect(viewModel.imagePreview, isNull, reason: 'the failed preview is dropped');
       expect(viewModel.isUploading, isFalse);
@@ -262,8 +263,8 @@ void main() {
       final api = FakePhotoApi();
       final viewModel = ParentViewModel(photos: fakePhotos(api));
 
-      expect(failureOf((await viewModel.removePhoto())!), contains('not been loaded'));
-      expect(failureOf((await viewModel.uploadProfilePhoto('null', File('a.jpg')))!), contains('not been loaded'));
+      expect(failureOf((await viewModel.removePhoto())!), AppMessage.childDataNotLoaded);
+      expect(failureOf((await viewModel.uploadProfilePhoto('null', File('a.jpg')))!), AppMessage.childDataNotLoaded);
       expect(api.uploads, isEmpty);
       expect(api.removals, isEmpty);
     });
@@ -271,7 +272,7 @@ void main() {
 
   group('TopBanner error style', () {
     testWidgets('shows the message with an error icon instead of the success check', (tester) async {
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
         home: Builder(
           builder: (context) => Scaffold(
             body: Column(children: [
@@ -307,7 +308,7 @@ void main() {
 
   group('ChildProfileInfo text', () {
     Widget show({String age = '3', List<String> interests = const ['Space', 'Music']}) {
-      return MaterialApp(
+      return MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
         home: Scaffold(body: ChildProfileInfo(name: 'Aira', age: age, email: 'a@x.com', interests: interests)),
       );
     }
@@ -319,12 +320,25 @@ void main() {
     });
 
     test('age wording', () {
-      expect(ChildProfileInfo.ageText('1'), '1 year old');
-      expect(ChildProfileInfo.ageText('4'), '4 years old');
-      expect(ChildProfileInfo.ageText(' 5 '), '5 years old');
+      final en = lookupAppLocalizations(testLocale);
+      expect(ChildProfileInfo.ageText(en, '1'), '1 year old');
+      expect(ChildProfileInfo.ageText(en, '4'), '4 years old');
+      expect(ChildProfileInfo.ageText(en, ' 5 '), '5 years old');
       for (final none in ['', '  ', '0', '-2', 'abc']) {
-        expect(ChildProfileInfo.ageText(none), '', reason: none);
+        expect(ChildProfileInfo.ageText(en, none), '', reason: none);
       }
+    });
+
+    testWidgets('in Indonesian the age and the interests are translated, the stored values are not', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('id'),
+        home: const Scaffold(body: ChildProfileInfo(name: 'Aira', age: '3', email: 'a@x.com', interests: ['Space', 'Music'])),
+      ));
+      expect(find.text('Aira, 3 tahun'), findsOneWidget);
+      expect(find.textContaining('Hai, aku Aira, aku suka'), findsOneWidget);
+      expect(find.textContaining('Space'), findsNothing);
     });
 
     testWidgets('an empty age shows only the name (no dangling "th")', (tester) async {
@@ -334,13 +348,13 @@ void main() {
 
     testWidgets('the interests sentence starts with a capital "I"', (tester) async {
       await tester.pumpWidget(show());
-      expect(find.text("Hi, I'm Aira, I like Space and Music!"), findsOneWidget);
+      expect(find.text("Hi, I’m Aira, I like Space and Music!"), findsOneWidget);
 
       await tester.pumpWidget(show(interests: const ['Space']));
-      expect(find.text("Hi, I'm Aira, I like Space!"), findsOneWidget);
+      expect(find.text("Hi, I’m Aira, I like Space!"), findsOneWidget);
 
       await tester.pumpWidget(show(interests: const ['Space', 'Music', 'Art']));
-      expect(find.text("Hi, I'm Aira, I like Space, Music, and Art!"), findsOneWidget);
+      expect(find.text("Hi, I’m Aira, I like Space, Music, and Art!"), findsOneWidget);
     });
   });
 
@@ -357,7 +371,7 @@ void main() {
           ChangeNotifierProvider.value(value: parent),
           ChangeNotifierProvider(create: (_) => LoginViewModel(repository: fixture.repository)),
         ],
-        child: const MaterialApp(home: ParentView()),
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: ParentView()),
       ));
       await tester.pump();
 

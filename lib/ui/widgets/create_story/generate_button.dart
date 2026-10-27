@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class GenerateButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -13,9 +14,9 @@ class GenerateButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.auto_awesome, color: Colors.white),
-        label: const Text(
-          "Generate Story",
-          style: TextStyle(
+        label: Text(
+          AppLocalizations.of(context).generateStory,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,

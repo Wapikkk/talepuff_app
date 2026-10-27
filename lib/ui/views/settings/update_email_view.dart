@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/account_result.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import '../../view_models/parents/update_settings_view_model.dart';
 import '../../widgets/shared/top_banner.dart';
 import '../../widgets/update_settings/inline_error.dart';
@@ -42,6 +44,7 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
     final updateVM = context.read<UpdateSettingsViewModel>();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final result = await updateVM.requestEmailChange(
       newEmail: _emailController.text,
@@ -51,7 +54,7 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
     if (result is! AccountSuccess) return;
     TopBanner.show(
       overlay,
-      result.message,
+      l10n.appMessage(result.message, detail: result.value),
       duration: const Duration(seconds: 6),
     );
     navigator.pop();
@@ -60,6 +63,7 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
   @override
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return DismissKeyboard(
       child: Scaffold(
@@ -70,17 +74,17 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const UpdateHeaderSettings(title: 'Email'),
+                UpdateHeaderSettings(title: l10n.email),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: 'New email',
+                  label: l10n.newEmail,
                   hint: 'user123@gmail.com',
                   controller: _emailController,
                 ),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: 'Current password',
-                  hint: 'Enter your current password',
+                  label: l10n.currentPassword,
+                  hint: l10n.enterCurrentPassword,
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
                   suffixIcon: IconButton(
@@ -97,12 +101,12 @@ class _UpdateEmailViewState extends State<UpdateEmailView> {
                 ),
                 const SizedBox(height: 40),
                 UpdateBtnSettings(
-                  text: 'Update Email',
+                  text: l10n.updateEmail,
                   isBusy: updateVM.isLoading,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: 12),
-                InlineError(message: updateVM.errorMessage),
+                InlineError(message: updateVM.error),
               ],
             ),
           ),

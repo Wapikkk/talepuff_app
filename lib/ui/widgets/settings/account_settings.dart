@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../view_models/parents/update_settings_view_model.dart';
 
 class AccountSettings extends StatelessWidget{
@@ -10,13 +11,14 @@ class AccountSettings extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final canManageCredentials = context.watch<UpdateSettingsViewModel>().canManageCredentials;
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Account Settings',
-          style: TextStyle(
+        Text(
+          l10n.accountSettings,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
             color: AppColors.slideBubble,
@@ -27,23 +29,23 @@ class AccountSettings extends StatelessWidget{
 
         _buildSettingItem(
           context: context,
-          title: "Child's Name",
+          title: l10n.childName,
           onTap: () => Navigator.pushNamed(context, '/update_child_name'),
         ),
         _buildSettingItem(
           context: context,
-          title: 'Mascot',
+          title: l10n.mascot,
           onTap: () => Navigator.pushNamed(context, '/update_mascot'),
         ),
         if (canManageCredentials) ...[
           _buildSettingItem(
             context: context,
-            title: 'Email',
+            title: l10n.email,
             onTap: () => Navigator.pushNamed(context, '/update_email'),
           ),
           _buildSettingItem(
             context: context,
-            title: 'Update Password',
+            title: l10n.updatePassword,
             onTap: () => Navigator.pushNamed(context, '/update_password'),
           ),
         ],

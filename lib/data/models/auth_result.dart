@@ -1,3 +1,4 @@
+import 'app_message.dart';
 import 'child_profile.dart';
 
 enum AuthMethod { 
@@ -41,7 +42,7 @@ class AuthCancelled extends AuthResult {
 }
 
 class AuthFailed extends AuthResult {
-  final String message;
+  final AppMessage message;
   final AuthFailureReason reason;
   const AuthFailed(this.message, this.reason);
 }

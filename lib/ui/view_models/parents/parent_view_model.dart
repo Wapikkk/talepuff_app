@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import '/core/app_colors.dart';
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/repositories/profile_photo_repository.dart';
 
 class ParentViewModel extends ChangeNotifier{
@@ -35,7 +36,7 @@ class ParentViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<AccountResult?> handleImageSelection(ImageSource source, String childId) async{
+  Future<AccountResult?> handleImageSelection(ImageSource source, String childId, {required String cropTitle}) async {
     if (_isUploading) return null;
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -45,23 +46,23 @@ class ParentViewModel extends ChangeNotifier{
       );
       if (pickedFile == null) return null;
 
-      final croppedFile = await _cropImage(pickedFile.path);
+      final croppedFile = await _cropImage(pickedFile.path, cropTitle);
       if (croppedFile == null) return null;
 
       return uploadProfilePhoto(childId, File(croppedFile.path));
     } catch (e) {
       debugPrint("Error picking image: $e");
-      return const AccountFailure("We couldn't open the photo picker. Please try again.");
+      return const AccountFailure(AppMessage.photoPickerFailed);
     }
   }
 
-  Future<CroppedFile?> _cropImage(String path) async {
+  Future<CroppedFile?> _cropImage(String path, String title) async {
     return await ImageCropper().cropImage(
       sourcePath: path,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Adjust Profile Photo',
+          toolbarTitle: title,
           toolbarColor: AppColors.darkPurple,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.square,
@@ -69,7 +70,7 @@ class ParentViewModel extends ChangeNotifier{
           cropStyle: CropStyle.circle,
         ),
         IOSUiSettings(
-          title: 'Adjust Profile Photo',
+          title: title,
           aspectRatioLockEnabled: true,
           cropStyle: CropStyle.circle,
         ),
@@ -84,7 +85,7 @@ class ParentViewModel extends ChangeNotifier{
 
   Future<AccountResult?> uploadProfilePhoto(String childId, File file) async {
     final id = int.tryParse(childId);
-    if (id == null) return const AccountFailure("Child's data has not been loaded yet. Please try again in a moment.");
+    if (id == null) return const AccountFailure(AppMessage.childDataNotLoaded);
     if (_isUploading) return null;
 
     _imagePreview = file;
@@ -103,7 +104,7 @@ class ParentViewModel extends ChangeNotifier{
 
   Future<AccountResult?> removePhoto() async {
     final id = int.tryParse(_currentChildId ?? '');
-    if (id == null) return const AccountFailure("Child's data has not been loaded yet. Please try again in a moment.");
+    if (id == null) return const AccountFailure(AppMessage.childDataNotLoaded);
     if (_isUploading) return null;
 
     _isUploading = true;

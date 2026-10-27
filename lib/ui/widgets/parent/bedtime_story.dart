@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
 import '../../view_models/parents/parent_view_model.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class BedtimeStory extends StatelessWidget {
   const BedtimeStory({super.key});
@@ -10,23 +11,24 @@ class BedtimeStory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parentVM = context.watch<ParentViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header Text
-        const Text(
-          'Auto Bedtime Story',
-          style: TextStyle(
+        Text(
+          l10n.bedtimeTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.darkPurple,
             fontFamily: AppAssets.fontFamily,
           ),
         ),
-        const Text(
-          'automatically play last stories at certain times',
-          style: TextStyle(
+        Text(
+          l10n.bedtimeSubtitle,
+          style: const TextStyle(
             fontSize: 13,
             color: AppColors.darkPurple,
             fontFamily: AppAssets.fontFamily,
@@ -48,9 +50,9 @@ class BedtimeStory extends StatelessWidget {
         const SizedBox(height: 10),
 
         // Label Enter Time
-        const Text(
-          'Enter time',
-          style: TextStyle(
+        Text(
+          l10n.enterTime,
+          style: const TextStyle(
             color: AppColors.slideBubble,
             fontWeight: FontWeight.bold,
             fontFamily: AppAssets.fontFamily,

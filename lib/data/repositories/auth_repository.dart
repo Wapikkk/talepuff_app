@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../models/app_message.dart';
 import '../models/auth_result.dart';
 import '../models/child_profile.dart';
 import '../services/auth_gateway.dart';
@@ -18,11 +19,10 @@ class AuthRepository {
   final ProfileApi _api;
   final SessionStore _session;
 
-  static const _sessionRejectedMessage = 'The server rejected your session. Please login again.';
-  static const _unreachableMessage =
-      "Can't reach the server. Make sure the backend is running and you're on the same network.";
-  static const _profileSyncMessage =
-      'Your account was created, but we could not save the profile. Check your connection and try again.';
+  static const _sessionRejected = AuthFailed(AppMessage.sessionRejected, AuthFailureReason.unknown);
+  static const _unreachable = AuthFailed(AppMessage.serverUnreachable, AuthFailureReason.network);
+  static const _profileSyncFailed =
+      AuthFailed(AppMessage.profileSyncFailed, AuthFailureReason.profileSyncFailed);
 
   String? get currentEmail => _gateway.currentUser?.email;
 
@@ -71,9 +71,9 @@ class AuthRepository {
         if (child == null) return const NeedsProfile();
         return _registerThenEnter(user, child);
       case ProfileRejected():
-        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
+        return _sessionRejected;
       case ProfileUnreachable():
-        return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
+        return _unreachable;
     }
   }
 
@@ -92,16 +92,13 @@ class AuthRepository {
       case ProfileFound():
         await _gateway.signOut();
         await _session.clear();
-        return const AuthFailed(
-          'This Google account is already registered. Please login instead.',
-          AuthFailureReason.alreadyRegistered,
-        );
+        return const AuthFailed(AppMessage.googleAlreadyRegistered, AuthFailureReason.alreadyRegistered);
       case ProfileNotFound():
         return _registerThenEnter(user, child);
       case ProfileRejected():
-        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
+        return _sessionRejected;
       case ProfileUnreachable():
-        return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
+        return _unreachable;
     }
   }
 
@@ -111,16 +108,11 @@ class AuthRepository {
 
     final lookup = await _api.fetchProfile(user.uid);
     if (lookup is ProfileFound) return _enter(lookup.profile, user);
-    if (lookup is ProfileRejected) {
-      return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
-    }
-    if (lookup is ProfileUnreachable) {
-      return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
-    }
+    if (lookup is ProfileRejected) return _sessionRejected;
+    if (lookup is ProfileUnreachable) return _unreachable;
     return _registerThenEnter(user, child);
   }
 
-  /// Profil anak untuk pengguna yang sedang masuk, lewat API bertoken. Tanpa pengguna -> ProfileNotFound.
   Future<ProfileLookup> currentProfile() async {
     final user = _gateway.currentUser;
     if (user == null) return const ProfileNotFound();
@@ -140,9 +132,9 @@ class AuthRepository {
       case ProfileNotFound():
         return const NeedsProfile();
       case ProfileRejected():
-        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
+        return _sessionRejected;
       case ProfileUnreachable():
-        return const AuthFailed(_unreachableMessage, AuthFailureReason.network);
+        return _unreachable;
     }
   }
 
@@ -150,17 +142,13 @@ class AuthRepository {
     try {
       await _api.register(firebaseUid: user.uid, child: child);
     } on ProfileApiException catch (e) {
-      if (e.statusCode == 401 || e.statusCode == 403) {
-        return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);
-      }
-      if (e.statusCode != 409) {
-        return const AuthFailed(_profileSyncMessage, AuthFailureReason.profileSyncFailed);
-      }
+      if (e.statusCode == 401 || e.statusCode == 403) return _sessionRejected;
+      if (e.statusCode != 409) return _profileSyncFailed;
     }
 
     final lookup = await _api.fetchProfile(user.uid);
     if (lookup is ProfileFound) return _enter(lookup.profile, user);
-    return const AuthFailed(_profileSyncMessage, AuthFailureReason.profileSyncFailed);
+    return _profileSyncFailed;
   }
 
   Future<AuthResult> _enter(ChildProfile profile, AuthUser user) async {
@@ -172,25 +160,29 @@ class AuthRepository {
   AuthFailed _failed(AuthFailure failure) {
     switch (failure.error) {
       case AuthGatewayError.emailInUse:
-        return const AuthFailed('This email is already registered. Please login.', AuthFailureReason.emailInUse);
+        return const AuthFailed(AppMessage.emailInUse, AuthFailureReason.emailInUse);
       case AuthGatewayError.invalidCredentials:
-        return const AuthFailed('Incorrect email or password. Please try again.', AuthFailureReason.invalidCredentials);
+        return const AuthFailed(AppMessage.invalidCredentials, AuthFailureReason.invalidCredentials);
       case AuthGatewayError.userNotFound:
-        return const AuthFailed('No account found for this email. Please sign up first.', AuthFailureReason.userNotFound);
+        return const AuthFailed(AppMessage.userNotFound, AuthFailureReason.userNotFound);
       case AuthGatewayError.weakPassword:
-        return const AuthFailed('This password is too weak. Please choose a stronger one.', AuthFailureReason.weakPassword);
+        return const AuthFailed(AppMessage.weakPassword, AuthFailureReason.weakPassword);
       case AuthGatewayError.tooManyRequests:
-        return const AuthFailed('Too many attempts. Please try again later.', AuthFailureReason.tooManyRequests);
+        return const AuthFailed(AppMessage.tooManyRequests, AuthFailureReason.tooManyRequests);
       case AuthGatewayError.network:
-        return const AuthFailed('No connection. Check your internet and try again.', AuthFailureReason.network);
+        return const AuthFailed(AppMessage.noConnection, AuthFailureReason.network);
       case AuthGatewayError.invalidEmail:
-        return const AuthFailed('Invalid email format, please check again!', AuthFailureReason.invalidInput);
+        return const AuthFailed(AppMessage.emailInvalid, AuthFailureReason.invalidInput);
       case AuthGatewayError.requiresRecentLogin:
       case AuthGatewayError.sessionExpired:
-        return const AuthFailed('Your session has expired. Please login again.', AuthFailureReason.unknown);
+        return const AuthFailed(AppMessage.sessionExpired, AuthFailureReason.unknown);
+      case AuthGatewayError.googleSignInFailed:
+        debugPrint('[auth] ${failure.detail}');
+        return const AuthFailed(AppMessage.googleSignInFailed, AuthFailureReason.unknown);
       case AuthGatewayError.cancelled:
       case AuthGatewayError.unknown:
-        return AuthFailed(failure.detail ?? 'Something went wrong. Please try again.', AuthFailureReason.unknown);
+        debugPrint('[auth] unexpected failure: ${failure.detail}');
+        return const AuthFailed(AppMessage.genericError, AuthFailureReason.unknown);
     }
   }
 }

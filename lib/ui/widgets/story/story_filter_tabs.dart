@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/l10n_labels.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import '../../../data/models/story.dart';
@@ -124,12 +126,12 @@ class _StoryFilterTabsState extends State<StoryFilterTabs> {
                               textInputAction: TextInputAction.search,
                               textAlignVertical: TextAlignVertical.center,
                               style: const TextStyle(color: Colors.white),
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 isCollapsed: true,
-                                hintText: 'Search stories...',
-                                hintStyle: TextStyle(color: Colors.white54),
+                                hintText: AppLocalizations.of(context).searchStories,
+                                hintStyle: const TextStyle(color: Colors.white54),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.only(right: 16),
+                                contentPadding: const EdgeInsets.only(right: 16),
                               ),
                             ),
                           ),
@@ -174,9 +176,10 @@ class _SlidingTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tabs = StoryTab.values;
     final widths = [
-      for (final tab in tabs) _textWidth(context, tab.label) + _padding * 2,
+      for (final tab in tabs) _textWidth(context, l10n.storyTabLabel(tab)) + _padding * 2,
     ];
     final selectedIndex = tabs.indexOf(selected);
     final pillLeft = widths
@@ -225,7 +228,7 @@ class _SlidingTabs extends StatelessWidget {
                               ? Colors.black
                               : Colors.white70,
                         ),
-                        child: Text(tabs[i].label),
+                        child: Text(l10n.storyTabLabel(tabs[i])),
                       ),
                     ),
                   ),

@@ -13,6 +13,7 @@ import 'package:talepuff_app/ui/views/story/story_detail_view.dart';
 import 'package:talepuff_app/ui/views/story/story_view.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 /// Layar ukuran ponsel (1080x2400 px pada 3x = 360x800 dp), bukan 800x600 bawaan.
 void phoneTest(
@@ -57,7 +58,7 @@ class Harness {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: navbar),
         ],
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: const StoryView(),
           routes: {'/story_detail': (_) => const StoryDetailView()},
         ),
@@ -119,7 +120,7 @@ void main() {
         expect(find.text('7 min ago'), findsOneWidget);
         expect(find.text('3 h ago'), findsOneWidget);
         expect(find.text('5 min'), findsOneWidget);
-        expect(find.text("Aira's stories"), findsOneWidget);
+        expect(find.text("Aira’s stories"), findsOneWidget);
 
         expect(
           find.text("Aira's Space Adventure"),
@@ -169,7 +170,7 @@ void main() {
       final harness = Harness(apiWith([]));
       await harness.pump(tester);
 
-      await tester.tap(find.text("Let's create a story"));
+      await tester.tap(find.text("Let’s create a story"));
       await tester.pump();
 
       expect(harness.navbar.currentIndex, 2);
@@ -328,7 +329,7 @@ void main() {
       expect(api.deleteCalls, [1]);
       expect(find.text('My story'), findsNothing);
       expect(find.text('Another one'), findsOneWidget);
-      expect(find.text('Story deleted'), findsOneWidget);
+      expect(find.text('Story deleted.'), findsOneWidget);
 
       await tester.pump(const Duration(seconds: 4));
       await tester.pump(const Duration(seconds: 1));
@@ -499,7 +500,7 @@ void main() {
       await tester.tap(find.text('Story 1'));
       await settle(tester);
 
-      expect(find.textContaining("couldn't find that story"), findsOneWidget);
+      expect(find.textContaining("couldn’t find that story"), findsOneWidget);
     });
   });
 }

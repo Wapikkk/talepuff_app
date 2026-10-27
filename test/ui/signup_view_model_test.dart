@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/auth_result.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/ui/view_models/auth/signup_view_model.dart';
@@ -39,7 +40,7 @@ void main() {
 
       await s.viewModel.signUpManual();
 
-      expect(s.viewModel.errorMessage, contains('Invalid email'));
+      expect(s.viewModel.error, AppMessage.emailInvalid);
       expect(s.fixture.gateway.calls, isEmpty);
     });
 
@@ -49,7 +50,7 @@ void main() {
 
       await s.viewModel.signUpManual();
 
-      expect(s.viewModel.errorMessage, contains('8 characters'));
+      expect(s.viewModel.error, AppMessage.passwordRules);
       expect(s.fixture.gateway.calls, isEmpty);
     });
 
@@ -62,14 +63,14 @@ void main() {
     test('requires accepting the terms', () async {
       final s = Setup(accepted: false);
       await s.viewModel.signUpManual();
-      expect(s.viewModel.errorMessage, contains('Terms'));
+      expect(s.viewModel.error, AppMessage.termsNotAccepted);
       expect(s.fixture.gateway.calls, isEmpty);
     });
 
     test("requires the child's information", () async {
       final s = Setup(childFilled: false);
       await s.viewModel.signUpManual();
-      expect(s.viewModel.errorMessage, contains("child's information"));
+      expect(s.viewModel.error, AppMessage.childInfoMissing);
       expect(s.fixture.gateway.calls, isEmpty);
     });
   });
@@ -94,7 +95,7 @@ void main() {
 
       await s.viewModel.signUpManual();
 
-      expect(s.viewModel.errorMessage, contains('already registered'));
+      expect(s.viewModel.error, AppMessage.emailInUse);
       expect(s.fixture.api.registered, isEmpty);
     });
   });
@@ -117,7 +118,7 @@ void main() {
       final result = await s.viewModel.signUpWithGoogle();
 
       expect(result, isA<AuthFailed>());
-      expect(s.viewModel.errorMessage, contains('already registered'));
+      expect(s.viewModel.error, AppMessage.googleAlreadyRegistered);
       expect(s.fixture.api.registered, isEmpty);
     });
 
@@ -129,9 +130,9 @@ void main() {
 
     test('a Google failure is displayed', () async {
       final s = Setup();
-      s.fixture.gateway.failure = const AuthFailure(AuthGatewayError.unknown, 'Google sign-in failed.');
+      s.fixture.gateway.failure = const AuthFailure(AuthGatewayError.googleSignInFailed, 'sign_in_failed');
       await s.viewModel.signUpWithGoogle();
-      expect(s.viewModel.errorMessage, 'Google sign-in failed.');
+      expect(s.viewModel.error, AppMessage.googleSignInFailed);
     });
   });
 }

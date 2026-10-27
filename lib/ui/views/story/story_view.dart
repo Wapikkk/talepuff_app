@@ -9,6 +9,7 @@ import '../../widgets/story/story_list_panel.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
 import '../../widgets/cloud_overlay.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class StoryView extends StatelessWidget {
   const StoryView({super.key});
@@ -36,7 +37,7 @@ class StoryView extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "${context.watch<ChildInfoViewModel>().childName}'s stories",
+                          AppLocalizations.of(context).storiesOf(context.watch<ChildInfoViewModel>().childName),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

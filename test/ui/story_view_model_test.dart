@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/story.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/ui/view_models/story/story_detail_view_model.dart';
@@ -27,7 +28,7 @@ void main() {
       expect(api.listCalls.single.childId, 7);
       expect(viewModel.stories.map((s) => s.id), [2, 1]);
       expect(viewModel.isLoading, isFalse);
-      expect(viewModel.errorMessage, isNull);
+      expect(viewModel.error, isNull);
     });
 
     test('without a loaded child there is a message and no request', () async {
@@ -36,7 +37,7 @@ void main() {
 
       await viewModel.load();
 
-      expect(viewModel.errorMessage, contains('not been loaded'));
+      expect(viewModel.error, AppMessage.childDataNotLoaded);
       expect(api.listCalls, isEmpty);
       expect(viewModel.isLoading, isFalse);
     });
@@ -46,7 +47,7 @@ void main() {
       final viewModel = make(api);
 
       await viewModel.load();
-      expect(viewModel.errorMessage, isNotNull);
+      expect(viewModel.error, isNotNull);
       expect(viewModel.stories, isEmpty);
 
       api
@@ -54,7 +55,7 @@ void main() {
         ..onList = (_) async => StoryPage([makeStory(1)], hasMore: false);
       await viewModel.load();
 
-      expect(viewModel.errorMessage, isNull);
+      expect(viewModel.error, isNull);
       expect(viewModel.stories, hasLength(1));
     });
 
@@ -67,7 +68,7 @@ void main() {
       await viewModel.load();
 
       expect(viewModel.stories, hasLength(1));
-      expect(viewModel.errorMessage, isNotNull);
+      expect(viewModel.error, isNotNull);
     });
   });
 
@@ -303,7 +304,7 @@ void main() {
 
       expect(viewModel.story?.id, 5);
       expect(viewModel.isLoading, isFalse);
-      expect(viewModel.errorMessage, isNull);
+      expect(viewModel.error, isNull);
     });
 
     test('a failure leaves a message and no story', () async {
@@ -313,7 +314,7 @@ void main() {
       await viewModel.load(5);
 
       expect(viewModel.story, isNull);
-      expect(viewModel.errorMessage, contains("couldn't find that story"));
+      expect(viewModel.error, AppMessage.storyNotFound);
     });
 
     test('favorite changes at once, is remembered for the list, and rolls back on failure', () async {

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LoginHeader extends StatelessWidget{
   const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         IconButton(
@@ -18,9 +20,9 @@ class LoginHeader extends StatelessWidget{
           },
         ),
         const SizedBox(width: 16),
-        const Text(
-          "Login",
-          style: TextStyle(
+        Text(
+          l10n.login,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.bold,

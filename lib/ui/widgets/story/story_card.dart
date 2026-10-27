@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
@@ -25,6 +26,7 @@ class StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = StoryThemeStyle.of(story.theme);
+    final l10n = AppLocalizations.of(context);
 
     return GestureDetector(
       onTap: onTap,
@@ -75,7 +77,7 @@ class StoryCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            '${story.lengthMinutes} min',
+                            l10n.minutesShort(story.lengthMinutes),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -94,7 +96,7 @@ class StoryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    story.title.isEmpty ? 'Untitled story' : story.title,
+                    story.title.isEmpty ? l10n.untitledStory : story.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -110,7 +112,7 @@ class StoryCard extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          RelativeTime.format(story.createdAt),
+                          RelativeTime.format(l10n, story.createdAt),
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 10,

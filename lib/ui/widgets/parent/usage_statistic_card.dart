@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class UsageStatisticCard extends StatelessWidget {
   final String childName;
@@ -18,6 +19,7 @@ class UsageStatisticCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final int totalActive = moodCount + storiesCount + minutesCount;
     final int totalBar = totalActive + 20;
 
@@ -25,7 +27,7 @@ class UsageStatisticCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "$childName's listening week overview",
+          l10n.statsTitle(childName),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -71,9 +73,9 @@ class UsageStatisticCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildLegendItem(AppColors.adventureBox, "$moodCount Mood"),
-            _buildLegendItem(AppColors.storiesCount, "$storiesCount Stories"),
-            _buildLegendItem(AppColors.underline, "$minutesCount Minutes"),
+            _buildLegendItem(AppColors.adventureBox, l10n.statsMood(moodCount)),
+            _buildLegendItem(AppColors.storiesCount, l10n.statsStories(storiesCount)),
+            _buildLegendItem(AppColors.underline, l10n.statsMinutes(minutesCount)),
           ],
         ),
       ],

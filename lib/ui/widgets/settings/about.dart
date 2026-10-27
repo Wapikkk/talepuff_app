@@ -4,6 +4,7 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../data/models/legal_document.dart';
 import '../../../data/services/app_info.dart';
+import '../../../l10n/app_localizations.dart';
 
 class About extends StatefulWidget {
   const About({super.key});
@@ -17,12 +18,13 @@ class _AboutState extends State<About> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'About',
-          style: TextStyle(
+        Text(
+          l10n.about,
+          style: const TextStyle(
             fontFamily: AppAssets.fontFamily,
             color: AppColors.slideBubble,
             fontSize: 16,
@@ -31,7 +33,7 @@ class _AboutState extends State<About> {
         ),
         const SizedBox(height: 8),
         _buildAboutItem(
-          title: 'Version',
+          title: l10n.version,
           trailing: FutureBuilder<String>(
             future: _version,
             builder: (context, snapshot) => Text(
@@ -46,22 +48,22 @@ class _AboutState extends State<About> {
           ),
         ),
         _buildAboutItem(
-          title: 'Server Address',
+          title: l10n.serverAddress,
           onTap: () async {
             await Navigator.pushNamed(context, '/server_address');
             if (mounted) setState(() {});
           },
         ),
         _buildAboutItem(
-          title: 'Send Feedback',
+          title: l10n.sendFeedback,
           onTap: () => Navigator.pushNamed(context, '/feedback'),
         ),
         _buildAboutItem(
-          title: 'Terms and Conditions',
+          title: l10n.termsAndConditions,
           onTap: () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.terms),
         ),
         _buildAboutItem(
-          title: 'Privacy Policy',
+          title: l10n.privacyPolicy,
           onTap: () => Navigator.pushNamed(context, '/legal', arguments: LegalDocument.privacy),
         ),
       ],

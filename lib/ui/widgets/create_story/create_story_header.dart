@@ -4,6 +4,7 @@ import '../../../core/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/navbar_view_model.dart';
 import 'category_selector.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class CreateStoryHeader extends StatelessWidget {
   const CreateStoryHeader({super.key});
@@ -38,9 +39,9 @@ class CreateStoryHeader extends StatelessWidget {
             ),
           ),
 
-          const Text(
-            "I want a story about...",
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).createHeader,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: AppAssets.fontFamily,

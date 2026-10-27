@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/auth_result.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../auth_flow.dart';
 import '../../view_models/auth/signup_view_model.dart';
 import '../shared/auth_button.dart';
@@ -11,11 +12,12 @@ class SignUpBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SignUpViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
         AuthButton(
-          label: 'Sign Up',
+          label: l10n.signUp,
           background: Colors.white,
           foreground: Colors.black,
           isBusy: viewModel.isLoading,
@@ -24,7 +26,7 @@ class SignUpBtn extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         AuthButton(
-          label: 'Sign Up with Google',
+          label: l10n.signUpWithGoogle,
           background: const Color(0xFFFF8C39),
           isBusy: viewModel.isLoading,
           showSpinner: viewModel.activeMethod == AuthMethod.google,

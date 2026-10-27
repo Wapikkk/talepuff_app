@@ -3,26 +3,27 @@ import 'dart:ui';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class HomeGreeting extends StatelessWidget{
   const HomeGreeting({super.key});
 
-  Map<String, dynamic> _getTimeTheme() {
+  Map<String, dynamic> _getTimeTheme(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
 
     if (hour >= 5 && hour < 12) {
       return {
-        'text': 'Good Morning',
+        'text': l10n.greetingMorning,
         'icon': AppAssets.iconSun, // ini nanti diganti dengan icon matahari
       };
     } else if (hour >= 12 && hour < 17) {
       return {
-        'text': 'Good Afternoon',
+        'text': l10n.greetingAfternoon,
         'icon': AppAssets.iconCloudSun, // ini nanti diganti dengan icon matahari
       };
     } else {
       return {
-        'text': 'Good Evening',
+        'text': l10n.greetingEvening,
         'icon': AppAssets.iconMoonStars,
       };
     }
@@ -31,7 +32,8 @@ class HomeGreeting extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final childName = context.watch<ChildInfoViewModel>().childName;
-    final theme = _getTimeTheme();
+    final l10n = AppLocalizations.of(context);
+    final theme = _getTimeTheme(l10n);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,9 +65,9 @@ class HomeGreeting extends StatelessWidget{
           ],
         ),
         const SizedBox(height: 8),
-        const Text(
-          "What story do you want to hear today?",
-          style: TextStyle(
+        Text(
+          l10n.homePrompt,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontFamily: AppAssets.fontFamily,

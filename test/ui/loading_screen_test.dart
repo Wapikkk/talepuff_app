@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talepuff_app/core/story_defaults.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/story_job.dart';
+import 'package:talepuff_app/l10n/app_message_text.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/ui/view_models/create_story/create_story_view_model.dart';
 import 'package:talepuff_app/ui/view_models/loading/loading_view_model.dart';
@@ -12,6 +14,7 @@ import 'package:talepuff_app/ui/views/create_story/create_story_view.dart';
 import 'package:talepuff_app/ui/views/loading_screen/loading_screen_view.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 const payload = {'child_id': 7, 'character_name': 'Aira', 'voice_tone': 'Warm'};
 
@@ -107,7 +110,7 @@ void main() {
         await viewModel.start(payload, onCreated: () => created++);
 
         expect(viewModel.stage, LoadingStage.failed);
-        expect(viewModel.failureMessage, contains("didn't understand"));
+        expect(viewModel.failure, AppMessage.requestNotUnderstood);
         expect(viewModel.canRetry, isTrue);
         expect(created, 0);
         viewModel.dispose();
@@ -118,11 +121,11 @@ void main() {
       'each failure code from the backend gets its own plain message',
       () async {
         final expectations = {
-          'ai_unavailable': "The story service isn't running right now",
-          'ai_failed': "We couldn't write the story this time",
-          'save_failed': "We couldn't save the story",
-          'interrupted': 'The story was interrupted',
-          'something_new': 'Something went wrong',
+          'ai_unavailable': AppMessage.jobAiUnavailable,
+          'ai_failed': AppMessage.jobAiFailed,
+          'save_failed': AppMessage.jobSaveFailed,
+          'interrupted': AppMessage.jobInterrupted,
+          'something_new': AppMessage.jobFailed,
         };
         for (final entry in expectations.entries) {
           final api = FakeStoryApi()
@@ -132,11 +135,7 @@ void main() {
           await viewModel.start(payload);
 
           expect(viewModel.stage, LoadingStage.failed, reason: entry.key);
-          expect(
-            viewModel.failureMessage,
-            contains(entry.value),
-            reason: entry.key,
-          );
+          expect(viewModel.failure, entry.value, reason: entry.key);
           expect(viewModel.canRetry, isTrue, reason: entry.key);
           expect(viewModel.storyWasSaved, isFalse, reason: entry.key);
           viewModel.dispose();
@@ -159,7 +158,7 @@ void main() {
 
         await viewModel.start(payload);
 
-        expect(viewModel.failureMessage, contains('Your story was saved'));
+        expect(viewModel.failure, AppMessage.jobVoiceFailed);
         expect(viewModel.storyWasSaved, isTrue);
         expect(viewModel.canRetry, isFalse);
         viewModel.dispose();
@@ -201,10 +200,7 @@ void main() {
         final viewModel = viewModelFor(dead, maxPollFailures: 3);
         await viewModel.start(payload);
         expect(viewModel.stage, LoadingStage.failed);
-        expect(
-          viewModel.failureMessage,
-          LoadingViewModel.connectionLostMessage,
-        );
+        expect(viewModel.failure, AppMessage.connectionLost);
         expect(dead.jobCalls.length, 3);
         viewModel.dispose();
       },
@@ -243,7 +239,7 @@ void main() {
 
       await viewModel.start(payload);
       expect(viewModel.stage, LoadingStage.done);
-      expect(viewModel.failureMessage, isNull);
+      expect(viewModel.failure, isNull);
       expect(api.startedJobs.length, 2);
       viewModel.dispose();
     });
@@ -258,7 +254,7 @@ void main() {
       await tester.pumpWidget(
         Provider.value(
           value: fakeStories(api),
-          child: MaterialApp(
+          child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
             home: Builder(
               builder: (context) => Scaffold(
                 body: TextButton(
@@ -327,7 +323,10 @@ void main() {
         expect(find.text('Re-Generate'), findsOneWidget);
         expect(find.text('Story 5'), findsOneWidget);
         expect(find.text('Aira flew to the moon.'), findsOneWidget);
-        expect(find.text(LoadingViewModel.ideaDroppedNotice), findsOneWidget);
+        expect(
+          find.text(lookupAppLocalizations(testLocale).appMessage(AppMessage.noticeIdeaDropped)),
+          findsOneWidget,
+        );
         expect(created, 1);
 
         await tester.pump(const Duration(seconds: 5));
@@ -344,7 +343,7 @@ void main() {
           ]);
         await open(tester, api);
 
-        final message = find.textContaining("The story service isn't running");
+        final message = find.textContaining("The story service isn’t running");
         expect(message, findsOneWidget);
         expect(tester.widget<Text>(message).style?.color, Colors.red);
         expect(find.text('Try again'), findsOneWidget);
@@ -404,7 +403,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));
 
-        expect(find.textContaining("We'll keep working on it"), findsOneWidget);
+        expect(find.textContaining("We’ll keep working on it"), findsOneWidget);
         final callsAtLeave = api.jobCalls.length;
         await tester.pump(const Duration(seconds: 10));
         expect(api.jobCalls.length, callsAtLeave);
@@ -423,11 +422,11 @@ void main() {
 
     test('lists exactly what is still missing, voice included', () {
       expect(CreateStoryViewModel().missingFields(), [
-        'a category',
-        'a story length',
-        'a voice',
+        StoryField.category,
+        StoryField.length,
+        StoryField.voice,
       ]);
-      expect(filled(voice: false).missingFields(), ['a voice']);
+      expect(filled(voice: false).missingFields(), [StoryField.voice]);
       expect(filled().missingFields(), isEmpty);
     });
 
@@ -440,9 +439,10 @@ void main() {
 
         await viewModel.generateStory(context);
 
-        expect(viewModel.errorMessage, 'Please choose a voice.');
+        expect(viewModel.error, AppMessage.chooseMissing);
+        expect(viewModel.missingFields(), [StoryField.voice]);
         viewModel.setVoiceTone('Brave');
-        expect(viewModel.errorMessage, isNull);
+        expect(viewModel.error, isNull);
       },
     );
 
@@ -465,7 +465,7 @@ void main() {
               ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
               ChangeNotifierProvider(create: (_) => NavbarViewModel()),
             ],
-            child: const MaterialApp(home: Scaffold(body: CreateStoryView())),
+            child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: CreateStoryView())),
           ),
         );
         await tester.pump();

@@ -20,6 +20,7 @@ enum AuthGatewayError {
   invalidEmail,
   requiresRecentLogin,
   sessionExpired,
+  googleSignInFailed,
   unknown,
 }
 
@@ -219,8 +220,8 @@ class FirebaseAuthGateway implements AuthGateway {
         return const AuthFailure(AuthGatewayError.cancelled);
       case 'sign_in_failed':
         return const AuthFailure(
-          AuthGatewayError.unknown,
-          'Google sign-in failed. If this is a new build, make sure its SHA-1 is registered in Firebase.',
+          AuthGatewayError.googleSignInFailed,
+          'sign_in_failed: usually the SHA-1 of this build is not registered in Firebase.',
         );
       default:
         return AuthFailure(AuthGatewayError.unknown, e.message ?? e.code);

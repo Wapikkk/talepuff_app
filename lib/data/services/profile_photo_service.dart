@@ -11,7 +11,8 @@ class PhotoApiException implements Exception {
   final String message;
   final int? statusCode;
   final bool endpointMissing;
-  const PhotoApiException(this.message, {this.statusCode, this.endpointMissing = false});
+  final bool unreadable;
+  const PhotoApiException(this.message, {this.statusCode, this.endpointMissing = false, this.unreadable = false});
 
   @override
   String toString() => 'PhotoApiException($message, status: $statusCode)';
@@ -58,7 +59,7 @@ class ProfilePhotoService implements ProfilePhotoApi {
     } on http.ClientException catch (e) {
       throw PhotoApiException('Cannot reach the server: ${e.message}');
     } on FileSystemException catch (e) {
-      throw PhotoApiException('Cannot read the photo: ${e.message}');
+      throw PhotoApiException('Cannot read the photo: ${e.message}', unreadable: true);
     } on FormatException {
       throw const PhotoApiException('Unexpected response from the server');
     } on TypeError {

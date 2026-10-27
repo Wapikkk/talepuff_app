@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/app_assets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GetStartedBtn extends StatelessWidget{
   final VoidCallback onPressed;
@@ -9,6 +10,7 @@ class GetStartedBtn extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       width: screenWidth * 0.65,
@@ -34,9 +36,9 @@ class GetStartedBtn extends StatelessWidget{
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: const Text(
-          'Let’s go',
-          style: TextStyle(
+        child: Text(
+          l10n.landingGetStarted,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             fontFamily: AppAssets.fontFamily,

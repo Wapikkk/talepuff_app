@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/story_defaults.dart';
 import 'package:talepuff_app/core/validators.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talepuff_app/ui/views/loading_screen/loading_screen_view.dart';
+
+enum StoryField { category, length, voice }
 
 class CreateStoryViewModel extends ChangeNotifier {
   String _selectedCategory = '';
@@ -11,8 +14,8 @@ class CreateStoryViewModel extends ChangeNotifier {
   final List<String> _selectedMoods = [];
   String _description = '';
   String _voiceTone = '';
-  String? _errorMessage;
-  String? _nameError;
+  AppMessage? _error;
+  AppMessage? _nameError;
   bool _isLoading = false;
   int _formVersion = 0;
 
@@ -22,8 +25,8 @@ class CreateStoryViewModel extends ChangeNotifier {
   List<String> get selectedMoods => _selectedMoods;
   String get description => _description;
   String get voiceTone => _voiceTone;
-  String? get errorMessage => _errorMessage;
-  String? get nameError => _nameError;
+  AppMessage? get error => _error;
+  AppMessage? get nameError => _nameError;
   bool get isLoading => _isLoading;
   int get formVersion => _formVersion;
 
@@ -61,7 +64,7 @@ class CreateStoryViewModel extends ChangeNotifier {
   }
 
   void _clearError() {
-    _errorMessage = null;
+    _error = null;
   }
 
   void setDescription(String desc) {
@@ -75,7 +78,7 @@ class CreateStoryViewModel extends ChangeNotifier {
     _selectedMoods.clear();
     _description = '';
     _voiceTone = '';
-    _errorMessage = null;
+    _error = null;
     _nameError = null;
     _formVersion++;
     notifyListeners();
@@ -94,20 +97,20 @@ class CreateStoryViewModel extends ChangeNotifier {
     };
   }
 
-  List<String> missingFields() => [
-        if (_selectedCategory.isEmpty) 'a category',
-        if (_storyLength.isEmpty) 'a story length',
-        if (_voiceTone.isEmpty) 'a voice',
+  List<StoryField> missingFields() => [
+        if (_selectedCategory.isEmpty) StoryField.category,
+        if (_storyLength.isEmpty) StoryField.length,
+        if (_voiceTone.isEmpty) StoryField.voice,
       ];
 
   Future<void> generateStory(BuildContext context) async {
-    _nameError = AuthValidators.characterName(_characterName);
+    _nameError = AuthValidators.characterNameIssue(_characterName);
     final missing = missingFields();
     if (missing.isNotEmpty) {
-      _errorMessage = 'Please choose ${missing.join(', ')}.';
+      _error = AppMessage.chooseMissing;
     }
     if (_nameError != null || missing.isNotEmpty) {
-      if (missing.isEmpty) _errorMessage = null;
+      if (missing.isEmpty) _error = null;
       notifyListeners();
       return;
     }
@@ -115,12 +118,12 @@ class CreateStoryViewModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final activeChild = prefs.getInt('active_child_id');
     if (activeChild == null) {
-      _errorMessage = "We couldn't find the child profile. Please log out and log in again.";
+      _error = AppMessage.childProfileMissing;
       notifyListeners();
       return;
     }
 
-    _errorMessage = null;
+    _error = null;
     _isLoading = true;
     notifyListeners();
 

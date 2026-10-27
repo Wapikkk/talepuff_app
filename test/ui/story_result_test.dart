@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talepuff_app/core/validators.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/story_job.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/ui/view_models/create_story/create_story_view_model.dart';
@@ -14,6 +15,7 @@ import 'package:talepuff_app/ui/views/create_story/create_story_view.dart';
 import 'package:talepuff_app/ui/views/voice/voice_result/voice_result_view.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 void phoneTest(
   String description,
@@ -45,27 +47,17 @@ void main() {
       'accepts letters, spaces, apostrophes and hyphens, up to 30 characters',
       () {
         for (final good in ['Aira', "Mary-Ann O'Neil", ' Aira ', 'A' * 30]) {
-          expect(AuthValidators.characterName(good), isNull, reason: good);
+          expect(AuthValidators.characterNameIssue(good), isNull, reason: good);
         }
       },
     );
 
-    test('says what is wrong in plain words', () {
-      expect(
-        AuthValidators.characterName(''),
-        'Please enter a character name.',
-      );
-      expect(
-        AuthValidators.characterName('   '),
-        'Please enter a character name.',
-      );
-      expect(AuthValidators.characterName('A' * 31), contains('at most 30'));
+    test('says what is wrong with a code', () {
+      expect(AuthValidators.characterNameIssue(''), AppMessage.characterNameRequired);
+      expect(AuthValidators.characterNameIssue('   '), AppMessage.characterNameRequired);
+      expect(AuthValidators.characterNameIssue('A' * 31), AppMessage.childNameTooLong);
       for (final bad in ['Ai%ra', '1Aira', "'Aira", 'Aira!', 'Ai😀']) {
-        expect(
-          AuthValidators.characterName(bad),
-          contains('letters only'),
-          reason: bad,
-        );
+        expect(AuthValidators.characterNameIssue(bad), AppMessage.childNameInvalid, reason: bad);
       }
     });
   });
@@ -101,7 +93,7 @@ void main() {
       await viewModel.generateStory(context);
 
       expect(viewModel.nameError, isNull);
-      expect(viewModel.errorMessage, 'Please choose a voice.');
+      expect(viewModel.error, AppMessage.chooseMissing);
     });
 
     phoneTest(
@@ -114,7 +106,7 @@ void main() {
               ChangeNotifierProvider.value(value: viewModel),
               ChangeNotifierProvider(create: (_) => NavbarViewModel()),
             ],
-            child: const MaterialApp(home: Scaffold(body: CreateStoryView())),
+            child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: CreateStoryView())),
           ),
         );
         await viewModel.generateStory(
@@ -165,9 +157,9 @@ void main() {
 
     test('explains each substitution, and both together', () async {
       for (final entry in {
-        (idea: true, name: false): LoadingViewModel.ideaDroppedNotice,
-        (idea: false, name: true): LoadingViewModel.nameReplacedNotice,
-        (idea: true, name: true): LoadingViewModel.bothReplacedNotice,
+        (idea: true, name: false): AppMessage.noticeIdeaDropped,
+        (idea: false, name: true): AppMessage.noticeNameReplaced,
+        (idea: true, name: true): AppMessage.noticeBothReplaced,
       }.entries) {
         final viewModel = viewModelFor(
           done(idea: entry.key.idea, name: entry.key.name),
@@ -198,7 +190,7 @@ void main() {
       await tester.pumpWidget(
         Provider.value(
           value: fakeStories(api),
-          child: MaterialApp(
+          child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
             home: VoiceResultView(
               story: makeDetail(
                 5,

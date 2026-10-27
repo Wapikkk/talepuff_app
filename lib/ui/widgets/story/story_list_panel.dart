@@ -8,6 +8,8 @@ import '../../../data/models/story.dart';
 import '../../view_models/navbar_view_model.dart';
 import '../../view_models/story/story_filter_view_model.dart';
 import '../shared/top_banner.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import 'delete_story_dialog.dart';
 import 'story_card.dart';
 import 'story_filter_tabs.dart';
@@ -52,26 +54,28 @@ class _StoryListPanelState extends State<StoryListPanel> {
   Future<void> _toggleFavorite(StorySummary story) async {
     final viewModel = context.read<StoryFilterViewModel>();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
     final result = await viewModel.toggleFavorite(story);
     if (result is AccountFailure) {
-      TopBanner.show(overlay, result.message, type: TopBannerType.error);
+      TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
     }
   }
 
   Future<void> _confirmDelete(StorySummary story) async {
     final viewModel = context.read<StoryFilterViewModel>();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
     final confirmed = await DeleteStoryDialog.confirm(
       context,
-      story.title.isEmpty ? 'Untitled story' : story.title,
+      story.title.isEmpty ? l10n.untitledStory : story.title,
     );
     if (!confirmed) return;
 
     final result = await viewModel.deleteStory(story);
     if (result is AccountSuccess) {
-      TopBanner.show(overlay, 'Story deleted');
+      TopBanner.show(overlay, l10n.appMessage(result.message));
     } else if (result is AccountFailure) {
-      TopBanner.show(overlay, result.message, type: TopBannerType.error);
+      TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
     }
   }
 
@@ -96,50 +100,51 @@ class _StoryListPanelState extends State<StoryListPanel> {
   }
 
   Widget _body(BuildContext context, StoryFilterViewModel viewModel) {
+    final l10n = AppLocalizations.of(context);
     if (viewModel.isLoading && viewModel.stories.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),
       );
     }
-    if (viewModel.errorMessage != null && viewModel.stories.isEmpty) {
+    if (viewModel.error != null && viewModel.stories.isEmpty) {
       return _buildMessage(
         icon: Icons.cloud_off,
-        text: viewModel.errorMessage!,
-        actionLabel: 'Try again',
+        text: l10n.appMessage(viewModel.error!),
+        actionLabel: l10n.tryAgain,
         onAction: viewModel.load,
       );
     }
     if (viewModel.stories.isEmpty) return _buildEmptyState(context, viewModel);
-    return _buildGrid(viewModel);
+    return _buildGrid(context, viewModel);
   }
 
   Widget _buildEmptyState(
     BuildContext context,
     StoryFilterViewModel viewModel,
   ) {
+    final l10n = AppLocalizations.of(context);
     if (viewModel.query.isNotEmpty) {
       return _buildMessage(
         icon: Icons.search_off,
-        text: 'No stories match "${viewModel.query}".',
+        text: l10n.noStoriesMatch(viewModel.query),
       );
     }
     switch (viewModel.tab) {
       case StoryTab.favorites:
         return _buildMessage(
           icon: Icons.favorite_border,
-          text:
-              'No favorite stories yet.\nTap the heart on a story to keep it here.',
+          text: l10n.noFavorites,
         );
       case StoryTab.popular:
         return _buildMessage(
           icon: Icons.trending_up,
-          text: 'Stories you play the most will show up here.',
+          text: l10n.noPopular,
         );
       case StoryTab.recent:
         return _buildMessage(
           icon: Icons.auto_stories,
-          text: 'No story has been created.',
-          actionLabel: "Let's create a story",
+          text: l10n.noStories,
+          actionLabel: l10n.createFirstStory,
           onAction: () async => context.read<NavbarViewModel>().changeIndex(2),
         );
     }
@@ -199,14 +204,15 @@ class _StoryListPanelState extends State<StoryListPanel> {
     );
   }
 
-  Widget _buildGrid(StoryFilterViewModel viewModel) {
+  Widget _buildGrid(BuildContext context, StoryFilterViewModel viewModel) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
-        if (viewModel.errorMessage != null)
+        if (viewModel.error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Text(
-              viewModel.errorMessage!,
+              l10n.appMessage(viewModel.error!),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.redAccent, fontSize: 13),
             ),

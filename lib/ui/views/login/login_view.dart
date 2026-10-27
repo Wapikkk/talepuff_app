@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../view_models/auth/login_view_model.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -38,6 +40,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<LoginViewModel>();
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: GestureDetector(
@@ -60,13 +63,13 @@ class _LoginViewState extends State<LoginView> {
 
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 500),
-                  opacity: viewModel.errorMessage != null ? 1.0 : 0.0,
+                  opacity: viewModel.error != null ? 1.0 : 0.0,
                   curve: Curves.easeInOut,
                   child: Container(
                     width: double.infinity,
                     alignment: Alignment.center,
                     child: Text(
-                      viewModel.errorMessage ?? "",
+                      viewModel.error == null ? '' : l10n.appMessage(viewModel.error!),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.redAccent,
@@ -91,9 +94,9 @@ class _LoginViewState extends State<LoginView> {
                           fontFamily: AppAssets.fontFamily,
                         ),
                         children: [
-                          TextSpan(text: "New User? "),
+                          TextSpan(text: l10n.newUser),
                           TextSpan(
-                            text: "Sign Up",
+                            text: l10n.signUp,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

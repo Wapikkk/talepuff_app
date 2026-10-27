@@ -9,9 +9,10 @@ import 'package:talepuff_app/ui/views/settings/update_child_name_view.dart';
 import 'package:talepuff_app/ui/widgets/shared/top_banner.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 Widget bannerApp({required void Function(BuildContext) onOpen}) {
-  return MaterialApp(
+  return MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
     home: Builder(
       builder: (context) => Scaffold(
         body: Center(
@@ -62,7 +63,7 @@ void main() {
     });
 
     testWidgets('survives the screen that showed it being closed', (tester) async {
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
         home: Builder(
           builder: (home) => Scaffold(
             body: ElevatedButton(
@@ -158,7 +159,7 @@ void main() {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel(repository: account.repository)),
         ],
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Builder(
             builder: (home) => Scaffold(
               body: ElevatedButton(
@@ -199,7 +200,7 @@ void main() {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel(repository: account.repository)),
         ],
-        child: const MaterialApp(home: UpdateChildNameView()),
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: UpdateChildNameView()),
       ));
 
       await tester.enterText(find.byType(TextField), 'Aira 2');

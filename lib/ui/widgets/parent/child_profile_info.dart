@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import '../../../core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/l10n_labels.dart';
 
 class ChildProfileInfo extends StatelessWidget{
   final String name;
@@ -16,35 +18,36 @@ class ChildProfileInfo extends StatelessWidget{
     required this.interests,
   });
 
-  static String ageText(String age) {
+  static String ageText(AppLocalizations l10n, String age) {
     final years = int.tryParse(age.trim());
     if (years == null || years <= 0) return '';
-    return years == 1 ? '1 year old' : '$years years old';
+    return l10n.ageYears(years);
   }
 
-  String _formatInterests() {
-    String prefix = "Hi, I'm $name";
-    String interestsText;
-    if (interests.isEmpty) return "$prefix!";
+  String _formatInterests(AppLocalizations l10n) {
+    final prefix = l10n.profileIntro(name);
+    if (interests.isEmpty) return '$prefix!';
 
-    if (interests.length == 1) {
-      interestsText = "I like ${interests[0]}!";
-    } else if (interests.length == 2) {
-      interestsText = "I like ${interests[0]} and ${interests[1]}!";
+    final labels = [for (final interest in interests) l10n.interestLabel(interest)];
+    final String interestsText;
+    if (labels.length == 1) {
+      interestsText = l10n.profileLikes1(labels[0]);
+    } else if (labels.length == 2) {
+      interestsText = l10n.profileLikes2(labels[0], labels[1]);
     } else {
-      String allButLast = interests.sublist(0, interests.length - 1).join(", ");
-      interestsText = "I like $allButLast, and ${interests.last}!";
+      interestsText = l10n.profileLikesMany(labels.sublist(0, labels.length - 1).join(', '), labels.last);
     }
 
-    return "$prefix, $interestsText";
+    return '$prefix, $interestsText';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Text(
-          [name, ageText(age)].where((part) => part.isNotEmpty).join(', '),
+          [name, ageText(l10n, age)].where((part) => part.isNotEmpty).join(', '),
           style: const TextStyle(
             color: AppColors.darkPurple,
             fontSize: 24,
@@ -53,7 +56,7 @@ class ChildProfileInfo extends StatelessWidget{
           ),
         ),
         Text(
-          _formatInterests(),
+          _formatInterests(l10n),
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: AppColors.darkPurple,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/models/story.dart';
 import '../../../data/repositories/story_repository.dart';
 
@@ -25,7 +26,7 @@ class StoryFilterViewModel extends ChangeNotifier {
   bool _hasMore = false;
   bool _isSearching = false;
   String _query = '';
-  String? errorMessage;
+  AppMessage? error;
 
   final Set<int> _deleting = {};
   int _request = 0;
@@ -46,8 +47,7 @@ class StoryFilterViewModel extends ChangeNotifier {
   Future<void> load() async {
     final childId = int.tryParse(_childId() ?? '');
     if (childId == null) {
-      errorMessage =
-          "Child's data has not been loaded yet. Please try again in a moment.";
+      error = AppMessage.childDataNotLoaded;
       _isLoading = false;
       _notify();
       return;
@@ -56,7 +56,7 @@ class StoryFilterViewModel extends ChangeNotifier {
     final request = ++_request;
     _isLoading = true;
     _isLoadingMore = false;
-    errorMessage = null;
+    error = null;
     _notify();
 
     final result = await _repository.list(
@@ -72,7 +72,7 @@ class StoryFilterViewModel extends ChangeNotifier {
         _stories = stories;
         _hasMore = hasMore;
       case StoryListFailed(:final message):
-        errorMessage = message;
+        error = message;
     }
     _notify();
   }
@@ -125,7 +125,7 @@ class StoryFilterViewModel extends ChangeNotifier {
         _stories = [..._stories, ...stories];
         _hasMore = hasMore;
       case StoryListFailed(:final message):
-        errorMessage = message;
+        error = message;
     }
     _notify();
   }
