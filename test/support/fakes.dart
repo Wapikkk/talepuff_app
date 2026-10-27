@@ -129,7 +129,6 @@ class FakeProfileApi implements ProfileApi {
   @override
   Future<void> register({
     required String firebaseUid,
-    required String email,
     required ChildDraft child,
   }) async {
     if (registerError != null) throw registerError!;

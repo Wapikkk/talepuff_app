@@ -78,7 +78,7 @@ void main() {
   });
 
   group('register', () {
-    test('sends every field the backend expects', () async {
+    test('sends every field the backend expects, and NO email (the backend no longer stores it)', () async {
       late Map<String, dynamic> body;
       late http.BaseRequest request;
       final service = serviceWith((r) async {
@@ -87,13 +87,12 @@ void main() {
         return http.Response('{"message":"ok"}', 200);
       });
 
-      await service.register(firebaseUid: 'uid-1', email: 'p@x.com', child: draft);
+      await service.register(firebaseUid: 'uid-1', child: draft);
 
       expect(request.method, 'POST');
       expect(request.url.toString(), 'http://backend/api/register');
       expect(body, {
         'firebase_uid': 'uid-1',
-        'email': 'p@x.com',
         'child_name': 'Aira',
         'age': 3,
         'gender': 'Girl',
@@ -104,7 +103,7 @@ void main() {
     test('a non-200 answer throws with the status code', () async {
       final service = serviceWith((_) async => http.Response('bad', 500));
       await expectLater(
-        service.register(firebaseUid: 'u', email: 'e', child: draft),
+        service.register(firebaseUid: 'u', child: draft),
         throwsA(isA<ProfileApiException>().having((e) => e.statusCode, 'statusCode', 500)),
       );
     });
@@ -112,7 +111,7 @@ void main() {
     test('a refused connection throws ProfileApiException', () async {
       final service = serviceWith((_) async => throw const SocketException('refused'));
       await expectLater(
-        service.register(firebaseUid: 'u', email: 'e', child: draft),
+        service.register(firebaseUid: 'u', child: draft),
         throwsA(isA<ProfileApiException>()),
       );
     });
@@ -126,7 +125,7 @@ void main() {
         timeout: const Duration(milliseconds: 20),
       );
       await expectLater(
-        service.register(firebaseUid: 'u', email: 'e', child: draft),
+        service.register(firebaseUid: 'u', child: draft),
         throwsA(isA<ProfileApiException>()),
       );
     });
