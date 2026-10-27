@@ -43,9 +43,9 @@ class ProfileApiException implements Exception {
 abstract class ProfileApi {
   Future<ProfileLookup> fetchProfile(String firebaseUid);
 
+  /// Email sengaja tidak dikirim: backend tidak menyimpannya (sumber kebenaran email hanya Firebase).
   Future<void> register({
     required String firebaseUid,
-    required String email,
     required ChildDraft child,
   });
 
@@ -69,7 +69,6 @@ class AuthService implements ProfileApi {
   @override
   Future<void> register({
     required String firebaseUid,
-    required String email,
     required ChildDraft child,
   }) async {
     try {
@@ -79,7 +78,6 @@ class AuthService implements ProfileApi {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({
               'firebase_uid': firebaseUid,
-              'email': email,
               'child_name': child.name,
               'age': child.age,
               'gender': child.gender,

@@ -148,7 +148,7 @@ class AuthRepository {
 
   Future<AuthResult> _registerThenEnter(AuthUser user, ChildDraft child) async {
     try {
-      await _api.register(firebaseUid: user.uid, email: user.email ?? '', child: child);
+      await _api.register(firebaseUid: user.uid, child: child);
     } on ProfileApiException catch (e) {
       if (e.statusCode == 401 || e.statusCode == 403) {
         return const AuthFailed(_sessionRejectedMessage, AuthFailureReason.unknown);

@@ -44,7 +44,6 @@ dependencies:
   image_picker: ^1.0.7
   image_cropper: ^11.0.0
   flutter_dotenv: ^6.0.1
-  audioplayers: ^6.6.0
   animated_text_kit: ^4.3.0
   mqtt_client: ^10.11.11
   package_info_plus: ^9.0.1
