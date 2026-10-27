@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 import '../../../../core/app_assets.dart';
 import '../../../../core/app_colors.dart';
 
@@ -10,6 +11,7 @@ class PlayLastStoryBtn extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       width: screenWidth * 0.6,
@@ -34,9 +36,9 @@ class PlayLastStoryBtn extends StatelessWidget{
           width: 14,
           height: 14,
         ),
-        label: const Text(
-          'Play Last Story',
-          style: TextStyle(
+        label: Text(
+          l10n.playLastStory,
+          style: const TextStyle(
             color: AppColors.darkPurple,
             fontFamily: AppAssets.fontFamily,
             fontSize: 15,

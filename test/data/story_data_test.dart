@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:talepuff_app/core/relative_time.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/story.dart';
 import 'package:talepuff_app/data/models/story_job.dart';
 import 'package:talepuff_app/data/repositories/story_repository.dart';
@@ -73,18 +77,28 @@ void main() {
 
   group('RelativeTime', () {
     final now = DateTime(2026, 10, 20, 12, 0);
+    final en = lookupAppLocalizations(const Locale('en'));
+
+    setUpAll(() => initializeDateFormatting('id'));
 
     test('wording by age', () {
-      expect(RelativeTime.format(now.subtract(const Duration(seconds: 30)), now: now), 'Just now');
-      expect(RelativeTime.format(now.subtract(const Duration(minutes: 7)), now: now), '7 min ago');
-      expect(RelativeTime.format(now.subtract(const Duration(hours: 3)), now: now), '3 h ago');
-      expect(RelativeTime.format(now.subtract(const Duration(days: 2)), now: now), '2 d ago');
-      expect(RelativeTime.format(DateTime(2026, 3, 5), now: now), '5 Mar');
-      expect(RelativeTime.format(DateTime(2025, 12, 31), now: now), '31 Dec 2025');
+      expect(RelativeTime.format(en, now.subtract(const Duration(seconds: 30)), now: now), 'Just now');
+      expect(RelativeTime.format(en, now.subtract(const Duration(minutes: 7)), now: now), '7 min ago');
+      expect(RelativeTime.format(en, now.subtract(const Duration(hours: 3)), now: now), '3 h ago');
+      expect(RelativeTime.format(en, now.subtract(const Duration(days: 2)), now: now), '2 d ago');
+      expect(RelativeTime.format(en, DateTime(2026, 3, 5), now: now), '5 Mar');
+      expect(RelativeTime.format(en, DateTime(2025, 12, 31), now: now), '31 Dec 2025');
     });
 
     test('a time slightly in the future (clock skew) is "Just now"', () {
-      expect(RelativeTime.format(now.add(const Duration(minutes: 2)), now: now), 'Just now');
+      expect(RelativeTime.format(en, now.add(const Duration(minutes: 2)), now: now), 'Just now');
+    });
+
+    test('Indonesian wording and month names', () {
+      final id = lookupAppLocalizations(const Locale('id'));
+      expect(RelativeTime.format(id, now.subtract(const Duration(seconds: 30)), now: now), 'Baru saja');
+      expect(RelativeTime.format(id, now.subtract(const Duration(minutes: 7)), now: now), '7 menit lalu');
+      expect(RelativeTime.format(id, DateTime(2026, 10, 5), now: now.add(const Duration(days: 30))), '5 Okt');
     });
   });
 
@@ -192,29 +206,29 @@ void main() {
 
     test('failures become readable messages', () async {
       final expectations = {
-        400: "didn't understand",
-        401: 'login again',
-        403: 'login again',
-        404: "couldn't find that story",
-        500: "Can't reach the server",
+        400: AppMessage.requestNotUnderstood,
+        401: AppMessage.reloginRequired,
+        403: AppMessage.reloginRequired,
+        404: AppMessage.storyNotFound,
+        500: AppMessage.serverUnreachable,
       };
       for (final entry in expectations.entries) {
         final api = FakeStoryApi()..listError = StoryApiException('x', statusCode: entry.key);
         final result = await fakeStories(api).list(childId: 7, tab: StoryTab.recent) as StoryListFailed;
-        expect(result.message, contains(entry.value), reason: '${entry.key}');
+        expect(result.message, entry.value, reason: '${entry.key}');
       }
     });
 
     test('a backend that was not restarted is explained', () async {
       final api = FakeStoryApi()..listError = const StoryApiException('x', statusCode: 404, endpointMissing: true);
       final result = await fakeStories(api).list(childId: 7, tab: StoryTab.recent) as StoryListFailed;
-      expect(result.message, contains('restart the backend'));
+      expect(result.message, AppMessage.backendOutdated);
     });
 
     test('an unreadable answer is not reported as a network problem', () async {
       final api = FakeStoryApi()..listError = const StoryApiException('Unexpected response from the server');
       final result = await fakeStories(api).list(childId: 7, tab: StoryTab.recent) as StoryListFailed;
-      expect(result.message, contains('could not read'));
+      expect(result.message, AppMessage.unreadableResponse);
     });
 
     test('get and setFavorite report success and failure', () async {
@@ -310,7 +324,7 @@ void main() {
       final result = await StoryRepository(api: service).startJob({'child_id': 7});
 
       expect(result, isA<JobStartFailed>());
-      expect((result as JobStartFailed).message, contains('restart'));
+      expect((result as JobStartFailed).message, AppMessage.backendOutdated);
     });
   });
 }

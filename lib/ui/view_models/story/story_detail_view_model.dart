@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/models/story.dart';
 import '../../../data/repositories/story_repository.dart';
 
@@ -11,7 +12,7 @@ class StoryDetailViewModel extends ChangeNotifier {
 
   StoryDetail? story;
   bool isLoading = true;
-  String? errorMessage;
+  AppMessage? error;
 
   bool favoriteChanged = false;
 
@@ -20,7 +21,7 @@ class StoryDetailViewModel extends ChangeNotifier {
 
   Future<void> load(int id) async {
     isLoading = true;
-    errorMessage = null;
+    error = null;
     _notify();
 
     final result = await _repository.get(id);
@@ -31,7 +32,7 @@ class StoryDetailViewModel extends ChangeNotifier {
       case StoryDetailLoaded(story: final loaded):
         story = loaded;
       case StoryDetailFailed(:final message):
-        errorMessage = message;
+        error = message;
     }
     _notify();
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/repositories/feedback_repository.dart';
 
 class FeedbackViewModel extends ChangeNotifier {
@@ -14,7 +15,7 @@ class FeedbackViewModel extends ChangeNotifier {
   String category = 'idea';
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  String? errorMessage;
+  AppMessage? error;
 
   void selectCategory(String value) {
     category = value;
@@ -24,7 +25,7 @@ class FeedbackViewModel extends ChangeNotifier {
   void reset() {
     _errorTimer?.cancel();
     category = 'idea';
-    errorMessage = null;
+    error = null;
     _isLoading = false;
     notifyListeners();
   }
@@ -32,7 +33,7 @@ class FeedbackViewModel extends ChangeNotifier {
   Future<AccountResult?> send(String message) async {
     if (_isLoading) return null;
     _isLoading = true;
-    errorMessage = null;
+    error = null;
     notifyListeners();
     try {
       final result = await _repository.send(category: category, message: message);
@@ -44,12 +45,12 @@ class FeedbackViewModel extends ChangeNotifier {
     }
   }
 
-  void _setError(String message) {
-    errorMessage = message;
+  void _setError(AppMessage message) {
+    error = message;
     notifyListeners();
     _errorTimer?.cancel();
     _errorTimer = Timer(const Duration(seconds: 3), () {
-      errorMessage = null;
+      error = null;
       notifyListeners();
     });
   }

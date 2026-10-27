@@ -7,6 +7,9 @@ import '../../../core/app_assets.dart';
 import '../../../data/models/account_result.dart';
 import '../../view_models/parents/parent_view_model.dart';
 import '../shared/top_banner.dart';
+import '../../../data/models/app_message.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import '../../view_models/auth/login_view_model.dart';
 
 class ChildProfilePhoto extends StatelessWidget {
@@ -79,17 +82,18 @@ class ChildProfilePhoto extends StatelessWidget {
     final loginVM = Provider.of<LoginViewModel>(context, listen: false);
     final childId = loginVM.currentChildId;
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
 
     if (childId == null || childId == "null") {
-      TopBanner.show(overlay, "Child's data has not been loaded yet. Please try again in a moment.", type: TopBannerType.error);
+      TopBanner.show(overlay, l10n.appMessage(AppMessage.childDataNotLoaded), type: TopBannerType.error);
       return;
     }
 
     void report(AccountResult? result) {
-      if (result is AccountFailure && result.message.isNotEmpty) {
-        TopBanner.show(overlay, result.message, type: TopBannerType.error);
+      if (result is AccountFailure) {
+        TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
       } else if (result is AccountSuccess) {
-        TopBanner.show(overlay, result.message);
+        TopBanner.show(overlay, l10n.appMessage(result.message));
       }
     }
 
@@ -114,9 +118,9 @@ class ChildProfilePhoto extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            const Text(
-              'Profile Picture',
-              style: TextStyle(
+            Text(
+              l10n.photoTitle,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkPurple,
@@ -127,9 +131,9 @@ class ChildProfilePhoto extends StatelessWidget {
 
             ListTile(
               leading: Image.asset(AppAssets.iconAddAPhoto),
-              title: const Text(
-                'Camera',
-                style: TextStyle(
+              title: Text(
+                l10n.photoCamera,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   fontFamily: AppAssets.fontFamily,
@@ -138,15 +142,15 @@ class ChildProfilePhoto extends StatelessWidget {
               ),
               onTap: () async {
                 Navigator.pop(sheetContext);
-                report(await parentVM.handleImageSelection(ImageSource.camera, childId));
+                report(await parentVM.handleImageSelection(ImageSource.camera, childId, cropTitle: l10n.photoCropTitle));
               },
             ),
 
             ListTile(
               leading: Image.asset(AppAssets.iconEditAPhoto),
-              title: const Text(
-                'Choose from library',
-                style: TextStyle(
+              title: Text(
+                l10n.photoLibrary,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   fontFamily: AppAssets.fontFamily,
@@ -155,16 +159,16 @@ class ChildProfilePhoto extends StatelessWidget {
               ),
               onTap: () async {
                 Navigator.pop(sheetContext);
-                report(await parentVM.handleImageSelection(ImageSource.gallery, childId));
+                report(await parentVM.handleImageSelection(ImageSource.gallery, childId, cropTitle: l10n.photoCropTitle));
               },
             ),
 
             if(parentVM.imagePreview != null || parentVM.currentPhotoUrl != null)
               ListTile(
                 leading: Image.asset(AppAssets.iconRemovePhoto),
-                title: const Text(
-                  'Remove Photo',
-                  style: TextStyle(
+                title: Text(
+                  l10n.photoRemove,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     fontFamily: AppAssets.fontFamily,

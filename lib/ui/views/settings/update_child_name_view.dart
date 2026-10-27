@@ -2,6 +2,8 @@ import '../../widgets/shared/dismiss_keyboard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/account_result.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../view_models/parents/parent_view_model.dart';
 import '../../view_models/parents/update_settings_view_model.dart';
@@ -42,6 +44,7 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
     final childInfoVM = context.read<ChildInfoViewModel>();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final result = await updateVM.updateChildName(
       childId: parentVM.currentChildId,
@@ -52,13 +55,14 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
     final newName = result.value ?? _nameController.text.trim();
     parentVM.updateLocalChildName(newName);
     childInfoVM.applySavedName(newName);
-    TopBanner.show(overlay, result.message);
+    TopBanner.show(overlay, l10n.appMessage(result.message, detail: result.value));
     navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return DismissKeyboard(
       child: Scaffold(
@@ -69,21 +73,21 @@ class _UpdateChildNameViewState extends State<UpdateChildNameView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const UpdateHeaderSettings(title: "Child's Name"),
+                UpdateHeaderSettings(title: l10n.childName),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: "Child's Name",
-                  hint: "Enter your child's name",
+                  label: l10n.childName,
+                  hint: l10n.enterChildName,
                   controller: _nameController,
                 ),
                 const SizedBox(height: 40),
                 UpdateBtnSettings(
-                  text: 'Update Name',
+                  text: l10n.updateName,
                   isBusy: updateVM.isLoading,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: 12),
-                InlineError(message: updateVM.errorMessage),
+                InlineError(message: updateVM.error),
               ],
             ),
           ),

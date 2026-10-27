@@ -1,12 +1,8 @@
 enum StoryTab {
-  recent('Recent'),
-  favorites('Favorites'),
-  popular('Popular');
+  recent,
+  favorites,
+  popular;
 
-  const StoryTab(this.label);
-  final String label;
-
-  /// Nilai parameter `tab` di API backend.
   String get apiValue => name;
 }
 

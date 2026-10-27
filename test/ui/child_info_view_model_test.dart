@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/auth_result.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
@@ -39,7 +40,7 @@ void main() {
       vm.name = 'Aira 2';
 
       expect(await vm.completeProfile(), isNull);
-      expect(vm.errorMessage, contains('letters'));
+      expect(vm.error, AppMessage.childNameInvalid);
       expect(f.api.registered, isEmpty, reason: 'the server would reject it with a 400 anyway');
     });
   });
@@ -105,7 +106,7 @@ void main() {
       final vm = make(f);
 
       expect(await vm.completeProfile(), isNull);
-      expect(vm.errorMessage, 'Please fill in all mandatory fields!');
+      expect(vm.error, AppMessage.fillMandatory);
       expect(f.api.registered, isEmpty);
     });
 
@@ -116,7 +117,7 @@ void main() {
       vm.age = 'abc';
 
       expect(await vm.completeProfile(), isNull);
-      expect(vm.errorMessage, 'Please enter a valid age.');
+      expect(vm.error, AppMessage.ageInvalid);
     });
 
     test('a valid form registers the profile and returns SignedIn', () async {
@@ -141,7 +142,7 @@ void main() {
       final result = await vm.completeProfile();
 
       expect(result, isA<AuthFailed>());
-      expect(vm.errorMessage, isNotNull);
+      expect(vm.error, isNotNull);
       expect(vm.isLoading, isFalse);
     });
   });

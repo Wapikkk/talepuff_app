@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/app_assets.dart';
 import '../../../core/mascots.dart';
 import '../../../core/validators.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/models/auth_result.dart';
 import '../../../data/models/child_profile.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -18,7 +19,7 @@ class ChildInfoViewModel extends ChangeNotifier {
   String _mascotId = Mascots.defaultId;
   String get mascotId => _mascotId;
   String get childName => name.trim().isNotEmpty ? name.trim() : _childName;
-  String? errorMessage;
+  AppMessage? error;
   bool isLoading = false;
   final List<String> _selectedInterests = [];
   List<String> get selectedInterests => _selectedInterests;
@@ -41,13 +42,13 @@ class ChildInfoViewModel extends ChangeNotifier {
     return (value != null && value > 0) ? value : null;
   }
 
-  String? get ageError =>
-      (age.trim().isEmpty || ageValue != null) ? null : 'Please enter a valid age.';
+  AppMessage? get ageError =>
+      (age.trim().isEmpty || ageValue != null) ? null : AppMessage.ageInvalid;
 
   bool get _hasMandatoryFields =>
       name.trim().isNotEmpty && selectedGender.isNotEmpty && selectedInterests.isNotEmpty;
 
-  String? get nameError => name.trim().isEmpty ? null : AuthValidators.childName(name);
+  AppMessage? get nameError => name.trim().isEmpty ? null : AuthValidators.childNameIssue(name);
 
   bool get isFormValid => _hasMandatoryFields && nameError == null && ageError == null;
 
@@ -60,7 +61,7 @@ class ChildInfoViewModel extends ChangeNotifier {
 
   void updateName(String value) {
     name = value;
-    if (errorMessage != null) errorMessage = null;
+    if (error != null) error = null;
     notifyListeners();
   }
 
@@ -109,7 +110,7 @@ class ChildInfoViewModel extends ChangeNotifier {
     _selectedInterests.clear();
     _childName = "Friend";
     _mascotId = Mascots.defaultId;
-    errorMessage = null;
+    error = null;
     isLoading = false;
     notifyListeners();
   }
@@ -141,16 +142,16 @@ class ChildInfoViewModel extends ChangeNotifier {
 
   bool _validate() {
     if (isFormValid) return true;
-    _showError(_hasMandatoryFields ? (nameError ?? ageError!) : 'Please fill in all mandatory fields!');
+    _showError(_hasMandatoryFields ? (nameError ?? ageError!) : AppMessage.fillMandatory);
     return false;
   }
 
-  void _showError(String message) {
-    errorMessage = message;
+  void _showError(AppMessage message) {
+    error = message;
     notifyListeners();
     _errorTimer?.cancel();
     _errorTimer = Timer(const Duration(seconds: 3), () {
-      errorMessage = null;
+      error = null;
       notifyListeners();
     });
   }

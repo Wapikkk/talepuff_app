@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/auth_result.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/ui/view_models/auth/login_view_model.dart';
@@ -25,7 +26,7 @@ void main() {
       final result = await vm.login();
 
       expect(result, isA<AuthFailed>());
-      expect(vm.errorMessage, 'Email and Password are required!');
+      expect(vm.error, AppMessage.credentialsRequired);
       expect(f.gateway.calls, isEmpty);
     });
 
@@ -37,7 +38,7 @@ void main() {
 
       await vm.login();
 
-      expect(vm.errorMessage, contains('Invalid email'));
+      expect(vm.error, AppMessage.emailInvalid);
       expect(f.gateway.calls, isEmpty);
     });
 
@@ -65,7 +66,7 @@ void main() {
       expect(result, isA<SignedIn>());
       expect(f.gateway.calls, ['signIn:parent@example.com']);
       expect(vm.isLoading, isFalse);
-      expect(vm.errorMessage, isNull);
+      expect(vm.error, isNull);
     });
 
     test('a failure shows the repository message', () async {
@@ -77,7 +78,7 @@ void main() {
 
       await vm.login();
 
-      expect(vm.errorMessage, contains('Incorrect email or password'));
+      expect(vm.error, AppMessage.invalidCredentials);
       expect(vm.isLoading, isFalse);
     });
 
@@ -88,7 +89,7 @@ void main() {
         ..password = 'secret123';
 
       expect(await vm.login(), isA<NeedsProfile>());
-      expect(vm.errorMessage, isNull);
+      expect(vm.error, isNull);
     });
 
     test('a second tap while the first is running is ignored', () async {
@@ -187,17 +188,17 @@ void main() {
       final vm = makeViewModel(f);
 
       expect(await vm.loginWithGoogle(), isA<AuthCancelled>());
-      expect(vm.errorMessage, isNull);
+      expect(vm.error, isNull);
     });
 
     test('a Google error is shown to the user instead of being swallowed', () async {
       final f = AuthFixture();
-      f.gateway.failure = const AuthFailure(AuthGatewayError.unknown, 'Google sign-in failed.');
+      f.gateway.failure = const AuthFailure(AuthGatewayError.googleSignInFailed, 'sign_in_failed');
       final vm = makeViewModel(f);
 
       await vm.loginWithGoogle();
 
-      expect(vm.errorMessage, 'Google sign-in failed.');
+      expect(vm.error, AppMessage.googleSignInFailed);
     });
   });
 

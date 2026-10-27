@@ -14,6 +14,7 @@ import 'package:talepuff_app/ui/views/child_info/child_info_args.dart';
 import 'package:talepuff_app/ui/views/startup/startup_view.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 /// Aplikasi mini dengan layar tujuan berupa teks penanda, supaya yang diuji hanya alur pembuka.
 Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
@@ -26,7 +27,7 @@ Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
       ChangeNotifierProvider(create: (_) => StartupViewModel(repository: f.repository)),
       ChangeNotifierProvider(create: (_) => ChildInfoViewModel(repository: f.repository)),
     ],
-    child: MaterialApp(
+    child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
       initialRoute: '/',
       routes: {
         '/': (_) => const StartupView(),

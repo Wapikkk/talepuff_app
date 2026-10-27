@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/models/app_message.dart';
 import '../../data/models/auth_result.dart';
 import '../../data/repositories/auth_repository.dart';
 
@@ -9,12 +10,13 @@ class StartupViewModel extends ChangeNotifier {
   final AuthRepository _repository;
 
   bool isLoading = true;
-  String? errorMessage;
+
+  AppMessage? error;
   bool canChangeServer = false;
 
   Future<AuthResult> restore() async {
     isLoading = true;
-    errorMessage = null;
+    error = null;
     canChangeServer = false;
     notifyListeners();
 
@@ -22,7 +24,7 @@ class StartupViewModel extends ChangeNotifier {
 
     isLoading = false;
     if (result is AuthFailed) {
-      errorMessage = result.message;
+      error = result.message;
       canChangeServer = result.reason == AuthFailureReason.network;
     }
     notifyListeners();

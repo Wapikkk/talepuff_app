@@ -9,13 +9,23 @@ import '../../widgets/create_story/custom_input_field.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/app_message_text.dart';
+import 'package:talepuff_app/l10n/l10n_labels.dart';
 
 class CreateStoryView extends StatelessWidget {
   const CreateStoryView({super.key});
 
+  static String Function(StoryField) _fieldLabel(AppLocalizations l10n) => (field) => switch (field) {
+        StoryField.category => l10n.fieldCategory,
+        StoryField.length => l10n.fieldLength,
+        StoryField.voice => l10n.fieldVoice,
+      };
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<CreateStoryViewModel>();
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -45,9 +55,9 @@ class CreateStoryView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SectionTitle(title: "Character Name"),
+                            SectionTitle(title: l10n.createCharacterName),
                             CustomInputField(
-                              hint: "Custom Your Nickname",
+                              hint: l10n.createNicknameHint,
                               onChanged: (value) {
                                 context
                                     .read<CreateStoryViewModel>()
@@ -58,19 +68,16 @@ class CreateStoryView extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Text(
-                                  viewModel.nameError!,
+                                  l10n.appMessage(viewModel.nameError!),
                                   key: const Key('name-error'),
                                   style: const TextStyle(color: Colors.red, fontSize: 14),
                                 ),
                               ),
 
-                            const SectionTitle(title: "Story Length"),
+                            SectionTitle(title: l10n.createStoryLength),
                             ChoiceChipGroup(
-                              options: const [
-                                '3 Minutes',
-                                '5 Minutes',
-                                '7 Minutes',
-                              ],
+                              options: const ['3', '5', '7'],
+                              labelOf: l10n.lengthLabel,
                               onSelected: (value) {
                                 context
                                     .read<CreateStoryViewModel>()
@@ -78,8 +85,9 @@ class CreateStoryView extends StatelessWidget {
                               },
                             ),
 
-                            const SectionTitle(title: "Mood"),
+                            SectionTitle(title: l10n.createMood),
                             ChoiceChipGroup(
+                              labelOf: l10n.moodLabel,
                               options: [
                                 'Calm',
                                 'Curious',
@@ -97,17 +105,18 @@ class CreateStoryView extends StatelessWidget {
                               },
                             ),
 
-                            const SectionTitle(title: "Voice"),
+                            SectionTitle(title: l10n.createVoice),
                             ChoiceChipGroup(
                               options: StoryDefaults.voices,
+                              labelOf: l10n.voiceLabel,
                               onSelected: (value) {
                                 context.read<CreateStoryViewModel>().setVoiceTone(value);
                               },
                             ),
 
-                            const SectionTitle(title: "Describe Your Story"),
+                            SectionTitle(title: l10n.createDescribe),
                             CustomInputField(
-                              hint: "Optional, max 30 words. English or Indonesian is fine.",
+                              hint: l10n.createDescribeHint,
                               maxLines: 4,
                               onChanged: (value) {
                                 context
@@ -116,11 +125,14 @@ class CreateStoryView extends StatelessWidget {
                               },
                             ),
 
-                            if (viewModel.errorMessage != null)
+                            if (viewModel.error != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 16),
                                 child: Text(
-                                  viewModel.errorMessage!,
+                                  l10n.appMessage(
+                                    viewModel.error!,
+                                    detail: viewModel.missingFields().map(_fieldLabel(l10n)).join(', '),
+                                  ),
                                   style: const TextStyle(color: Colors.red, fontSize: 14),
                                 ),
                               ),

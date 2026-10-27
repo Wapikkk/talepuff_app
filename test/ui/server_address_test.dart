@@ -10,12 +10,14 @@ import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talepuff_app/core/server_address.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/story.dart';
 import 'package:talepuff_app/data/services/authenticated_client.dart';
 import 'package:talepuff_app/data/services/server_check_service.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/ui/view_models/settings/server_address_view_model.dart';
 import 'package:talepuff_app/ui/views/settings/server_address_view.dart';
+import '../support/l10n.dart';
 
 class FakeChecker implements ServerChecker {
   ServerCheckResult result = const ServerReachable();
@@ -30,7 +32,7 @@ class FakeChecker implements ServerChecker {
   }
 }
 
-String message(ServerAddressResult result) =>
+AppMessage message(ServerAddressResult result) =>
     (result as InvalidServerAddress).message;
 
 String url(ServerAddressResult result) => (result as ValidServerAddress).url;
@@ -97,7 +99,7 @@ void main() {
             reason: bad,
           );
         }
-        expect(message(ServerAddress.parse('8.8.8.8')), contains('same Wi-Fi'));
+        expect(message(ServerAddress.parse('8.8.8.8')), AppMessage.addressNotLocal);
       },
     );
 
@@ -281,7 +283,7 @@ void main() {
 
         expect(await viewModel.check('8.8.8.8'), isNull);
 
-        expect(viewModel.errorMessage, contains('same Wi-Fi'));
+        expect(viewModel.error, AppMessage.addressNotLocal);
         expect(checker.checked, isEmpty);
         viewModel.dispose();
       },
@@ -296,7 +298,7 @@ void main() {
         expect(await viewModel.check('192.168.1.5'), 'http://192.168.1.5:8080');
 
         expect(checker.checked, ['http://192.168.1.5:8080']);
-        expect(viewModel.errorMessage, isNull);
+        expect(viewModel.error, isNull);
         viewModel.dispose();
       },
     );
@@ -306,11 +308,11 @@ void main() {
       final viewModel = ServerAddressViewModel(checker: checker);
 
       expect(await viewModel.check('192.168.1.5'), isNull);
-      expect(viewModel.errorMessage, contains("Can't reach that address"));
+      expect(viewModel.error, AppMessage.addressUnreachable);
 
       checker.result = const ServerNotTalePuff();
       expect(await viewModel.check('192.168.1.5'), isNull);
-      expect(viewModel.errorMessage, contains('not the TalePuff backend'));
+      expect(viewModel.error, AppMessage.addressNotTalepuff);
       viewModel.dispose();
     });
 
@@ -337,7 +339,7 @@ void main() {
 
       expect(await viewModel.save('192.168.1.5'), ServerSaveOutcome.saved);
       expect(ServerAddress.baseUrl, 'http://192.168.1.5:8080');
-      expect(viewModel.errorMessage, isNull);
+      expect(viewModel.error, isNull);
 
       await viewModel.useDefault();
       expect(ServerAddress.baseUrl, 'http://10.0.0.9:8080');
@@ -364,7 +366,7 @@ void main() {
       await tester.pumpWidget(
         Provider<ServerChecker>.value(
           value: checker,
-          child: MaterialApp(
+          child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
             home: Builder(
               builder: (context) => Scaffold(
                 body: TextButton(
@@ -446,7 +448,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.textContaining("Can't reach that address"), findsOneWidget);
+      expect(find.textContaining("Can’t reach that address"), findsOneWidget);
       expect(find.text('Connected to the server'), findsNothing);
     });
 

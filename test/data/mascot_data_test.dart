@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:talepuff_app/core/mascots.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/child_profile.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
@@ -13,7 +14,7 @@ import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 
 import '../support/fakes.dart';
 
-String failureOf(AccountResult result) => (result as AccountFailure).message;
+AppMessage failureOf(AccountResult result) => (result as AccountFailure).message;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -106,23 +107,22 @@ void main() {
 
     test('server answers map to specific messages', () async {
       final expectations = {
-        400: "didn't accept this mascot",
-        401: 'login again',
-        403: 'login again',
-        404: "couldn't find this child's profile",
-        500: "Can't reach the server",
+        400: AppMessage.mascotRejected,
+        401: AppMessage.reloginRequired,
+        403: AppMessage.reloginRequired,
+        404: AppMessage.childProfileNotFound,
+        500: AppMessage.serverUnreachable,
       };
       for (final entry in expectations.entries) {
         final f = AccountFixture()..api.mascotError = ProfileApiException('x', statusCode: entry.key);
-        expect(failureOf(await f.repository.updateMascot(childId: 7, mascotId: 'Badak')), contains(entry.value), reason: '${entry.key}');
+        expect(failureOf(await f.repository.updateMascot(childId: 7, mascotId: 'Badak')), entry.value, reason: '${entry.key}');
       }
     });
 
     test('a backend that was not restarted is explained, not reported as a missing profile', () async {
       final f = AccountFixture()..api.mascotError = const ProfileApiException('x', statusCode: 404, endpointMissing: true);
       final message = failureOf(await f.repository.updateMascot(childId: 7, mascotId: 'Badak'));
-      expect(message, contains('restart the backend'));
-      expect(message, isNot(contains('login again')));
+      expect(message, AppMessage.backendOutdated);
     });
   });
 

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/ui/view_models/parents/update_settings_view_model.dart';
 import 'package:talepuff_app/ui/widgets/settings/account_settings.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 UpdateSettingsViewModel viewModelFor(AccountFixture f) => UpdateSettingsViewModel(repository: f.repository);
 
@@ -21,7 +23,7 @@ void main() {
       final result = await vm.updateChildName(childId: '7', name: 'Aira');
 
       expect(result, isA<AccountSuccess>());
-      expect(vm.errorMessage, isNull);
+      expect(vm.error, isNull);
       expect(vm.isLoading, isFalse);
       expect(f.api.renamed, ['7:Aira']);
     });
@@ -29,7 +31,7 @@ void main() {
     test('a failure is shown as the error message, not swallowed', () async {
       final vm = viewModelFor(AccountFixture());
       await vm.updateChildName(childId: '7', name: 'Aira 2');
-      expect(vm.errorMessage, contains('letters'));
+      expect(vm.error, AppMessage.childNameInvalid);
     });
 
     test('a missing child id is explained instead of doing nothing', () async {
@@ -38,7 +40,7 @@ void main() {
 
       await vm.updateChildName(childId: null, name: 'Aira');
 
-      expect(vm.errorMessage, contains('not been loaded'));
+      expect(vm.error, AppMessage.childDataNotLoaded);
       expect(f.api.renamed, isEmpty);
     });
 
@@ -49,7 +51,7 @@ void main() {
 
       await vm.changePassword(currentPassword: 'oldpass1', newPassword: 'newpass1', confirmPassword: 'newpass1');
 
-      expect(vm.errorMessage, 'Current password is incorrect.');
+      expect(vm.error, AppMessage.currentPasswordIncorrect);
     });
 
     test('a second tap while the first is running is ignored (no duplicate request)', () async {
@@ -72,10 +74,10 @@ void main() {
     test('the error is cleared when a screen opens, and disappears by itself', () async {
       final vm = viewModelFor(AccountFixture());
       await vm.updateChildName(childId: '7', name: '');
-      expect(vm.errorMessage, isNotNull);
+      expect(vm.error, isNotNull);
 
       vm.clearError();
-      expect(vm.errorMessage, isNull);
+      expect(vm.error, isNull);
     });
 
     test('canManageCredentials mirrors the sign-in method', () {
@@ -89,7 +91,7 @@ void main() {
       return tester.pumpWidget(
         ChangeNotifierProvider(
           create: (_) => viewModelFor(f),
-          child: const MaterialApp(home: Scaffold(body: AccountSettings())),
+          child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: AccountSettings())),
         ),
       );
     }
@@ -97,7 +99,7 @@ void main() {
     testWidgets('an email+password account sees all three options', (tester) async {
       await show(tester, AccountFixture(hasPassword: true));
 
-      expect(find.text("Child's Name"), findsOneWidget);
+      expect(find.text("Child’s Name"), findsOneWidget);
       expect(find.text('Email'), findsOneWidget);
       expect(find.text('Update Password'), findsOneWidget);
     });
@@ -105,7 +107,7 @@ void main() {
     testWidgets('a Google account only sees Child\'s Name', (tester) async {
       await show(tester, AccountFixture(hasPassword: false));
 
-      expect(find.text("Child's Name"), findsOneWidget);
+      expect(find.text("Child’s Name"), findsOneWidget);
       expect(find.text('Email'), findsNothing);
       expect(find.text('Update Password'), findsNothing);
     });

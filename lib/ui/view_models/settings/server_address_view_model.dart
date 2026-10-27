@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/server_address.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/services/server_check_service.dart';
 
 enum ServerSaveOutcome { saved, invalid }
@@ -11,15 +12,15 @@ class ServerAddressViewModel extends ChangeNotifier {
   final ServerChecker _checker;
 
   bool _isChecking = false;
-  String? _errorMessage;
+  AppMessage? _error;
   bool _disposed = false;
 
   bool get isChecking => _isChecking;
-  String? get errorMessage => _errorMessage;
+  AppMessage? get error => _error;
 
   void clearError() {
-    if (_errorMessage == null) return;
-    _errorMessage = null;
+    if (_error == null) return;
+    _error = null;
     _notify();
   }
 
@@ -28,27 +29,27 @@ class ServerAddressViewModel extends ChangeNotifier {
 
     final parsed = ServerAddress.parse(input);
     if (parsed is InvalidServerAddress) {
-      _errorMessage = parsed.message;
+      _error = parsed.message;
       _notify();
       return null;
     }
     final url = (parsed as ValidServerAddress).url;
 
     _isChecking = true;
-    _errorMessage = null;
+    _error = null;
     _notify();
 
     final result = await _checker.check(url);
     _isChecking = false;
     switch (result) {
       case ServerReachable():
-        _errorMessage = null;
+        _error = null;
         _notify();
         return url;
       case ServerNotTalePuff():
-        _errorMessage = 'We reached a server there, but it is not the TalePuff backend, or it needs a restart.';
+        _error = AppMessage.addressNotTalepuff;
       case ServerUnreachable():
-        _errorMessage = "Can't reach that address. Check that the backend is running and your phone is on the same Wi-Fi.";
+        _error = AppMessage.addressUnreachable;
     }
     _notify();
     return null;
@@ -57,19 +58,19 @@ class ServerAddressViewModel extends ChangeNotifier {
   Future<ServerSaveOutcome> save(String input) async {
     final parsed = ServerAddress.parse(input);
     if (parsed is InvalidServerAddress) {
-      _errorMessage = parsed.message;
+      _error = parsed.message;
       _notify();
       return ServerSaveOutcome.invalid;
     }
     await ServerAddress.save((parsed as ValidServerAddress).url);
-    _errorMessage = null;
+    _error = null;
     _notify();
     return ServerSaveOutcome.saved;
   }
 
   Future<void> useDefault() async {
     await ServerAddress.reset();
-    _errorMessage = null;
+    _error = null;
     _notify();
   }
 

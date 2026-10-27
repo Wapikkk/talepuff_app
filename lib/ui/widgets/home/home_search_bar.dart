@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 
@@ -24,7 +25,7 @@ class HomeSearchBar extends StatelessWidget {
         child: TextField(
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
-            hintText: "Search your story",
+            hintText: AppLocalizations.of(context).searchStory,
             isDense: true,
             hintStyle: const TextStyle(
               color: AppColors.primaryPurple,

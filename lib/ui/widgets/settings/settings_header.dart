@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SettingsHeader extends StatelessWidget {
   const SettingsHeader ({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 10),
       child: Row(
@@ -20,9 +22,9 @@ class SettingsHeader extends StatelessWidget {
             },
           ),
           const SizedBox(width: 15),
-          const Text(
-            'Settings',
-            style: TextStyle(
+          Text(
+            l10n.settings,
+            style: const TextStyle(
               fontFamily: AppAssets.fontFamily,
               color: AppColors.darkPurple,
               fontSize: 24,

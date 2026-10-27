@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/l10n_labels.dart';
 import '../shared/app_ui_helper.dart';
 
 class InterestPicker extends StatelessWidget{
@@ -9,15 +11,16 @@ class InterestPicker extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildInfoViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AppUIHelper.buildLabel("Interest", isRequired: true),
+            AppUIHelper.buildLabel(l10n.interest, isRequired: true),
             Text(
-              "${3 - viewModel.selectedInterests.length} slots remaining",
+              l10n.interestSlotsRemaining(3 - viewModel.selectedInterests.length),
               style: const TextStyle(
                   color: Color(0xFF00CBA7),
                   fontSize: 12,
@@ -34,7 +37,7 @@ class InterestPicker extends StatelessWidget{
             final iconPath = interest['icon']!;
 
             return AppUIHelper.buildInterestChip(
-              label: interestName,
+              label: l10n.interestLabel(interestName),
               iconPath: iconPath,
               isSelected: viewModel.selectedInterests.contains(interestName),
               onTap: () => viewModel.toggleInterest(interestName),

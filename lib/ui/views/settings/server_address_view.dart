@@ -5,6 +5,7 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/server_address.dart';
 import '../../../data/services/server_check_service.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../view_models/settings/server_address_view_model.dart';
 import '../../widgets/shared/top_banner.dart';
 import '../../widgets/update_settings/inline_error.dart';
@@ -43,17 +44,19 @@ class _ServerAddressViewState extends State<ServerAddressView> {
   Future<void> _test() async {
     FocusManager.instance.primaryFocus?.unfocus();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
     final reachable = await _viewModel.check(_controller.text);
-    if (reachable != null) TopBanner.show(overlay, 'Connected to the server');
+    if (reachable != null) TopBanner.show(overlay, l10n.serverConnected);
   }
 
   Future<void> _save() async {
     FocusManager.instance.primaryFocus?.unfocus();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
     final outcome = await _viewModel.save(_controller.text);
     if (outcome != ServerSaveOutcome.saved) return;
-    TopBanner.show(overlay, 'Server address saved');
+    TopBanner.show(overlay, l10n.serverSaved);
     navigator.pop(true);
   }
 
@@ -61,13 +64,15 @@ class _ServerAddressViewState extends State<ServerAddressView> {
     FocusManager.instance.primaryFocus?.unfocus();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
     await _viewModel.useDefault();
-    TopBanner.show(overlay, 'Back to the built-in address');
+    TopBanner.show(overlay, l10n.serverBackToDefault);
     navigator.pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: DismissKeyboard(
@@ -80,17 +85,17 @@ class _ServerAddressViewState extends State<ServerAddressView> {
                 builder: (context, viewModel, _) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const UpdateHeaderSettings(title: 'Server Address'),
+                    UpdateHeaderSettings(title: l10n.serverAddress),
                     const SizedBox(height: 20),
                     UpdateInputSettings(
-                      label: 'Server address',
+                      label: l10n.serverAddressLabel,
                       hint: '192.168.1.5:8080',
                       controller: _controller,
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "Use your computer's address on the same Wi-Fi. On the computer, run ipconfig and look for the IPv4 address.",
-                      style: TextStyle(
+                    Text(
+                      l10n.serverAddressHelp,
+                      style: const TextStyle(
                         color: AppColors.slideBubble,
                         fontSize: 13,
                         fontFamily: AppAssets.fontFamily,
@@ -121,9 +126,9 @@ class _ServerAddressViewState extends State<ServerAddressView> {
                                   color: AppColors.btnSave,
                                 ),
                               )
-                            : const Text(
-                                'Test connection',
-                                style: TextStyle(
+                            : Text(
+                                l10n.testConnection,
+                                style: const TextStyle(
                                   color: AppColors.btnSave,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -134,20 +139,20 @@ class _ServerAddressViewState extends State<ServerAddressView> {
                     ),
                     const SizedBox(height: 12),
                     UpdateBtnSettings(
-                      text: 'Save',
+                      text: l10n.save,
                       enabled: !viewModel.isChecking,
                       onPressed: _save,
                     ),
                     const SizedBox(height: 12),
-                    InlineError(message: viewModel.errorMessage),
+                    InlineError(message: viewModel.error),
                     if (ServerAddress.isCustom)
                       Center(
                         child: TextButton(
                           key: const Key('use-default'),
                           onPressed: _useDefault,
-                          child: const Text(
-                            'Use the built-in address',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.useBuiltInAddress,
+                            style: const TextStyle(
                               color: AppColors.slideBubble,
                               fontFamily: AppAssets.fontFamily,
                             ),

@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/validators.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/models/auth_result.dart';
 import '../../../data/repositories/auth_repository.dart';
 
-/// Logika layar login, sekaligus pemegang data sesi yang dibaca layar lain
-/// (`currentChildId`, `currentPhotoUrl`, `childName`, `email`) lewat [applySession].
 class LoginViewModel extends ChangeNotifier {
   LoginViewModel({required AuthRepository repository}) : _repository = repository;
 
@@ -21,7 +21,7 @@ class LoginViewModel extends ChangeNotifier {
   String? get currentPhotoUrl => _currentPhotoUrl;
   String? get childName => _childName;
 
-  String? errorMessage;
+  AppMessage? error;
   String email = '', password = '';
   bool rememberMe = false;
   bool _isPasswordObscured = true;
@@ -43,13 +43,13 @@ class LoginViewModel extends ChangeNotifier {
 
   void updateEmail(String value) {
     email = value;
-    if (errorMessage != null) errorMessage = null;
+    if (error != null) error = null;
     notifyListeners();
   }
 
   void updatePassword(String value) {
     password = value;
-    if (errorMessage != null) errorMessage = null;
+    if (error != null) error = null;
     notifyListeners();
   }
 
@@ -65,10 +65,10 @@ class LoginViewModel extends ChangeNotifier {
 
   Future<AuthResult> login() async {
     if (email.trim().isEmpty || password.trim().isEmpty) {
-      return _reject('Email and Password are required!');
+      return _reject(AppMessage.credentialsRequired);
     }
-    final emailError = _emailError(email);
-    if (emailError != null) return _reject(emailError);
+    final emailIssue = AuthValidators.emailIssue(email);
+    if (emailIssue != null) return _reject(emailIssue);
 
     return _run(AuthMethod.email, () => _repository.signInWithEmail(email.trim(), password.trim()),
         remember: true);
@@ -76,7 +76,6 @@ class LoginViewModel extends ChangeNotifier {
 
   Future<AuthResult> loginWithGoogle() => _run(AuthMethod.google, _repository.continueWithGoogle);
 
-  /// Mengisi data sesi setelah masuk berhasil.
   void applySession(SignedIn session) {
     _currentChildId = session.profile.id.toString();
     _currentPhotoUrl = session.profile.photoUrl;
@@ -94,18 +93,8 @@ class LoginViewModel extends ChangeNotifier {
     email = '';
     password = '';
     rememberMe = false;
-    errorMessage = null;
+    error = null;
     notifyListeners();
-  }
-
-  // ---------- internal ----------
-
-  String? _emailError(String value) {
-    // Pemeriksaan format yang sama dengan pendaftaran, tanpa aturan kata sandi
-    // (kata sandi lama tetap boleh dipakai untuk masuk).
-    return RegExp(r'^[\w.+-]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(value.trim())
-        ? null
-        : 'Invalid email format, please check again!';
   }
 
   Future<AuthResult> _run(
@@ -113,13 +102,13 @@ class LoginViewModel extends ChangeNotifier {
     Future<AuthResult> Function() action, {
     bool remember = false,
   }) async {
-    if (isLoading) return const AuthCancelled(); // abaikan ketukan ganda
+    if (isLoading) return const AuthCancelled();
     _activeMethod = method;
-    errorMessage = null;
+    error = null;
     notifyListeners();
     try {
       final result = await action();
-      if (result is AuthFailed) _setErrorMessage(result.message);
+      if (result is AuthFailed) _setError(result.message);
       if (remember && (result is SignedIn || result is NeedsProfile)) await _persistEmail();
       return result;
     } finally {
@@ -128,8 +117,8 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  AuthResult _reject(String message) {
-    _setErrorMessage(message);
+  AuthResult _reject(AppMessage message) {
+    _setError(message);
     return AuthFailed(message, AuthFailureReason.invalidInput);
   }
 
@@ -142,12 +131,12 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  void _setErrorMessage(String message) {
-    errorMessage = message;
+  void _setError(AppMessage message) {
+    error = message;
     notifyListeners();
     _errorTimer?.cancel();
     _errorTimer = Timer(const Duration(seconds: 3), () {
-      errorMessage = null;
+      error = null;
       notifyListeners();
     });
   }

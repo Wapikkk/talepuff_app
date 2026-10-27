@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/l10n_labels.dart';
 import 'package:talepuff_app/ui/view_models/create_story/create_story_view_model.dart';
 
 class CategorySelector extends StatefulWidget {
@@ -23,6 +25,7 @@ class _CategorySelectorState extends State<CategorySelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(categories.length, (index) {
@@ -66,7 +69,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                   Image.asset(cat["icon"], color: cat["iconColor"], width: 32, height: 32),
                   const SizedBox(height: 8),
                   Text(
-                    cat["title"],
+                    l10n.themeLabel(cat["title"]),
                     style: TextStyle(
                       color: cat["iconColor"],
                       fontFamily: AppAssets.fontFamily,

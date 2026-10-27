@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../ui/view_models/loading/loading_view_model.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class LoadingProgress extends StatelessWidget {
   const LoadingProgress({super.key});
@@ -10,7 +11,8 @@ class LoadingProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<LoadingViewModel>();
-    final stepText = viewModel.step == 0 ? 'Starting up' : 'Step ${viewModel.step} of 2';
+final l10n = AppLocalizations.of(context);
+    final stepText = viewModel.step == 0 ? l10n.loadingStartingUp : l10n.loadingStep(viewModel.step);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -35,9 +37,9 @@ class LoadingProgress extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'This can take up to a minute',
-            style: TextStyle(
+          Text(
+            l10n.loadingTakesMinute,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.darkPurple,

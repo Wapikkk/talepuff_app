@@ -5,6 +5,9 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/validators.dart';
 import '../../../data/models/account_result.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
+import '../../../l10n/l10n_labels.dart';
 import '../../view_models/settings/feedback_view_model.dart';
 import '../../widgets/shared/top_banner.dart';
 import '../../widgets/update_settings/inline_error.dart';
@@ -21,7 +24,7 @@ class FeedbackView extends StatefulWidget {
 class _FeedbackViewState extends State<FeedbackView> {
   final TextEditingController _messageController = TextEditingController();
 
-  static const _categoryLabels = {'bug': 'Bug', 'idea': 'Idea', 'other': 'Other'};
+  static const _categories = ['bug', 'idea', 'other'];
 
   @override
   void initState() {
@@ -42,17 +45,19 @@ class _FeedbackViewState extends State<FeedbackView> {
     final viewModel = context.read<FeedbackViewModel>();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final result = await viewModel.send(_messageController.text);
 
     if (result is! AccountSuccess) return;
-    TopBanner.show(overlay, result.message);
+    TopBanner.show(overlay, l10n.appMessage(result.message, detail: result.value));
     navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<FeedbackViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,26 +69,26 @@ class _FeedbackViewState extends State<FeedbackView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const UpdateHeaderSettings(title: 'Send Feedback'),
+                UpdateHeaderSettings(title: l10n.sendFeedback),
                 const SizedBox(height: 4),
-                const Text(
-                  'Tell us what is not working or what you would like to see.',
-                  style: TextStyle(color: AppColors.slideBubble, fontSize: 14, fontFamily: AppAssets.fontFamily),
+                Text(
+                  l10n.feedbackIntro,
+                  style: const TextStyle(color: AppColors.slideBubble, fontSize: 14, fontFamily: AppAssets.fontFamily),
                 ),
                 const SizedBox(height: 20),
                 Wrap(
                   spacing: 10,
                   children: [
-                    for (final entry in _categoryLabels.entries)
+                    for (final category in _categories)
                       ChoiceChip(
-                        label: Text(entry.value),
-                        selected: viewModel.category == entry.key,
-                        onSelected: (_) => viewModel.selectCategory(entry.key),
+                        label: Text(l10n.feedbackCategoryLabel(category)),
+                        selected: viewModel.category == category,
+                        onSelected: (_) => viewModel.selectCategory(category),
                         selectedColor: AppColors.btnSave,
                         labelStyle: TextStyle(
                           fontFamily: AppAssets.fontFamily,
                           fontWeight: FontWeight.bold,
-                          color: viewModel.category == entry.key ? Colors.white : AppColors.darkPurple,
+                          color: viewModel.category == category ? Colors.white : AppColors.darkPurple,
                         ),
                       ),
                   ],
@@ -96,7 +101,7 @@ class _FeedbackViewState extends State<FeedbackView> {
                   maxLength: FeedbackValidators.maxLength,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
-                    hintText: 'Write your message here...',
+                    hintText: l10n.feedbackHint,
                     filled: true,
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.all(16),
@@ -112,12 +117,12 @@ class _FeedbackViewState extends State<FeedbackView> {
                 ),
                 const SizedBox(height: 24),
                 UpdateBtnSettings(
-                  text: 'Send',
+                  text: l10n.send,
                   isBusy: viewModel.isLoading,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: 12),
-                InlineError(message: viewModel.errorMessage),
+                InlineError(message: viewModel.error),
               ],
             ),
           ),

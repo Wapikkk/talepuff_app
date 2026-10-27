@@ -8,6 +8,9 @@ import '../../../data/models/account_result.dart';
 import '../../../data/repositories/story_repository.dart';
 import '../../view_models/story/story_detail_view_model.dart';
 import '../../widgets/shared/top_banner.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
+import '../../../l10n/l10n_labels.dart';
 import '../../widgets/story/story_theme.dart';
 
 class StoryDetailView extends StatelessWidget {
@@ -34,8 +37,9 @@ class _StoryDetailBody extends StatelessWidget {
   Future<void> _toggleFavorite(BuildContext context) async {
     final viewModel = context.read<StoryDetailViewModel>();
     final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
     final result = await viewModel.toggleFavorite();
-    if (result is AccountFailure) TopBanner.show(overlay, result.message, type: TopBannerType.error);
+    if (result is AccountFailure) TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
   }
 
   @override
@@ -83,6 +87,7 @@ class _StoryDetailBody extends StatelessWidget {
   }
 
   Widget _content(BuildContext context, StoryDetailViewModel viewModel) {
+    final l10n = AppLocalizations.of(context);
     final story = viewModel.story;
     if (viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator(color: Colors.white));
@@ -92,7 +97,7 @@ class _StoryDetailBody extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            viewModel.errorMessage ?? 'This story could not be loaded.',
+            viewModel.error == null ? l10n.storyLoadFailed : l10n.appMessage(viewModel.error!),
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.redAccent, fontSize: 15, fontFamily: AppAssets.fontFamily),
           ),
@@ -107,7 +112,7 @@ class _StoryDetailBody extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
       children: [
         Text(
-          story.title.isEmpty ? 'Untitled story' : story.title,
+          story.title.isEmpty ? l10n.untitledStory : story.title,
           style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold, fontFamily: AppAssets.fontFamily),
         ),
         const SizedBox(height: 12),
@@ -115,14 +120,14 @@ class _StoryDetailBody extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            if (story.theme.isNotEmpty) _chip(story.theme, style.color, style.iconColor),
-            for (final mood in story.moods) _chip(mood, Colors.white24, Colors.white),
-            if (story.lengthMinutes > 0) _chip('${story.lengthMinutes} min', Colors.white24, Colors.white),
+            if (story.theme.isNotEmpty) _chip(l10n.themeLabel(story.theme), style.color, style.iconColor),
+            for (final mood in story.moods) _chip(l10n.moodLabel(mood), Colors.white24, Colors.white),
+            if (story.lengthMinutes > 0) _chip(l10n.minutesShort(story.lengthMinutes), Colors.white24, Colors.white),
           ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Created ${RelativeTime.format(story.createdAt).toLowerCase()}',
+          l10n.storyCreated(RelativeTime.format(l10n, story.createdAt).toLowerCase()),
           style: const TextStyle(color: Colors.white54, fontSize: 12, fontFamily: AppAssets.fontFamily),
         ),
         const SizedBox(height: 20),
@@ -133,13 +138,13 @@ class _StoryDetailBody extends StatelessWidget {
             key: const Key('play-on-totem'),
             onPressed: () => TopBanner.show(
               TopBanner.overlayOf(context),
-              'Playing on the totem is coming soon!',
+              l10n.playOnTotemSoon,
               type: TopBannerType.info,
             ),
             icon: const Icon(Icons.speaker, color: Colors.white),
-            label: const Text(
-              'Play on totem',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, fontFamily: AppAssets.fontFamily),
+            label: Text(
+              l10n.playOnTotem,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, fontFamily: AppAssets.fontFamily),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.btnSave,

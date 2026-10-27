@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class BottomNavbar extends StatelessWidget {
   final int currentIndex;
@@ -13,10 +14,10 @@ class BottomNavbar extends StatelessWidget {
   });
 
   static const _items = [
-    _NavItem('Home', AppAssets.iconHome),
-    _NavItem('Story', AppAssets.iconStory),
-    _NavItem('Create', AppAssets.iconCreate),
-    _NavItem('Parents', AppAssets.iconParents),
+    _NavItem('home', AppAssets.iconHome),
+    _NavItem('story', AppAssets.iconStory),
+    _NavItem('create', AppAssets.iconCreate),
+    _NavItem('parents', AppAssets.iconParents),
   ];
 
   static const double _barHeight = 56;
@@ -95,9 +96,16 @@ class BottomNavbar extends StatelessWidget {
 }
 
 class _NavItem {
-  final String label;
+  final String id;
   final String asset;
-  const _NavItem(this.label, this.asset);
+  const _NavItem(this.id, this.asset);
+
+  String label(AppLocalizations l10n) => switch (id) {
+        'home' => l10n.navHome,
+        'story' => l10n.navStory,
+        'create' => l10n.navCreate,
+        _ => l10n.navParents,
+      };
 }
 
 class _NavButton extends StatelessWidget {
@@ -113,13 +121,14 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = item.label(AppLocalizations.of(context));
     return Semantics(
       button: true,
       selected: selected,
-      label: item.label,
+      label: label,
       excludeSemantics: true,
       child: GestureDetector(
-        key: Key('nav-${item.label.toLowerCase()}'),
+        key: Key('nav-${item.id}'),
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: TweenAnimationBuilder<Color?>(
@@ -142,7 +151,7 @@ class _NavButton extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  item.label,
+                  label,
                   style: TextStyle(
                     fontFamily: AppAssets.fontFamily,
                     fontWeight: FontWeight.bold,

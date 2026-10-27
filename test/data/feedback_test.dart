@@ -6,25 +6,32 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:talepuff_app/core/validators.dart';
 import 'package:talepuff_app/data/models/account_result.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/repositories/feedback_repository.dart';
 import 'package:talepuff_app/data/services/feedback_service.dart';
 
 import '../support/fakes.dart';
 
-String failureOf(AccountResult result) => (result as AccountFailure).message;
+AppMessage failureOf(AccountResult result) => (result as AccountFailure).message;
 
 void main() {
-  group('FeedbackValidators.message (same rule as the server)', () {
+  group('FeedbackValidators.issue (same rule as the server)', () {
     test('accepts 5 to 1000 characters, counting characters not bytes', () {
       for (final ok in ['hello', '  hello  ', 'a' * 1000, 'é' * 1000, 'line one\nline two']) {
-        expect(FeedbackValidators.message(ok), isNull, reason: ok.length > 20 ? '${ok.length} chars' : ok);
+        expect(FeedbackValidators.issue(ok), isNull, reason: ok.length > 20 ? '${ok.length} chars' : ok);
       }
     });
 
     test('rejects empty, too short and too long', () {
       for (final bad in ['', '    ', 'hi', 'a' * 1001]) {
-        expect(FeedbackValidators.message(bad), isNotNull, reason: '${bad.length} chars');
+        expect(FeedbackValidators.issue(bad), isNotNull, reason: '${bad.length} chars');
       }
+    });
+
+    test('says which rule failed', () {
+      expect(FeedbackValidators.issue('   '), AppMessage.feedbackEmpty);
+      expect(FeedbackValidators.issue('hi'), AppMessage.feedbackTooShort);
+      expect(FeedbackValidators.issue('a' * 1001), AppMessage.feedbackTooLong);
     });
   });
 
@@ -103,7 +110,7 @@ void main() {
 
       expect(await repository.send(category: 'idea', message: 'hi'), isA<AccountFailure>());
       expect(await repository.send(category: 'idea', message: ''), isA<AccountFailure>());
-      expect(failureOf(await repository.send(category: 'complaint', message: 'A fine message')), contains('category'));
+      expect(failureOf(await repository.send(category: 'complaint', message: 'A fine message')), AppMessage.feedbackCategoryRequired);
       expect(api.sent, isEmpty);
     });
 
@@ -117,30 +124,29 @@ void main() {
 
     test('server answers map to specific messages', () async {
       final expectations = {
-        400: "didn't accept",
-        401: 'login again',
-        403: 'login again',
-        404: "couldn't find your account",
-        429: 'a lot of feedback',
-        500: "Can't reach the server",
+        400: AppMessage.feedbackRejected,
+        401: AppMessage.reloginRequired,
+        403: AppMessage.reloginRequired,
+        404: AppMessage.accountNotFound,
+        429: AppMessage.feedbackRateLimited,
+        500: AppMessage.serverUnreachable,
       };
       for (final entry in expectations.entries) {
         final api = FakeFeedbackApi()..error = FeedbackApiException('x', statusCode: entry.key);
         final result = await make(api).send(category: 'bug', message: 'Something broke');
-        expect(failureOf(result), contains(entry.value), reason: '${entry.key}');
+        expect(failureOf(result), entry.value, reason: '${entry.key}');
       }
     });
 
     test('a missing route (backend not restarted) is explained, not reported as a missing account', () async {
       final api = FakeFeedbackApi()..error = const FeedbackApiException('x', statusCode: 404, endpointMissing: true);
       final message = failureOf(await make(api).send(category: 'bug', message: 'Something broke'));
-      expect(message, contains('restart the backend'));
-      expect(message, isNot(contains('find your account')));
+      expect(message, AppMessage.backendOutdated);
     });
 
     test('a connection failure is reported as such', () async {
       final api = FakeFeedbackApi()..error = const FeedbackApiException('down');
-      expect(failureOf(await make(api).send(category: 'bug', message: 'Something broke')), contains("Can't reach the server"));
+      expect(failureOf(await make(api).send(category: 'bug', message: 'Something broke')), AppMessage.serverUnreachable);
     });
   });
 }

@@ -5,8 +5,9 @@ import 'package:talepuff_app/core/app_colors.dart';
 class ChoiceChipGroup extends StatefulWidget {
   final List<String> options;
   final Function(String) onSelected;
+  final String Function(String)? labelOf;
 
-  const ChoiceChipGroup({super.key, required this.options, required this.onSelected});
+  const ChoiceChipGroup({super.key, required this.options, required this.onSelected, this.labelOf});
 
   @override
   State<ChoiceChipGroup> createState() => _ChoiceChipGroupState();
@@ -61,7 +62,7 @@ class _ChoiceChipGroupState extends State<ChoiceChipGroup> {
               ],
             ),
             child: Text(
-              option,
+              widget.labelOf?.call(option) ?? option,
               style: TextStyle(
                 color: isSelected ? Colors.white : AppColors.darkPurple,
                 fontWeight: FontWeight.bold,

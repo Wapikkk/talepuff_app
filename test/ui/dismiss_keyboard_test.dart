@@ -15,6 +15,7 @@ import 'package:talepuff_app/ui/views/sign_up/signup_view.dart';
 import 'package:talepuff_app/ui/widgets/shared/dismiss_keyboard.dart';
 
 import '../support/fakes.dart';
+import '../support/l10n.dart';
 
 class _IdleChecker implements ServerChecker {
   @override
@@ -44,7 +45,7 @@ Widget screen(Widget home) {
       ),
       Provider<ServerChecker>.value(value: _IdleChecker()),
     ],
-    child: MaterialApp(home: home),
+    child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: home),
   );
 }
 
@@ -104,7 +105,7 @@ void main() {
     (tester) async {
       var pressed = 0;
       await tester.pumpWidget(
-        MaterialApp(
+        MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Scaffold(
             body: DismissKeyboard(
               child: Center(

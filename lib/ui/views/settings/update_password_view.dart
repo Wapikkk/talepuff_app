@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/account_result.dart';
+import '../../../core/validators.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
 import '../../view_models/parents/update_settings_view_model.dart';
 import '../../widgets/shared/top_banner.dart';
 import '../../widgets/update_settings/inline_error.dart';
@@ -43,6 +46,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
     final updateVM = context.read<UpdateSettingsViewModel>();
     final overlay = TopBanner.overlayOf(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final result = await updateVM.changePassword(
       currentPassword: _currentPasswordController.text,
@@ -51,13 +55,14 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
     );
 
     if (result is! AccountSuccess) return;
-    TopBanner.show(overlay, result.message);
+    TopBanner.show(overlay, l10n.appMessage(result.message, detail: result.value));
     navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final updateVM = context.watch<UpdateSettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return DismissKeyboard(
       child: Scaffold(
@@ -68,36 +73,36 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const UpdateHeaderSettings(title: 'Update Password'),
+                UpdateHeaderSettings(title: l10n.updatePassword),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: 'Current password',
-                  hint: 'Enter current password',
+                  label: l10n.currentPassword,
+                  hint: l10n.enterCurrentPassword,
                   controller: _currentPasswordController,
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: 'New password',
-                  hint: 'At least 8 characters, letters and numbers',
+                  label: l10n.newPassword,
+                  hint: l10n.newPasswordHint(AuthValidators.minPasswordLength),
                   controller: _newPasswordController,
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
                 UpdateInputSettings(
-                  label: 'Confirm password',
-                  hint: 'Confirm your new password',
+                  label: l10n.confirmPassword,
+                  hint: l10n.confirmNewPassword,
                   controller: _confirmPasswordController,
                   obscureText: true,
                 ),
                 const SizedBox(height: 40),
                 UpdateBtnSettings(
-                  text: 'Update Password',
+                  text: l10n.updatePassword,
                   isBusy: updateVM.isLoading,
                   onPressed: _submit,
                 ),
                 const SizedBox(height: 12),
-                InlineError(message: updateVM.errorMessage),
+                InlineError(message: updateVM.error),
               ],
             ),
           ),

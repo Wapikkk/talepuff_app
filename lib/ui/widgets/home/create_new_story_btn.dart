@@ -3,6 +3,7 @@ import 'package:talepuff_app/core/app_assets.dart';
 import 'package:talepuff_app/core/app_colors.dart';
 import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:talepuff_app/l10n/app_localizations.dart';
 
 class CreateNewStoryBtn extends StatelessWidget{
   const CreateNewStoryBtn ({super.key});
@@ -10,6 +11,7 @@ class CreateNewStoryBtn extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       width: screenWidth * 0.6,
@@ -37,9 +39,9 @@ class CreateNewStoryBtn extends StatelessWidget{
             width: 15,
             height: 15,
           ),
-          label: const Text(
-            'Create New Story',
-            style: TextStyle(
+          label: Text(
+            l10n.createNewStory,
+            style: const TextStyle(
               color: Colors.white,
               fontFamily: AppAssets.fontFamily,
               fontSize: 15,

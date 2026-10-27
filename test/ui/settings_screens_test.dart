@@ -19,6 +19,7 @@ import 'package:talepuff_app/ui/widgets/signup/signup_input_form.dart';
 
 import '../support/fakes.dart';
 import '../data/legal_test.dart' show FakeBundle;
+import '../support/l10n.dart';
 
 /// Animasi baru mulai pada frame berikutnya, jadi dua pump: mulai, lalu selesai.
 Future<void> settle(WidgetTester tester) async {
@@ -40,7 +41,7 @@ void main() {
     Widget app(FeedbackApi api, {FakeAppInfo? info}) {
       return ChangeNotifierProvider(
         create: (_) => FeedbackViewModel(repository: FeedbackRepository(api: api, appInfo: info ?? FakeAppInfo())),
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Builder(
             builder: (home) => Scaffold(
               body: ElevatedButton(
@@ -138,7 +139,7 @@ void main() {
     Widget app({String label = '1.0.0 (1)', required List<String> log}) {
       return MultiProvider(
         providers: [Provider<AppInfo>.value(value: FakeAppInfo(label: label))],
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: const Scaffold(body: SingleChildScrollView(child: About())),
           onGenerateRoute: (settings) {
             log.add('${settings.name}:${settings.arguments}');
@@ -181,7 +182,7 @@ void main() {
     Widget app(LegalDocument document) {
       return Provider<LegalRepository>.value(
         value: fakeLegal(),
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: Builder(
             builder: (home) => Scaffold(
               body: ElevatedButton(
@@ -225,7 +226,7 @@ void main() {
     testWidgets('a document that fails to load says so instead of showing a blank page', (tester) async {
       await tester.pumpWidget(Provider<LegalRepository>.value(
         value: LegalRepository(bundle: FakeBundle({})),
-        child: const MaterialApp(home: LegalView()),
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: LegalView()),
       ));
       await tester.pumpAndSettle();
 
@@ -244,7 +245,7 @@ void main() {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider(create: (_) => SignUpViewModel(repository: fixture.repository, childInfoViewModel: childInfo)),
         ],
-        child: MaterialApp(
+        child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: const Scaffold(body: SingleChildScrollView(child: SignUpInputForm())),
           onGenerateRoute: (settings) {
             if (settings.name == '/legal') opened.add(settings.arguments);

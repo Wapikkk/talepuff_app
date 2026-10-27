@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:talepuff_app/data/models/app_message.dart';
 import 'package:talepuff_app/data/models/auth_result.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
@@ -67,7 +68,7 @@ void main() {
 
       expect(result, isA<AuthFailed>());
       expect((result as AuthFailed).reason, AuthFailureReason.invalidCredentials);
-      expect(result.message, contains('Incorrect'));
+      expect(result.message, AppMessage.invalidCredentials);
       expect(f.api.fetchCalls, 0);
     });
 
@@ -86,8 +87,8 @@ void main() {
 
       final result = await f.repository.signInWithEmail('p@x.com', 'abcd1234') as AuthFailed;
 
-      expect(result.message, contains('rejected your session'));
-      expect(result.message, isNot(contains("Can't reach")));
+      expect(result.message, AppMessage.sessionRejected);
+      expect(result.message, isNot(AppMessage.serverUnreachable));
     });
 
     test('restoring a saved session reports it too', () async {
@@ -102,7 +103,7 @@ void main() {
 
       final result = await f.repository.signUpWithEmail('p@x.com', 'abcd1234', childDraft) as AuthFailed;
 
-      expect(result.message, contains('rejected your session'));
+      expect(result.message, AppMessage.sessionRejected);
     });
   });
 
@@ -204,11 +205,18 @@ void main() {
       expect(f.api.registered, isEmpty);
     });
 
-    test('an unexpected Google error surfaces its detail', () async {
+    test('a Google configuration failure (sign_in_failed) has its own message code', () async {
       final f = AuthFixture();
-      f.gateway.failure = const AuthFailure(AuthGatewayError.unknown, 'SHA-1 not registered');
+      f.gateway.failure = const AuthFailure(AuthGatewayError.googleSignInFailed, 'sign_in_failed');
       final result = await f.repository.continueWithGoogle() as AuthFailed;
-      expect(result.message, 'SHA-1 not registered');
+      expect(result.message, AppMessage.googleSignInFailed);
+    });
+
+    test('an unexpected Google error becomes the generic message (detail is only logged)', () async {
+      final f = AuthFixture();
+      f.gateway.failure = const AuthFailure(AuthGatewayError.unknown, 'platform detail');
+      final result = await f.repository.continueWithGoogle() as AuthFailed;
+      expect(result.message, AppMessage.genericError);
     });
   });
 

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../view_models/parents/settings_view_model.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/app_assets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class VolumeLimit extends StatelessWidget {
   const VolumeLimit ({super.key});
@@ -10,13 +11,14 @@ class VolumeLimit extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsVM = context.watch<SettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Volume Limit',
-          style: TextStyle(
+        Text(
+          l10n.volumeLimit,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
             color: AppColors.darkPurple,

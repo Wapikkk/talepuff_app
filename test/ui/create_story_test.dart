@@ -5,6 +5,7 @@ import 'package:talepuff_app/core/story_defaults.dart';
 import 'package:talepuff_app/ui/view_models/create_story/create_story_view_model.dart';
 import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
 import 'package:talepuff_app/ui/views/create_story/create_story_view.dart';
+import '../support/l10n.dart';
 
 void main() {
   group('CreateStoryViewModel.buildPayload', () {
@@ -98,7 +99,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => CreateStoryViewModel()),
           ChangeNotifierProvider(create: (_) => NavbarViewModel()),
         ],
-        child: const MaterialApp(home: Scaffold(body: CreateStoryView())),
+        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: Scaffold(body: CreateStoryView())),
       ),
     );
     await tester.pump();

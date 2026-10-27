@@ -1,7 +1,7 @@
 import '../models/account_result.dart';
+import '../models/app_message.dart';
 import '../models/story.dart';
 import '../models/story_job.dart';
-import '../services/api_errors.dart';
 import '../services/story_service.dart';
 
 sealed class StoryListResult {
@@ -15,7 +15,7 @@ class StoryListLoaded extends StoryListResult {
 }
 
 class StoryListFailed extends StoryListResult {
-  final String message;
+  final AppMessage message;
   const StoryListFailed(this.message);
 }
 
@@ -29,7 +29,7 @@ class StoryDetailLoaded extends StoryDetailResult {
 }
 
 class StoryDetailFailed extends StoryDetailResult {
-  final String message;
+  final AppMessage message;
   const StoryDetailFailed(this.message);
 }
 
@@ -43,7 +43,7 @@ class JobStarted extends StartJobResult {
 }
 
 class JobStartFailed extends StartJobResult {
-  final String message;
+  final AppMessage message;
   const JobStartFailed(this.message);
 }
 
@@ -57,7 +57,7 @@ class JobChecked extends JobCheckResult {
 }
 
 class JobCheckFailed extends JobCheckResult {
-  final String message;
+  final AppMessage message;
   const JobCheckFailed(this.message);
 }
 
@@ -65,9 +65,6 @@ class StoryRepository {
   StoryRepository({required StoryApi api}) : _api = api;
 
   final StoryApi _api;
-
-  static const _unreachable =
-      "Can't reach the server. Make sure the backend is running and you're on the same network.";
 
   Future<StoryListResult> list({
     required int childId,
@@ -84,7 +81,7 @@ class StoryRepository {
       );
       return StoryListLoaded(page.stories, hasMore: page.hasMore);
     } on StoryApiException catch (e) {
-      return StoryListFailed(_message(e));
+      return StoryListFailed(_code(e));
     }
   }
 
@@ -92,7 +89,7 @@ class StoryRepository {
     try {
       return StoryDetailLoaded(await _api.get(id));
     } on StoryApiException catch (e) {
-      return StoryDetailFailed(_message(e));
+      return StoryDetailFailed(_code(e));
     }
   }
 
@@ -100,23 +97,23 @@ class StoryRepository {
     try {
       await _api.setFavorite(id, favorite);
       return AccountSuccess(
-        favorite ? 'Added to favorites.' : 'Removed from favorites.',
+        favorite ? AppMessage.favoriteAdded : AppMessage.favoriteRemoved,
         value: '$favorite',
       );
     } on StoryApiException catch (e) {
-      return AccountFailure(_message(e));
+      return AccountFailure(_code(e));
     }
   }
 
   Future<AccountResult> delete(int id) async {
     try {
       await _api.delete(id);
-      return const AccountSuccess('Story deleted.');
+      return const AccountSuccess(AppMessage.storyDeleted);
     } on StoryApiException catch (e) {
       if (e.statusCode == 404 && !e.endpointMissing) {
-        return const AccountSuccess('Story deleted.');
+        return const AccountSuccess(AppMessage.storyDeleted);
       }
-      return AccountFailure(_message(e));
+      return AccountFailure(_code(e));
     }
   }
 
@@ -124,7 +121,7 @@ class StoryRepository {
     try {
       return JobStarted(await _api.startJob(payload));
     } on StoryApiException catch (e) {
-      return JobStartFailed(_message(e));
+      return JobStartFailed(_code(e));
     }
   }
 
@@ -132,41 +129,28 @@ class StoryRepository {
     try {
       return JobChecked(await _api.getJob(id));
     } on StoryApiException catch (e) {
-      return JobCheckFailed(_message(e));
+      return JobCheckFailed(_code(e));
     }
   }
 
-  static String jobFailureMessage(StoryJob job) {
-    switch (job.errorCode) {
-      case 'ai_unavailable':
-        return "The story service isn't running right now. Please try again in a moment.";
-      case 'ai_failed':
-        return "We couldn't write the story this time. Please try again.";
-      case 'voice_failed':
-        return "Your story was saved, but we couldn't create its voice.";
-      case 'save_failed':
-        return "We couldn't save the story. Please try again.";
-      case 'interrupted':
-        return 'The story was interrupted. Please try again.';
-      default:
-        return 'Something went wrong while creating the story. Please try again.';
-    }
-  }
+  static AppMessage jobFailure(StoryJob job) => switch (job.errorCode) {
+        'ai_unavailable' => AppMessage.jobAiUnavailable,
+        'ai_failed' => AppMessage.jobAiFailed,
+        'voice_failed' => AppMessage.jobVoiceFailed,
+        'save_failed' => AppMessage.jobSaveFailed,
+        'interrupted' => AppMessage.jobInterrupted,
+        _ => AppMessage.jobFailed,
+      };
 
-  String _message(StoryApiException error) {
-    if (error.endpointMissing) return outdatedBackendMessage;
-    switch (error.statusCode) {
-      case 400:
-        return "The server didn't understand this request. Please try again.";
-      case 401:
-      case 403:
-        return 'For security, please log out and login again, then try once more.';
-      case 404:
-        return "We couldn't find that story. It may have been removed.";
-      default:
-        return error.message == 'Unexpected response from the server'
-            ? 'The server sent something we could not read. Please try again.'
-            : _unreachable;
-    }
+  AppMessage _code(StoryApiException error) {
+    if (error.endpointMissing) return AppMessage.backendOutdated;
+    return switch (error.statusCode) {
+      400 => AppMessage.requestNotUnderstood,
+      401 || 403 => AppMessage.reloginRequired,
+      404 => AppMessage.storyNotFound,
+      _ => error.message == 'Unexpected response from the server'
+          ? AppMessage.unreadableResponse
+          : AppMessage.serverUnreachable,
+    };
   }
 }

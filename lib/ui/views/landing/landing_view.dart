@@ -7,12 +7,14 @@ import '../../widgets/landing/landing_header.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/stars_overlay.dart';
 import 'package:flutter/gestures.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LandingView extends StatelessWidget{
   const LandingView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       body: AppBackground(
@@ -49,13 +51,13 @@ class LandingView extends StatelessWidget{
                               ),
                               children: [
                                 TextSpan(
-                                  text: "Already have an account ? ",
+                                  text: l10n.alreadyHaveAccount,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w500
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "Login",
+                                  text: l10n.login,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     decoration: TextDecoration.underline,
