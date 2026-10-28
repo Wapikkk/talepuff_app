@@ -18,6 +18,10 @@ import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/session_store.dart';
 import 'package:talepuff_app/data/models/totem.dart';
+import 'package:talepuff_app/data/models/weekly_stats.dart';
+import 'package:talepuff_app/data/repositories/stats_repository.dart';
+import 'package:talepuff_app/data/services/stats_service.dart';
+import 'package:talepuff_app/ui/view_models/stats/stats_view_model.dart';
 import 'package:talepuff_app/data/repositories/totem_repository.dart';
 import 'package:talepuff_app/data/services/totem_service.dart';
 import 'package:talepuff_app/ui/view_models/totem/totem_view_model.dart';
@@ -448,11 +452,23 @@ class FakeTotemApi implements TotemApi {
   Future<void> play(int storyId, {int? volume}) async {
     if (error != null) throw error!;
     calls.add('play:$storyId');
-    current = TotemInfo(
-      paired: true,
-      deviceId: current.deviceId,
+    current = current.copyWith(
       status: TotemStatus(online: true, state: 'playing', storyId: storyId, position: 3, duration: 36, volume: 40),
     );
+  }
+
+  @override
+  Future<void> setVolumeLimit(int limit) async {
+    if (error != null) throw error!;
+    calls.add('limit:$limit');
+    current = current.copyWith(volumeLimit: limit);
+  }
+
+  @override
+  Future<void> setBedtime({required bool enabled, required int hour, required int minute}) async {
+    if (error != null) throw error!;
+    calls.add('bedtime:$enabled:$hour:$minute');
+    current = current.copyWith(bedtime: TotemBedtime(enabled: enabled, hour: hour, minute: minute));
   }
 
   @override
@@ -466,9 +482,7 @@ class FakeTotemApi implements TotemApi {
       'stop' => 'idle',
       _ => status.state,
     };
-    current = TotemInfo(
-      paired: true,
-      deviceId: current.deviceId,
+    current = current.copyWith(
       status: TotemStatus(
         online: true,
         state: next,
@@ -481,9 +495,10 @@ class FakeTotemApi implements TotemApi {
   }
 }
 
-TotemInfo pairedTotem({String state = 'idle', bool online = true, int? storyId, int volume = 40}) => TotemInfo(
+TotemInfo pairedTotem({String state = 'idle', bool online = true, int? storyId, int volume = 40, int limit = 50}) => TotemInfo(
       paired: true,
       deviceId: 'totem-001',
+      volumeLimit: limit,
       status: TotemStatus(online: online, state: state, storyId: storyId, position: 5, duration: 36, volume: volume),
     );
 
@@ -492,3 +507,26 @@ TotemViewModel fakeTotemViewModel([FakeTotemApi? api]) => TotemViewModel(
       repository: TotemRepository(api: api ?? FakeTotemApi()),
       pollInterval: const Duration(hours: 1),
     );
+
+/// Tujuh hari berakhir 2026-10-28; [seconds] mengisi hari ke-i (0 = terlama).
+WeeklyStats weekOf({Map<int, int> seconds = const {}, Map<int, int> plays = const {}, Map<int, int> stories = const {}}) {
+  return WeeklyStats([
+    for (var i = 0; i < 7; i++)
+      DayStats(date: DateTime(2026, 10, 22 + i), stories: stories[i] ?? 0, plays: plays[i] ?? 0, seconds: seconds[i] ?? 0),
+  ]);
+}
+
+class FakeStatsApi implements StatsApi {
+  WeeklyStats result = weekOf();
+  StatsApiException? error;
+  final calls = <int>[];
+
+  @override
+  Future<WeeklyStats> weekly(int childId) async {
+    calls.add(childId);
+    if (error != null) throw error!;
+    return result;
+  }
+}
+
+StatsViewModel fakeStatsViewModel([FakeStatsApi? api]) => StatsViewModel(repository: StatsRepository(api: api ?? FakeStatsApi()));

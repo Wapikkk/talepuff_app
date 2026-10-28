@@ -8,6 +8,9 @@ import '../../../ui/widgets/cloud_overlay.dart';
 import '../../../ui/widgets/parent/child_profile_info.dart';
 import '../../../ui/widgets/parent/parent_header.dart';
 import '../../../ui/widgets/parent/child_profile_photo.dart';
+import '../../../ui/widgets/parent/bedtime_story.dart';
+import '../../../ui/widgets/parent/divider_line.dart';
+import '../../../ui/widgets/parent/usage_statistic_card.dart';
 
 class ParentView extends StatelessWidget {
   const ParentView ({super.key});
@@ -53,7 +56,11 @@ class ParentView extends StatelessWidget {
                             interests: childVM.selectedInterests,
                           ),
 
-                          const SizedBox(height: 5),
+                          const DividerLine(),
+                          const Align(alignment: Alignment.centerLeft, child: BedtimeStory()),
+                          const DividerLine(),
+                          const Align(alignment: Alignment.centerLeft, child: UsageStatisticCard()),
+                          const SizedBox(height: 40),
                         ],
                       ),
                     ),

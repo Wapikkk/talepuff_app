@@ -15,11 +15,8 @@ class ParentViewModel extends ChangeNotifier{
   File? _imagePreview; get imagePreview => _imagePreview;
   String? _currentChildId, _currentChildName, _currentPhotoUrl;
   String? get currentChildId => _currentChildId; get currentChildName => _currentChildName; get currentPhotoUrl => _currentPhotoUrl;
-  bool _isUploading = false, _isAutoStoryEnabled = false;
-  bool get isUploading => _isUploading; get isAutoStoryEnabled => _isAutoStoryEnabled;
-  String _selectedHour = "08", _selectedMinute = "30";
-  String get selectedHour => _selectedHour; get selectedMinute => _selectedMinute;
-  bool _isAM = true; get isAM => _isAM;
+  bool _isUploading = false;
+  bool get isUploading => _isUploading;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -120,17 +117,5 @@ class ParentViewModel extends ChangeNotifier{
       _isUploading = false;
       notifyListeners();
     }
-  }
-
-  void toggleAutoStory(bool value) {
-    _isAutoStoryEnabled = value;
-    notifyListeners();
-  }
-
-  void updateTime(String hour, String minute, bool am) {
-    _selectedHour = hour;
-    _selectedMinute = minute;
-    _isAM = am;
-    notifyListeners();
   }
 }

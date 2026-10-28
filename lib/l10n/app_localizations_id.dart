@@ -581,9 +581,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get playLastStory => 'Putar Cerita Terakhir';
 
   @override
-  String get playLastStoryComingSoon => 'Putar Cerita Terakhir segera hadir!';
-
-  @override
   String get navHome => 'Beranda';
 
   @override
@@ -623,11 +620,6 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String statsTitle(String name) {
     return 'Ringkasan mendengarkan $name minggu ini';
-  }
-
-  @override
-  String statsMood(int count) {
-    return '$count Suasana';
   }
 
   @override
@@ -1053,4 +1045,29 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get totemVolume => 'Volume';
+
+  @override
+  String get msgNoPlayableStory =>
+      'Anda belum punya cerita yang bersuara. Buat satu dulu.';
+
+  @override
+  String get volumeLimitNeedsTotem =>
+      'Hubungkan totem untuk mengatur batas volume.';
+
+  @override
+  String playingOnTotem(String title) {
+    return 'Memutar “$title” di totem.';
+  }
+
+  @override
+  String get bedtimeNeedsTotem =>
+      'Hubungkan totem untuk mengatur cerita pengantar tidur.';
+
+  @override
+  String statsPlays(int count) {
+    return '$count Diputar';
+  }
+
+  @override
+  String get statsEmpty => 'Belum ada minggu ini. Putar cerita di totem!';
 }

@@ -579,9 +579,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playLastStory => 'Play Last Story';
 
   @override
-  String get playLastStoryComingSoon => 'Play Last Story is coming soon!';
-
-  @override
   String get navHome => 'Home';
 
   @override
@@ -627,11 +624,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String statsTitle(String name) {
     return '$name’s listening week overview';
-  }
-
-  @override
-  String statsMood(int count) {
-    return '$count Mood';
   }
 
   @override
@@ -1057,4 +1049,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totemVolume => 'Volume';
+
+  @override
+  String get msgNoPlayableStory =>
+      'You don’t have a story with a voice yet. Create one first.';
+
+  @override
+  String get volumeLimitNeedsTotem => 'Link a totem to set a volume limit.';
+
+  @override
+  String playingOnTotem(String title) {
+    return 'Playing “$title” on the totem.';
+  }
+
+  @override
+  String get bedtimeNeedsTotem => 'Link a totem to set a bedtime story.';
+
+  @override
+  String statsPlays(int count) {
+    return '$count Plays';
+  }
+
+  @override
+  String get statsEmpty => 'Nothing yet this week. Play a story on the totem!';
 }

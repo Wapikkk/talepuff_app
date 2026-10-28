@@ -359,7 +359,7 @@ void main() {
   });
 
   group('the Parent page', () {
-    testWidgets('no longer shows placeholder numbers or the unfinished schedule', (tester) async {
+    testWidgets('shows the real bedtime schedule but no placeholder numbers', (tester) async {
       final fixture = AuthFixture(signedInUser: const AuthUser('uid-1', 'parent@example.com'));
       fixture.seedProfile(name: 'Aira');
       final childInfo = ChildInfoViewModel(repository: fixture.repository)..applySavedName('Aira');
@@ -370,16 +370,19 @@ void main() {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: parent),
           ChangeNotifierProvider(create: (_) => LoginViewModel(repository: fixture.repository)),
+          ChangeNotifierProvider(create: (_) => fakeTotemViewModel()),
+          ChangeNotifierProvider(create: (_) => fakeStatsViewModel()),
         ],
         child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: ParentView()),
       ));
       await tester.pump();
+      await tester.pump();
 
       expect(find.text('Aira'), findsWidgets);
-      expect(find.text('Auto Bedtime Story'), findsNothing);
-      expect(find.textContaining('listening week overview'), findsNothing);
-      expect(find.textContaining('Stories'), findsNothing);
-      expect(find.textContaining('Minutes'), findsNothing);
+      expect(find.text('Auto Bedtime Story'), findsOneWidget);
+      expect(find.text('Aira\u2019s listening week overview'), findsOneWidget);
+      expect(find.text('0 Stories'), findsOneWidget, reason: 'real numbers, not the old sample 10');
+      expect(find.text('0 Minutes'), findsOneWidget, reason: 'real numbers, not the old sample 30');
     });
   });
 }

@@ -51,6 +51,14 @@ class TotemRepository {
   Future<AccountResult> stop() => _command('stop');
   Future<AccountResult> setVolume(int value) => _command('volume', value: value.clamp(0, 100));
 
+  Future<AccountResult> setVolumeLimit(int limit) =>
+      _run(() => _api.setVolumeLimit(limit.clamp(0, 100)), const AccountSuccess(AppMessage.totemSent));
+
+  Future<AccountResult> setBedtime({required bool enabled, required int hour, required int minute}) => _run(
+        () => _api.setBedtime(enabled: enabled, hour: hour.clamp(0, 23), minute: minute.clamp(0, 59)),
+        const AccountSuccess(AppMessage.totemSent),
+      );
+
   Future<AccountResult> _command(String action, {int? value}) =>
       _run(() => _api.command(action, value: value), const AccountSuccess(AppMessage.totemSent));
 

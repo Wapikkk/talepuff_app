@@ -61,6 +61,24 @@ class JobCheckFailed extends JobCheckResult {
   const JobCheckFailed(this.message);
 }
 
+sealed class LatestStoryResult {
+  const LatestStoryResult();
+}
+
+class LatestStoryFound extends LatestStoryResult {
+  final StorySummary story;
+  const LatestStoryFound(this.story);
+}
+
+class LatestStoryNone extends LatestStoryResult {
+  const LatestStoryNone();
+}
+
+class LatestStoryFailed extends LatestStoryResult {
+  final AppMessage message;
+  const LatestStoryFailed(this.message);
+}
+
 class StoryRepository {
   StoryRepository({required StoryApi api}) : _api = api;
 
@@ -82,6 +100,20 @@ class StoryRepository {
       return StoryListLoaded(page.stories, hasMore: page.hasMore);
     } on StoryApiException catch (e) {
       return StoryListFailed(_code(e));
+    }
+  }
+
+  /// Cerita terbaru yang punya suara; dipakai tombol "Putar cerita terakhir".
+  Future<LatestStoryResult> latestPlayable(int childId) async {
+    final result = await list(childId: childId, tab: StoryTab.recent);
+    switch (result) {
+      case StoryListLoaded(:final stories):
+        for (final story in stories) {
+          if (story.hasAudio) return LatestStoryFound(story);
+        }
+        return const LatestStoryNone();
+      case StoryListFailed(:final message):
+        return LatestStoryFailed(message);
     }
   }
 

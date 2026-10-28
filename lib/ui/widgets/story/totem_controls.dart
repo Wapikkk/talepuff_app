@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/app_assets.dart';
 import '../../../data/models/account_result.dart';
+import '../../../data/models/story.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../l10n/app_message_text.dart';
 import '../../../l10n/l10n_labels.dart';
@@ -12,7 +15,8 @@ import '../shared/top_banner.dart';
 /// Remote untuk cerita yang sedang diputar di totem. Tidak tampil bila totem tidak memutar cerita ini.
 class TotemControls extends StatefulWidget {
   final int storyId;
-  const TotemControls({super.key, required this.storyId});
+  final List<StorySentence> sentences;
+  const TotemControls({super.key, required this.storyId, this.sentences = const []});
 
   @override
   State<TotemControls> createState() => _TotemControlsState();
@@ -21,15 +25,21 @@ class TotemControls extends StatefulWidget {
 class _TotemControlsState extends State<TotemControls> {
   late final TotemViewModel _viewModel;
   double? _dragVolume;
+  Timer? _tick;
 
   @override
   void initState() {
     super.initState();
     _viewModel = context.read<TotemViewModel>()..watch();
+    // Kalimat berganti lebih sering daripada status dari totem datang, jadi layar dihitung ulang berkala.
+    _tick = Timer.periodic(const Duration(milliseconds: 250), (_) {
+      if (mounted && widget.sentences.isNotEmpty && _viewModel.status.state == 'playing') setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    _tick?.cancel();
     _viewModel.unwatch();
     super.dispose();
   }
@@ -53,6 +63,8 @@ class _TotemControlsState extends State<TotemControls> {
 
     final l10n = AppLocalizations.of(context);
     final paused = status.state == 'paused';
+    final limit = viewModel.volumeLimit;
+    final sentence = StorySentence.at(widget.sentences, viewModel.audiblePositionMs);
     const light = TextStyle(color: Colors.white, fontFamily: AppAssets.fontFamily);
 
     return Container(
@@ -70,6 +82,18 @@ class _TotemControlsState extends State<TotemControls> {
             key: const Key('totem-progress'),
             style: light.copyWith(fontSize: 12, color: Colors.white70),
           ),
+          if (sentence != null) ...[
+            const SizedBox(height: 10),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: Text(
+                sentence.text,
+                key: ValueKey(sentence.startMs),
+                semanticsLabel: sentence.text,
+                style: light.copyWith(fontSize: 18, fontWeight: FontWeight.w600, height: 1.35),
+              ),
+            ),
+          ],
           Row(
             children: [
               IconButton(
@@ -86,13 +110,12 @@ class _TotemControlsState extends State<TotemControls> {
               Expanded(
                 child: Slider(
                   key: const Key('totem-volume'),
-                  value: (_dragVolume ?? status.volume.toDouble()).clamp(0, 100),
-                  max: 100,
-                  divisions: 20,
+                  value: (_dragVolume ?? status.volume.toDouble()).clamp(0, limit < 1 ? 1 : limit).toDouble(),
+                  max: limit < 1 ? 1 : limit.toDouble(),
                   label: '${(_dragVolume ?? status.volume).round()}',
                   activeColor: Colors.white,
                   inactiveColor: Colors.white24,
-                  onChanged: (value) => setState(() => _dragVolume = value),
+                  onChanged: limit == 0 ? null : (value) => setState(() => _dragVolume = value),
                   onChangeEnd: (value) async {
                     await _run(() => viewModel.setVolume(value.round()));
                     if (mounted) setState(() => _dragVolume = null);

@@ -36,7 +36,6 @@ import 'ui/views/login/login_view.dart';
 import 'ui/view_models/auth/login_view_model.dart';
 
 import 'ui/views/settings/settings_view.dart';
-import 'ui/view_models/parents/settings_view_model.dart';
 
 import 'ui/view_models/parents/update_settings_view_model.dart';
 import 'ui/views/settings/update_password_view.dart';
@@ -62,6 +61,9 @@ import 'ui/views/settings/server_address_view.dart';
 import 'core/server_address.dart';
 import 'data/repositories/story_repository.dart';
 import 'data/repositories/totem_repository.dart';
+import 'data/repositories/stats_repository.dart';
+import 'data/services/stats_service.dart';
+import 'ui/view_models/stats/stats_view_model.dart';
 import 'data/services/totem_service.dart';
 import 'ui/view_models/totem/totem_view_model.dart';
 import 'ui/views/settings/totem_view.dart';
@@ -97,6 +99,10 @@ void main() async {
         Provider<ServerChecker>.value(value: ServerCheckService()),
         Provider<AppInfo>.value(value: appInfo),
         Provider<StoryRepository>.value(value: StoryRepository(api: StoryService(client: httpClient))),
+        Provider<StatsRepository>.value(value: StatsRepository(api: StatsService(client: httpClient))),
+        ChangeNotifierProvider(
+          create: (context) => StatsViewModel(repository: context.read<StatsRepository>()),
+        ),
         Provider<TotemRepository>.value(value: TotemRepository(api: TotemService(client: httpClient))),
         ChangeNotifierProvider(
           create: (context) => TotemViewModel(repository: context.read<TotemRepository>()),
@@ -131,7 +137,6 @@ void main() async {
           create: (context) => StartupViewModel(repository: context.read<AuthRepository>()),
         ),
         ChangeNotifierProvider(create: (context) => ParentViewModel(photos: context.read<ProfilePhotoRepository>())),
-        ChangeNotifierProvider(create: (_) => SettingsViewModel()),
         ChangeNotifierProvider(
           create: (context) => UpdateSettingsViewModel(repository: context.read<AccountRepository>()),
         ),

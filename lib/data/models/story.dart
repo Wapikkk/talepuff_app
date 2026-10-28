@@ -81,9 +81,45 @@ class StorySummary {
       );
 }
 
+/// Satu kalimat yang dibacakan, dengan waktu dalam milidetik dari awal audio.
+class StorySentence {
+  final int startMs;
+  final int endMs;
+  final String text;
+  const StorySentence(this.startMs, this.endMs, this.text);
+
+  static List<StorySentence> parseAll(Object? raw) {
+    if (raw is! List) return const [];
+    final result = <StorySentence>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final start = item['start'];
+      final end = item['end'];
+      final text = item['text']?.toString().trim() ?? '';
+      if (start is num && end is num && text.isNotEmpty) {
+        result.add(StorySentence(start.toInt(), end.toInt(), text));
+      }
+    }
+    return result;
+  }
+
+  /// Kalimat yang sedang dibacakan pada [ms]. Di jeda antar kalimat tetap kalimat sebelumnya;
+  /// sebelum yang pertama dimulai, kalimat pertama.
+  static StorySentence? at(List<StorySentence> sentences, int ms) {
+    if (sentences.isEmpty) return null;
+    var current = sentences.first;
+    for (final sentence in sentences) {
+      if (sentence.startMs > ms) break;
+      current = sentence;
+    }
+    return current;
+  }
+}
+
 class StoryDetail extends StorySummary {
   final String content;
   final String description;
+  final List<StorySentence> sentences;
 
   const StoryDetail({
     required super.id,
@@ -100,6 +136,7 @@ class StoryDetail extends StorySummary {
     required super.createdAt,
     required this.content,
     required this.description,
+    this.sentences = const [],
   });
 
   factory StoryDetail.fromJson(Map<String, dynamic> json) {
@@ -119,6 +156,7 @@ class StoryDetail extends StorySummary {
       createdAt: base.createdAt,
       content: json['content']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
+      sentences: StorySentence.parseAll(json['sentences']),
     );
   }
 
@@ -138,6 +176,7 @@ class StoryDetail extends StorySummary {
         createdAt: createdAt,
         content: content,
         description: description,
+        sentences: sentences,
       );
 }
 
