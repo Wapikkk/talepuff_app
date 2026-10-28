@@ -148,6 +148,7 @@ void main() {
   group('Settings', () {
     List<SingleChildWidget> providers() => [
           ChangeNotifierProvider(create: (_) => SettingsViewModel()),
+          ChangeNotifierProvider(create: (_) => fakeTotemViewModel()),
           ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel(repository: AccountFixture().repository)),
           Provider<AppInfo>.value(value: FakeAppInfo()),
         ];

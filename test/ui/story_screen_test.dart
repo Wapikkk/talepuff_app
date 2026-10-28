@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:talepuff_app/data/models/child_profile.dart';
 import 'package:talepuff_app/data/models/story.dart';
 import 'package:talepuff_app/data/services/story_service.dart';
+import 'package:talepuff_app/data/services/totem_service.dart';
 import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/parent_view_model.dart';
@@ -36,7 +37,7 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 class Harness {
-  Harness(this.api) {
+  Harness(this.api, {FakeTotemApi? totem}) : totemApi = totem ?? FakeTotemApi() {
     parent = ParentViewModel(photos: fakePhotos())
       ..setInitiateData('7', null, 'Aira');
     childInfo = ChildInfoViewModel(repository: AuthFixture().repository)
@@ -45,6 +46,7 @@ class Harness {
   }
 
   final FakeStoryApi api;
+  final FakeTotemApi totemApi;
   late final ParentViewModel parent;
   late final ChildInfoViewModel childInfo;
   late final NavbarViewModel navbar;
@@ -57,10 +59,14 @@ class Harness {
           ChangeNotifierProvider.value(value: parent),
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: navbar),
+          ChangeNotifierProvider(create: (_) => fakeTotemViewModel(totemApi)),
         ],
         child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: const StoryView(),
-          routes: {'/story_detail': (_) => const StoryDetailView()},
+          routes: {
+            '/story_detail': (_) => const StoryDetailView(),
+            '/totem': (_) => const Text('TOTEM', textDirection: TextDirection.ltr),
+          },
         ),
       ),
     );
@@ -434,18 +440,86 @@ void main() {
       expect(find.text('Play on totem'), findsOneWidget);
     });
 
-    phoneTest('"Play on totem" says it is coming soon', (tester) async {
-      final api = apiWith([makeStory(1)]);
-      await Harness(api).pump(tester);
+    Future<Harness> openStory(WidgetTester tester, FakeTotemApi totem) async {
+      final harness = Harness(apiWith([makeStory(1)]), totem: totem);
+      await harness.pump(tester);
       await tester.tap(find.text('Story 1'));
       await settle(tester);
+      return harness;
+    }
+
+    Future<void> dismissBanner(WidgetTester tester) async {
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    phoneTest('"Play on totem" without a linked totem asks to link one and opens the Totem screen', (tester) async {
+      final totem = FakeTotemApi();
+      await openStory(tester, totem);
 
       await tester.tap(find.byKey(const Key('play-on-totem')));
       await settle(tester);
 
-      expect(find.text('Playing on the totem is coming soon!'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 4));
-      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('TOTEM'), findsOneWidget);
+      expect(totem.calls, isEmpty);
+      await dismissBanner(tester);
+    });
+
+    phoneTest('"Play on totem" sends the story to the linked totem and shows the remote', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem();
+      await openStory(tester, totem);
+      expect(find.byKey(const Key('totem-controls')), findsNothing, reason: 'nothing is playing yet');
+
+      await tester.tap(find.byKey(const Key('play-on-totem')));
+      await settle(tester);
+
+      expect(totem.calls, ['play:1']);
+      expect(find.byKey(const Key('totem-controls')), findsOneWidget);
+      expect(find.text('Playing  0:03 / 0:36'), findsOneWidget);
+    });
+
+    phoneTest('the remote pauses, resumes, stops and changes the volume', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem();
+      await openStory(tester, totem);
+      await tester.tap(find.byKey(const Key('play-on-totem')));
+      await settle(tester);
+
+      await tester.tap(find.byKey(const Key('totem-toggle')));
+      await settle(tester);
+      expect(find.textContaining('Paused'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('totem-toggle')));
+      await settle(tester);
+      expect(find.textContaining('Playing'), findsOneWidget);
+
+      await tester.drag(find.byKey(const Key('totem-volume')), const Offset(-60, 0));
+      await settle(tester);
+      expect(totem.calls.last, startsWith('volume:'));
+
+      await tester.tap(find.byKey(const Key('totem-stop')));
+      await settle(tester);
+      expect(totem.calls, containsAllInOrder(['play:1', 'pause', 'resume', 'stop']));
+      expect(find.byKey(const Key('totem-controls')), findsNothing, reason: 'the totem stopped');
+    });
+
+    phoneTest('the remote is not shown when the totem plays another story', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem(state: 'playing', storyId: 99);
+      await openStory(tester, totem);
+      expect(find.byKey(const Key('totem-controls')), findsNothing);
+    });
+
+    phoneTest('an offline totem is explained instead of failing silently', (tester) async {
+      final totem = FakeTotemApi()
+        ..current = pairedTotem()
+        ..error = const TotemApiException('x', statusCode: 409, code: 'totem_offline');
+      await openStory(tester, totem);
+
+      await tester.tap(find.byKey(const Key('play-on-totem')));
+      await settle(tester);
+
+      expect(find.text('Your totem is offline. Turn it on and try again.'), findsOneWidget);
+      expect(find.byKey(const Key('totem-controls')), findsNothing);
+      await dismissBanner(tester);
     });
 
     phoneTest(

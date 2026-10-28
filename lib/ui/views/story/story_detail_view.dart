@@ -5,8 +5,11 @@ import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
 import '../../../core/relative_time.dart';
 import '../../../data/models/account_result.dart';
+import '../../../data/models/app_message.dart';
 import '../../../data/repositories/story_repository.dart';
 import '../../view_models/story/story_detail_view_model.dart';
+import '../../view_models/totem/totem_view_model.dart';
+import '../../widgets/story/totem_controls.dart';
 import '../../widgets/shared/top_banner.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../l10n/app_message_text.dart';
@@ -40,6 +43,24 @@ class _StoryDetailBody extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final result = await viewModel.toggleFavorite();
     if (result is AccountFailure) TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
+  }
+
+  Future<void> _playOnTotem(BuildContext context, int storyId) async {
+    final totem = context.read<TotemViewModel>();
+    final overlay = TopBanner.overlayOf(context);
+    final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    if (!totem.isLoaded) await totem.refresh();
+    if (!totem.isPaired) {
+      TopBanner.show(overlay, l10n.appMessage(AppMessage.totemNotPaired), type: TopBannerType.info);
+      navigator.pushNamed('/totem');
+      return;
+    }
+    final result = await totem.play(storyId);
+    if (result is AccountFailure) {
+      TopBanner.show(overlay, l10n.appMessage(result.message), type: TopBannerType.error);
+    }
   }
 
   @override
@@ -136,11 +157,7 @@ class _StoryDetailBody extends StatelessWidget {
           height: 50,
           child: ElevatedButton.icon(
             key: const Key('play-on-totem'),
-            onPressed: () => TopBanner.show(
-              TopBanner.overlayOf(context),
-              l10n.playOnTotemSoon,
-              type: TopBannerType.info,
-            ),
+            onPressed: () => _playOnTotem(context, story.id),
             icon: const Icon(Icons.speaker, color: Colors.white),
             label: Text(
               l10n.playOnTotem,
@@ -152,6 +169,7 @@ class _StoryDetailBody extends StatelessWidget {
             ),
           ),
         ),
+        TotemControls(storyId: story.id),
         const SizedBox(height: 24),
         for (final paragraph in paragraphs)
           Padding(

@@ -1,6 +1,7 @@
 import '../core/language_preference.dart';
 import '../core/mascots.dart';
 import '../data/models/story.dart';
+import '../data/models/totem.dart';
 import '../ui/view_models/loading/loading_view_model.dart';
 import 'app_localizations.dart';
 
@@ -74,6 +75,18 @@ extension AppLocalizationsLabels on AppLocalizations {
         LoadingStage.done => loadingDone,
         LoadingStage.failed => loadingFailed,
       };
+
+  String totemStateLabel(TotemStatus status) {
+    if (!status.online) return totemOffline;
+    return switch (status.state) {
+      'idle' => totemStateIdle,
+      'loading' => totemStateLoading,
+      'playing' => totemStatePlaying,
+      'paused' => totemStatePaused,
+      'error' => totemStateError,
+      _ => totemStateUnknown,
+    };
+  }
 
   String genderLabel(String value) => switch (value) {
         'male' => genderMale,

@@ -960,4 +960,97 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get playOnTotemSoon => 'Memutar di totem segera hadir!';
+
+  @override
+  String get msgTotemInvalidId =>
+      'Itu bukan ID totem yang valid. Gunakan huruf, angka, dan tanda hubung, misalnya totem-001.';
+
+  @override
+  String get msgTotemNotVisible =>
+      'Totem ini tidak terlihat. Pastikan totem menyala dan terhubung ke Wi-Fi.';
+
+  @override
+  String get msgTotemTaken => 'Totem ini sudah terhubung ke akun lain.';
+
+  @override
+  String get msgTotemNotPaired =>
+      'Hubungkan totem terlebih dahulu di Pengaturan.';
+
+  @override
+  String get msgTotemOffline =>
+      'Totem Anda sedang offline. Nyalakan totem lalu coba lagi.';
+
+  @override
+  String get msgTotemUnreachable =>
+      'Totem tidak dapat dijangkau saat ini. Silakan coba lagi.';
+
+  @override
+  String get msgTotemUnavailable => 'Fitur totem belum disiapkan di server.';
+
+  @override
+  String get msgStoryNoVoice =>
+      'Cerita ini belum punya suara, sehingga totem tidak dapat memutarnya.';
+
+  @override
+  String get msgTotemLinked => 'Totem terhubung!';
+
+  @override
+  String get msgTotemUnlinked => 'Totem diputuskan.';
+
+  @override
+  String get msgTotemSent => 'Dikirim ke totem.';
+
+  @override
+  String get totem => 'Totem';
+
+  @override
+  String get totemNotLinked => 'Belum terhubung';
+
+  @override
+  String totemLinkedTo(String id) {
+    return 'Terhubung ke $id';
+  }
+
+  @override
+  String get totemId => 'ID Totem';
+
+  @override
+  String get totemLinkIntro =>
+      'Masukkan ID yang tertera pada totem. Totem harus menyala dan terhubung ke Wi-Fi.';
+
+  @override
+  String get totemLink => 'Hubungkan totem';
+
+  @override
+  String get totemUnlink => 'Putuskan totem';
+
+  @override
+  String get totemOnline => 'Online';
+
+  @override
+  String get totemOffline => 'Offline';
+
+  @override
+  String get totemStateIdle => 'Siaga';
+
+  @override
+  String get totemStateLoading => 'Memuat';
+
+  @override
+  String get totemStatePlaying => 'Memutar';
+
+  @override
+  String get totemStatePaused => 'Dijeda';
+
+  @override
+  String get totemStateError => 'Galat';
+
+  @override
+  String get totemStateUnknown => 'Tidak diketahui';
+
+  @override
+  String get totemNowPlaying => 'Sedang diputar di totem';
+
+  @override
+  String get totemVolume => 'Volume';
 }

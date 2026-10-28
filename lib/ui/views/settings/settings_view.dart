@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../auth_flow.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/settings/about.dart';
 import '../../../ui/widgets/settings/language_setting.dart';
+import '../../../ui/widgets/settings/totem_setting.dart';
+import '../../view_models/totem/totem_view_model.dart';
 import '../../../ui/widgets/settings/volume_limit.dart';
 import '../../../ui/widgets/settings/account_settings.dart';
 import '../../../ui/widgets/settings/settings_header.dart';
@@ -17,6 +20,14 @@ class SettingsView extends StatefulWidget{
 }
 
 class _SettingsViewState extends State<SettingsView>{
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<TotemViewModel>().refresh();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -35,6 +46,9 @@ class _SettingsViewState extends State<SettingsView>{
               const SizedBox(height: 15),
 
               const VolumeLimit(),
+              const SizedBox(height: 15),
+
+              const TotemSetting(),
               const SizedBox(height: 15),
 
               const LanguageSetting(),
