@@ -7,7 +7,6 @@ import 'package:talepuff_app/core/language_preference.dart';
 import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/ui/view_models/auth/login_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
-import 'package:talepuff_app/ui/view_models/parents/settings_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/update_settings_view_model.dart';
 import 'package:talepuff_app/ui/view_models/settings/language_view_model.dart';
 import 'package:talepuff_app/ui/view_models/startup_view_model.dart';
@@ -147,7 +146,6 @@ void main() {
 
   group('Settings', () {
     List<SingleChildWidget> providers() => [
-          ChangeNotifierProvider(create: (_) => SettingsViewModel()),
           ChangeNotifierProvider(create: (_) => fakeTotemViewModel()),
           ChangeNotifierProvider(create: (_) => UpdateSettingsViewModel(repository: AccountFixture().repository)),
           Provider<AppInfo>.value(value: FakeAppInfo()),

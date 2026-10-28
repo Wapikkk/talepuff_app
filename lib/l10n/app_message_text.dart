@@ -40,6 +40,7 @@ extension AppMessageText on AppLocalizations {
         AppMessage.totemLinked => msgTotemLinked,
         AppMessage.totemUnlinked => msgTotemUnlinked,
         AppMessage.totemSent => msgTotemSent,
+        AppMessage.noPlayableStory => msgNoPlayableStory,
         AppMessage.connectionLost => msgConnectionLost,
         AppMessage.noticeNameReplaced => msgNoticeNameReplaced,
         AppMessage.noticeBothReplaced => msgNoticeBothReplaced,

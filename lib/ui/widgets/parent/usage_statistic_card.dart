@@ -1,33 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/app_assets.dart';
 import '../../../core/app_colors.dart';
-import 'package:talepuff_app/l10n/app_localizations.dart';
+import '../../../data/models/weekly_stats.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_message_text.dart';
+import '../../view_models/parents/parent_view_model.dart';
+import '../../view_models/stats/stats_view_model.dart';
 
-class UsageStatisticCard extends StatelessWidget {
-  final String childName;
-  final int storiesCount;
-  final int minutesCount;
-  final int moodCount;
+/// Ringkasan tujuh hari terakhir: cerita dibuat, berapa kali diputar di totem, dan lama didengar.
+class UsageStatisticCard extends StatefulWidget {
+  const UsageStatisticCard({super.key});
 
-  const UsageStatisticCard({
-    super.key,
-    required this.childName,
-    this.storiesCount = 10,
-    this.minutesCount = 30,
-    this.moodCount = 5,
-  });
+  @override
+  State<UsageStatisticCard> createState() => _UsageStatisticCardState();
+}
+
+class _UsageStatisticCardState extends State<UsageStatisticCard> {
+  static const double _barArea = 56;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  void _load() {
+    if (!mounted) return;
+    context.read<StatsViewModel>().load(context.read<ParentViewModel>().currentChildId);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final int totalActive = moodCount + storiesCount + minutesCount;
-    final int totalBar = totalActive + 20;
+    final viewModel = context.watch<StatsViewModel>();
+    final name = context.watch<ParentViewModel>().currentChildName ?? '';
+    final stats = viewModel.stats;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.statsTitle(childName),
+          l10n.statsTitle(name),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -36,84 +51,102 @@ class UsageStatisticCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-
-        ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            height: 24,
-            width: double.infinity,
-            color: AppColors.backgroundOverview,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final double maxWidth = constraints.maxWidth;
-                return Stack(
-                  children: [
-                    _buildBarSegment(
-                      width: maxWidth * (totalActive / totalBar),
-                      color: AppColors.underline,
-                    ),
-
-                    _buildBarSegment(
-                      width: maxWidth * ((moodCount + storiesCount) / totalBar),
-                      color: AppColors.storiesCount,
-                    ),
-
-                    _buildBarSegment(
-                      width: maxWidth * (moodCount / totalBar),
-                      color: AppColors.adventureBox,
-                    ),
-                  ],
-                );
-              },
-            ),
+        if (stats != null)
+          _content(context, l10n, stats)
+        else if (viewModel.isLoading)
+          const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()))
+        else if (viewModel.error != null)
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.appMessage(viewModel.error!),
+                  key: const Key('stats-error'),
+                  style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontFamily: AppAssets.fontFamily),
+                ),
+              ),
+              TextButton(key: const Key('stats-retry'), onPressed: _load, child: Text(l10n.tryAgain)),
+            ],
           ),
-        ),
-        const SizedBox(height: 16),
+      ],
+    );
+  }
 
+  Widget _content(BuildContext context, AppLocalizations l10n, WeeklyStats stats) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildLegendItem(AppColors.adventureBox, l10n.statsMood(moodCount)),
-            _buildLegendItem(AppColors.storiesCount, l10n.statsStories(storiesCount)),
-            _buildLegendItem(AppColors.underline, l10n.statsMinutes(minutesCount)),
+            _legend(AppColors.adventureBox, l10n.statsStories(stats.stories), const Key('stats-stories')),
+            _legend(AppColors.storiesCount, l10n.statsPlays(stats.plays), const Key('stats-plays')),
+            _legend(AppColors.underline, l10n.statsMinutes(stats.minutes), const Key('stats-minutes')),
           ],
+        ),
+        const SizedBox(height: 16),
+        if (stats.isEmpty)
+          Text(
+            l10n.statsEmpty,
+            key: const Key('stats-empty'),
+            style: const TextStyle(color: AppColors.slideBubble, fontSize: 14, fontFamily: AppAssets.fontFamily),
+          )
+        else
+          SizedBox(
+            height: _barArea + 24,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < stats.days.length; i++)
+                  Expanded(child: _bar(context, stats.days[i], stats.maxSeconds, today: i == stats.days.length - 1)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _bar(BuildContext context, DayStats day, int maxSeconds, {required bool today}) {
+    final height = maxSeconds == 0 ? 4.0 : (_barArea * day.seconds / maxSeconds).clamp(4.0, _barArea);
+    final weekday = MaterialLocalizations.of(context).narrowWeekdays[day.date.weekday % 7];
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          key: Key('stats-bar-${day.date.day}'),
+          width: 18,
+          height: height,
+          decoration: BoxDecoration(
+            color: AppColors.underline.withValues(alpha: today ? 1 : 0.4),
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          weekday,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: today ? FontWeight.bold : FontWeight.w500,
+            color: AppColors.darkPurple,
+            fontFamily: AppAssets.fontFamily,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildBarSegment({required double width, required Color color}) {
-    return Container(
-      width: width,
-      height: 24,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.horizontal(
-          right: Radius.circular(15),
-          left: Radius.zero,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label) {
+  Widget _legend(Color color, String text, Key key) {
     return Row(
       children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        const SizedBox(width: 8),
+        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
         Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: color,
-            fontWeight: FontWeight.bold,
+          text,
+          key: key,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.darkPurple,
             fontFamily: AppAssets.fontFamily,
           ),
         ),

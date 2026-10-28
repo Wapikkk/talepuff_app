@@ -176,7 +176,6 @@
   "searchStory": "Cari ceritamu",
   "createNewStory": "Buat Cerita Baru",
   "playLastStory": "Putar Cerita Terakhir",
-  "playLastStoryComingSoon": "Putar Cerita Terakhir segera hadir!",
   "navHome": "Beranda",
   "navStory": "Cerita",
   "navCreate": "Buat",
@@ -187,7 +186,6 @@
   "profileLikes2": "aku suka {a} dan {b}!",
   "profileLikesMany": "aku suka {rest} dan {last}!",
   "statsTitle": "Ringkasan mendengarkan {name} minggu ini",
-  "statsMood": "{count} Suasana",
   "statsStories": "{count} Cerita",
   "statsMinutes": "{count} Menit",
   "bedtimeTitle": "Cerita Pengantar Tidur Otomatis",
@@ -307,5 +305,11 @@
   "totemStateError": "Galat",
   "totemStateUnknown": "Tidak diketahui",
   "totemNowPlaying": "Sedang diputar di totem",
-  "totemVolume": "Volume"
+  "totemVolume": "Volume",
+  "msgNoPlayableStory": "Anda belum punya cerita yang bersuara. Buat satu dulu.",
+  "volumeLimitNeedsTotem": "Hubungkan totem untuk mengatur batas volume.",
+  "playingOnTotem": "Memutar “{title}” di totem.",
+  "bedtimeNeedsTotem": "Hubungkan totem untuk mengatur cerita pengantar tidur.",
+  "statsPlays": "{count} Diputar",
+  "statsEmpty": "Belum ada minggu ini. Putar cerita di totem!"
 }

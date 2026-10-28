@@ -25,6 +25,8 @@ abstract class TotemApi {
   Future<void> unpair();
   Future<void> play(int storyId, {int? volume});
   Future<void> command(String action, {int? value});
+  Future<void> setVolumeLimit(int limit);
+  Future<void> setBedtime({required bool enabled, required int hour, required int minute});
 }
 
 class TotemService implements TotemApi {
@@ -78,6 +80,20 @@ class TotemService implements TotemApi {
           Uri.parse('$_baseUrl/totem/command'),
           headers: _json,
           body: jsonEncode({'action': action, if (value != null) 'value': value}),
+        ));
+  }
+
+  @override
+  Future<void> setVolumeLimit(int limit) async {
+    await _send(() => _client.put(Uri.parse('$_baseUrl/totem/volume-limit'), headers: _json, body: jsonEncode({'limit': limit})));
+  }
+
+  @override
+  Future<void> setBedtime({required bool enabled, required int hour, required int minute}) async {
+    await _send(() => _client.put(
+          Uri.parse('$_baseUrl/totem/bedtime'),
+          headers: _json,
+          body: jsonEncode({'enabled': enabled, 'hour': hour, 'minute': minute}),
         ));
   }
 

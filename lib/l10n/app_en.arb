@@ -197,7 +197,6 @@
   "searchStory": "Search your story",
   "createNewStory": "Create New Story",
   "playLastStory": "Play Last Story",
-  "playLastStoryComingSoon": "Play Last Story is coming soon!",
   "navHome": "Home",
   "navStory": "Story",
   "navCreate": "Create",
@@ -225,10 +224,6 @@
   "statsTitle": "{name}’s listening week overview",
   "@statsTitle": {
     "placeholders": { "name": { "type": "String" } }
-  },
-  "statsMood": "{count} Mood",
-  "@statsMood": {
-    "placeholders": { "count": { "type": "int" } }
   },
   "statsStories": "{count} Stories",
   "@statsStories": {
@@ -397,5 +392,17 @@
   "totemStateError": "Error",
   "totemStateUnknown": "Unknown",
   "totemNowPlaying": "Now playing on the totem",
-  "totemVolume": "Volume"
+  "totemVolume": "Volume",
+  "msgNoPlayableStory": "You don’t have a story with a voice yet. Create one first.",
+  "volumeLimitNeedsTotem": "Link a totem to set a volume limit.",
+  "playingOnTotem": "Playing “{title}” on the totem.",
+  "@playingOnTotem": {
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "bedtimeNeedsTotem": "Link a totem to set a bedtime story.",
+  "statsPlays": "{count} Plays",
+  "@statsPlays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statsEmpty": "Nothing yet this week. Play a story on the totem!"
 }

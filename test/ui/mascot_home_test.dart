@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/core/mascots.dart';
 import 'package:talepuff_app/data/models/child_profile.dart';
+import 'package:talepuff_app/data/models/story.dart';
+import 'package:talepuff_app/data/services/story_service.dart';
 import 'package:talepuff_app/data/services/auth_gateway.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/ui/view_models/navbar_view_model.dart';
@@ -172,7 +174,12 @@ void main() {
   });
 
   group('Home screen', () {
-    Future<(ChildInfoViewModel, NavbarViewModel)> pumpHome(WidgetTester tester, {String mascot = 'Harimau'}) async {
+    Future<(ChildInfoViewModel, NavbarViewModel)> pumpHome(
+      WidgetTester tester, {
+      String mascot = 'Harimau',
+      FakeStoryApi? stories,
+      FakeTotemApi? totem,
+    }) async {
       final fixture = AuthFixture(signedInUser: const AuthUser('uid-1', 'parent@example.com'));
       fixture.api.store['uid-1'] = ChildProfile(id: 7, name: 'Aira', mascotId: mascot);
       final childInfo = ChildInfoViewModel(repository: fixture.repository)
@@ -183,8 +190,17 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: navbar),
+          ChangeNotifierProvider(create: (_) => ParentViewModel(photos: fakePhotos())..setInitiateData('7', null, 'Aira')),
+          Provider.value(value: fakeStories(stories)),
+          ChangeNotifierProvider(create: (_) => fakeTotemViewModel(totem)),
         ],
-        child: const MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, home: HomeView()),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: testLocale,
+          home: const HomeView(),
+          routes: {'/totem': (_) => const Text('TOTEM', textDirection: TextDirection.ltr)},
+        ),
       ));
       await tester.pump();
       return (childInfo, navbar);
@@ -204,17 +220,70 @@ void main() {
       expect(find.byIcon(Icons.search), findsNothing);
     });
 
-    phoneTest('Play Last Story says it is coming soon instead of doing nothing', (tester) async {
-      await pumpHome(tester);
+    FakeStoryApi storiesOf(List<StorySummary> list) => FakeStoryApi()..onList = (_) async => StoryPage(list, hasMore: false);
+
+    Future<void> dismissBanner(WidgetTester tester) async {
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    const audio = 'http://localhost:8000/audio/story_1_Warm.wav';
+
+    phoneTest('Play Last Story plays the newest story that has a voice on the totem', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem();
+      await pumpHome(
+        tester,
+        totem: totem,
+        stories: storiesOf([
+          makeStory(3, title: 'Newest, no voice'),
+          makeStory(2, title: 'Moon', audioUrl: audio),
+          makeStory(1, title: 'Oldest', audioUrl: audio),
+        ]),
+      );
 
       await tester.tap(find.text('Play Last Story'));
       await settle(tester);
 
-      expect(find.text('Play Last Story is coming soon!'), findsOneWidget);
-      expect(find.byIcon(Icons.info), findsOneWidget);
+      expect(totem.calls, ['play:2']);
+      expect(find.text('Playing \u201cMoon\u201d on the totem.'), findsOneWidget);
+      await dismissBanner(tester);
+    });
 
-      await tester.pump(const Duration(seconds: 4));
-      await tester.pumpAndSettle();
+    phoneTest('Play Last Story without a linked totem asks to link one', (tester) async {
+      final totem = FakeTotemApi();
+      await pumpHome(tester, totem: totem, stories: storiesOf([makeStory(1, audioUrl: audio)]));
+
+      await tester.tap(find.text('Play Last Story'));
+      await settle(tester);
+
+      expect(find.text('TOTEM'), findsOneWidget);
+      expect(totem.calls, isEmpty);
+      await dismissBanner(tester);
+    });
+
+    phoneTest('Play Last Story explains when no story has a voice yet', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem();
+      await pumpHome(tester, totem: totem, stories: storiesOf([makeStory(1)]));
+
+      await tester.tap(find.text('Play Last Story'));
+      await settle(tester);
+
+      expect(find.text('You don\u2019t have a story with a voice yet. Create one first.'), findsOneWidget);
+      expect(totem.calls, isEmpty);
+      await dismissBanner(tester);
+    });
+
+    phoneTest('Play Last Story reports a server problem instead of doing nothing', (tester) async {
+      final totem = FakeTotemApi()..current = pairedTotem();
+      final api = FakeStoryApi()..listError = const StoryApiException('down');
+      await pumpHome(tester, totem: totem, stories: api);
+
+      await tester.tap(find.text('Play Last Story'));
+      await settle(tester);
+
+      expect(find.textContaining('reach the server'), findsOneWidget);
+      expect(totem.calls, isEmpty);
+      await dismissBanner(tester);
     });
 
     phoneTest('Create New Story switches to the Create tab', (tester) async {

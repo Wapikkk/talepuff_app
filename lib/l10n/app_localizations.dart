@@ -1112,12 +1112,6 @@ abstract class AppLocalizations {
   /// **'Play Last Story'**
   String get playLastStory;
 
-  /// No description provided for @playLastStoryComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Play Last Story is coming soon!'**
-  String get playLastStoryComingSoon;
-
   /// No description provided for @navHome.
   ///
   /// In en, this message translates to:
@@ -1177,12 +1171,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}’s listening week overview'**
   String statsTitle(String name);
-
-  /// No description provided for @statsMood.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} Mood'**
-  String statsMood(int count);
 
   /// No description provided for @statsStories.
   ///
@@ -1903,6 +1891,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volume'**
   String get totemVolume;
+
+  /// No description provided for @msgNoPlayableStory.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have a story with a voice yet. Create one first.'**
+  String get msgNoPlayableStory;
+
+  /// No description provided for @volumeLimitNeedsTotem.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a totem to set a volume limit.'**
+  String get volumeLimitNeedsTotem;
+
+  /// No description provided for @playingOnTotem.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing “{title}” on the totem.'**
+  String playingOnTotem(String title);
+
+  /// No description provided for @bedtimeNeedsTotem.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a totem to set a bedtime story.'**
+  String get bedtimeNeedsTotem;
+
+  /// No description provided for @statsPlays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Plays'**
+  String statsPlays(int count);
+
+  /// No description provided for @statsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet this week. Play a story on the totem!'**
+  String get statsEmpty;
 }
 
 class _AppLocalizationsDelegate

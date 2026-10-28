@@ -13,6 +13,8 @@ import 'package:talepuff_app/data/repositories/totem_repository.dart';
 import 'package:talepuff_app/data/services/totem_service.dart';
 import 'package:talepuff_app/ui/view_models/totem/totem_view_model.dart';
 import 'package:talepuff_app/ui/views/settings/totem_view.dart';
+import 'package:talepuff_app/ui/widgets/settings/volume_limit.dart';
+import 'package:talepuff_app/ui/widgets/story/totem_controls.dart';
 
 import '../support/fakes.dart';
 import '../support/l10n.dart';
@@ -20,6 +22,8 @@ import '../support/l10n.dart';
 AppMessage failureOf(AccountResult result) => (result as AccountFailure).message;
 
 void main() {
+  volumeLimitTests();
+
   group('TotemService', () {
     TotemService serviceWith(MockClientHandler handler) =>
         TotemService(client: MockClient(handler), baseUrl: 'http://backend/api', timeout: const Duration(seconds: 2));
@@ -300,6 +304,83 @@ void main() {
   });
 }
 
+void volumeLimitTests() {
+  // Layar Settings memuat status totem saat dibuka; widget ini tidak memuatnya sendiri.
+  Widget app(FakeTotemApi api, Widget child, {Locale locale = testLocale}) => ChangeNotifierProvider(
+        create: (_) => fakeTotemViewModel(api)..refresh(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: locale,
+          home: Scaffold(body: Padding(padding: const EdgeInsets.all(16), child: child)),
+        ),
+      );
+
+  Future<void> settle(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+  }
+
+  group('Volume limit', () {
+    test('the info carries the limit, kept inside 0..100', () {
+      expect(TotemInfo.fromJson({'paired': true, 'volume_limit': 30}).volumeLimit, 30);
+      expect(TotemInfo.fromJson({'paired': true, 'volume_limit': 500}).volumeLimit, 100);
+      expect(TotemInfo.fromJson({'paired': true}).volumeLimit, 50, reason: 'an older backend has no limit');
+    });
+
+    test('the service sends the limit as JSON', () async {
+      late http.Request seen;
+      final service = TotemService(
+        client: MockClient((request) async {
+          seen = request;
+          return http.Response('{"volume_limit":30}', 200);
+        }),
+        baseUrl: 'http://backend/api',
+      );
+      await service.setVolumeLimit(30);
+      expect('${seen.method} ${seen.url.path} ${seen.body}', 'PUT /api/totem/volume-limit {"limit":30}');
+    });
+
+    testWidgets('without a totem the slider is disabled and says why', (tester) async {
+      await tester.pumpWidget(app(FakeTotemApi(), const VolumeLimit()));
+      await settle(tester);
+
+      expect(tester.widget<Slider>(find.byKey(const Key('volume-limit-slider'))).onChanged, isNull);
+      expect(find.byKey(const Key('volume-limit-hint')), findsOneWidget);
+    });
+
+    testWidgets('with a totem it shows the saved limit and saves a change', (tester) async {
+      final api = FakeTotemApi()..current = pairedTotem(limit: 50);
+      await tester.pumpWidget(app(api, const VolumeLimit()));
+      await settle(tester);
+      expect(find.text('50%'), findsOneWidget);
+
+      await tester.drag(find.byKey(const Key('volume-limit-slider')), const Offset(-100, 0));
+      await settle(tester);
+
+      expect(api.calls.single, startsWith('limit:'));
+      expect(api.current.volumeLimit, lessThan(50));
+      expect(find.byKey(const Key('volume-limit-hint')), findsNothing);
+    });
+
+    testWidgets('the remote slider never goes above the limit', (tester) async {
+      final api = FakeTotemApi()..current = pairedTotem(state: 'playing', storyId: 7, volume: 30, limit: 40);
+      await tester.pumpWidget(app(api, const TotemControls(storyId: 7)));
+      await settle(tester);
+
+      expect(tester.widget<Slider>(find.byKey(const Key('totem-volume'))).max, 40);
+    });
+
+    testWidgets('a limit of 0 mutes: the remote slider is locked', (tester) async {
+      final api = FakeTotemApi()..current = pairedTotem(state: 'playing', storyId: 7, volume: 0, limit: 0);
+      await tester.pumpWidget(app(api, const TotemControls(storyId: 7)));
+      await settle(tester);
+
+      expect(tester.widget<Slider>(find.byKey(const Key('totem-volume'))).onChanged, isNull);
+    });
+  });
+}
+
 class _CountingApi implements TotemApi {
   _CountingApi(this._inner, this._onInfo);
   final TotemApi _inner;
@@ -319,4 +400,9 @@ class _CountingApi implements TotemApi {
   Future<void> play(int storyId, {int? volume}) => _inner.play(storyId, volume: volume);
   @override
   Future<void> command(String action, {int? value}) => _inner.command(action, value: value);
+  @override
+  Future<void> setVolumeLimit(int limit) => _inner.setVolumeLimit(limit);
+  @override
+  Future<void> setBedtime({required bool enabled, required int hour, required int minute}) =>
+      _inner.setBedtime(enabled: enabled, hour: hour, minute: minute);
 }

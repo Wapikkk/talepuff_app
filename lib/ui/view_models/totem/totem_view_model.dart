@@ -8,12 +8,20 @@ import '../../../data/models/totem.dart';
 import '../../../data/repositories/totem_repository.dart';
 
 class TotemViewModel extends ChangeNotifier {
-  TotemViewModel({required TotemRepository repository, Duration pollInterval = const Duration(seconds: 2)})
-      : _repository = repository,
-        _pollInterval = pollInterval;
+  TotemViewModel({
+    required TotemRepository repository,
+    Duration pollInterval = const Duration(seconds: 2),
+    DateTime Function() clock = DateTime.now,
+  })  : _repository = repository,
+        _pollInterval = pollInterval,
+        _clock = clock;
+
+  static const int bufferLagMs = 800;
 
   final TotemRepository _repository;
   final Duration _pollInterval;
+  final DateTime Function() _clock;
+  DateTime? _statusAt;
 
   TotemInfo? _info;
   AppMessage? _error;
@@ -30,9 +38,9 @@ class TotemViewModel extends ChangeNotifier {
   bool get isPaired => _info?.paired == true;
   String? get deviceId => _info?.deviceId;
   TotemStatus get status => _info?.status ?? const TotemStatus();
+  int get volumeLimit => _info?.volumeLimit ?? 50;
+  TotemBedtime get bedtime => _info?.bedtime ?? const TotemBedtime();
 
-  /// Layar yang butuh status terbaru memanggil [watch] saat tampil dan [unwatch] saat ditutup;
-  /// polling hanya berjalan selama ada yang menonton.
   void watch() {
     _watchers++;
     if (_watchers != 1) return;
@@ -57,6 +65,7 @@ class TotemViewModel extends ChangeNotifier {
     switch (result) {
       case TotemInfoLoaded(:final info):
         _info = info;
+        _statusAt = _clock();
         _error = null;
       case TotemInfoFailed(:final message):
         _error = message;
@@ -64,7 +73,12 @@ class TotemViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Dipanggil saat keluar akun agar totem akun sebelumnya tidak terlihat oleh akun berikutnya.
+  int get audiblePositionMs {
+    final reported = status.position * 1000;
+    final elapsed = status.state == 'playing' && _statusAt != null ? _clock().difference(_statusAt!).inMilliseconds : 0;
+    return (reported + elapsed - bufferLagMs).clamp(0, status.duration > 0 ? status.duration * 1000 : 1 << 30);
+  }
+
   void reset() {
     _info = null;
     _error = null;
@@ -78,6 +92,9 @@ class TotemViewModel extends ChangeNotifier {
   Future<AccountResult?> resume() => _act(_repository.resume);
   Future<AccountResult?> stop() => _act(_repository.stop);
   Future<AccountResult?> setVolume(int value) => _act(() => _repository.setVolume(value));
+  Future<AccountResult?> setBedtime({required bool enabled, required int hour, required int minute}) =>
+      _act(() => _repository.setBedtime(enabled: enabled, hour: hour, minute: minute));
+  Future<AccountResult?> setVolumeLimit(int limit) => _act(() => _repository.setVolumeLimit(limit));
 
   Future<AccountResult?> _act(Future<AccountResult> Function() action) async {
     if (_isBusy) return null;

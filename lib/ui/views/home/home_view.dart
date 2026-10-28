@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talepuff_app/l10n/app_localizations.dart';
+import 'package:talepuff_app/l10n/app_message_text.dart';
+import '../../../data/models/app_message.dart';
+import '../../../data/repositories/story_repository.dart';
+import '../../totem_flow.dart';
+import '../../view_models/parents/parent_view_model.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../widgets/home/create_new_story_btn.dart';
 import '../../widgets/home/play_last_story_btn.dart';
@@ -19,6 +24,35 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  bool _playing = false;
+
+  Future<void> _playLastStory() async {
+    if (_playing) return;
+    _playing = true;
+    final overlay = TopBanner.overlayOf(context);
+    final l10n = AppLocalizations.of(context);
+    final repository = context.read<StoryRepository>();
+    final childId = int.tryParse(context.read<ParentViewModel>().currentChildId ?? '');
+    try {
+      if (childId == null) {
+        TopBanner.show(overlay, l10n.appMessage(AppMessage.childDataNotLoaded), type: TopBannerType.error);
+        return;
+      }
+      final result = await repository.latestPlayable(childId);
+      if (!mounted) return;
+      switch (result) {
+        case LatestStoryFound(:final story):
+          await TotemFlow.playStory(context, story.id, title: story.title.isEmpty ? l10n.untitledStory : story.title);
+        case LatestStoryNone():
+          TopBanner.show(overlay, l10n.appMessage(AppMessage.noPlayableStory), type: TopBannerType.info);
+        case LatestStoryFailed(:final message):
+          TopBanner.show(overlay, l10n.appMessage(message), type: TopBannerType.error);
+      }
+    } finally {
+      _playing = false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -76,13 +110,7 @@ class _HomeViewState extends State<HomeView> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            PlayLastStoryBtn(
-                              onPressed: () => TopBanner.show(
-                                TopBanner.overlayOf(context),
-                                AppLocalizations.of(context).playLastStoryComingSoon,
-                                type: TopBannerType.info,
-                              ),
-                            ),
+                            PlayLastStoryBtn(onPressed: _playLastStory),
                             const SizedBox(height: 16),
                             const CreateNewStoryBtn(),
                           ],

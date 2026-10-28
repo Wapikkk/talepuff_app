@@ -112,4 +112,5 @@ enum AppMessage {
   totemLinked,
   totemUnlinked,
   totemSent,
+  noPlayableStory,
 }
