@@ -68,13 +68,20 @@ class _CategorySelectorState extends State<CategorySelector> {
                 children: [
                   Image.asset(cat["icon"], color: cat["iconColor"], width: 32, height: 32),
                   const SizedBox(height: 8),
-                  Text(
-                    l10n.themeLabel(cat["title"]),
-                    style: TextStyle(
-                      color: cat["iconColor"],
-                      fontFamily: AppAssets.fontFamily,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.themeLabel(cat["title"]),
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: cat["iconColor"],
+                          fontFamily: AppAssets.fontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],

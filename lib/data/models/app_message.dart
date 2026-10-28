@@ -99,4 +99,17 @@ enum AppMessage {
   characterNameRequired,
   childProfileMissing,
   chooseMissing,
+
+  // Totem
+  totemInvalidId,
+  totemNotVisible,
+  totemTaken,
+  totemNotPaired,
+  totemOffline,
+  totemUnreachable,
+  totemUnavailable,
+  storyNoVoice,
+  totemLinked,
+  totemUnlinked,
+  totemSent,
 }

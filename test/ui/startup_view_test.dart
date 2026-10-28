@@ -26,6 +26,7 @@ Widget buildApp(AuthFixture f, {NavbarViewModel? navbar}) {
       ChangeNotifierProvider.value(value: navbar ?? NavbarViewModel()),
       ChangeNotifierProvider(create: (_) => StartupViewModel(repository: f.repository)),
       ChangeNotifierProvider(create: (_) => ChildInfoViewModel(repository: f.repository)),
+      ChangeNotifierProvider(create: (_) => fakeTotemViewModel()),
     ],
     child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
       initialRoute: '/',

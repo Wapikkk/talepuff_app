@@ -1735,6 +1735,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Playing on the totem is coming soon!'**
   String get playOnTotemSoon;
+
+  /// No description provided for @msgTotemInvalidId.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn’t look like a totem ID. Use letters, numbers and dashes, like totem-001.'**
+  String get msgTotemInvalidId;
+
+  /// No description provided for @msgTotemNotVisible.
+  ///
+  /// In en, this message translates to:
+  /// **'We can’t see this totem. Make sure it is on and connected to Wi-Fi.'**
+  String get msgTotemNotVisible;
+
+  /// No description provided for @msgTotemTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This totem is already linked to another account.'**
+  String get msgTotemTaken;
+
+  /// No description provided for @msgTotemNotPaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a totem first in Settings.'**
+  String get msgTotemNotPaired;
+
+  /// No description provided for @msgTotemOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your totem is offline. Turn it on and try again.'**
+  String get msgTotemOffline;
+
+  /// No description provided for @msgTotemUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'We can’t reach the totem right now. Please try again.'**
+  String get msgTotemUnreachable;
+
+  /// No description provided for @msgTotemUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The totem feature isn’t set up on the server yet.'**
+  String get msgTotemUnavailable;
+
+  /// No description provided for @msgStoryNoVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'This story has no voice yet, so the totem can’t play it.'**
+  String get msgStoryNoVoice;
+
+  /// No description provided for @msgTotemLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Totem linked!'**
+  String get msgTotemLinked;
+
+  /// No description provided for @msgTotemUnlinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Totem unlinked.'**
+  String get msgTotemUnlinked;
+
+  /// No description provided for @msgTotemSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the totem.'**
+  String get msgTotemSent;
+
+  /// No description provided for @totem.
+  ///
+  /// In en, this message translates to:
+  /// **'Totem'**
+  String get totem;
+
+  /// No description provided for @totemNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked'**
+  String get totemNotLinked;
+
+  /// No description provided for @totemLinkedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to {id}'**
+  String totemLinkedTo(String id);
+
+  /// No description provided for @totemId.
+  ///
+  /// In en, this message translates to:
+  /// **'Totem ID'**
+  String get totemId;
+
+  /// No description provided for @totemLinkIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the ID printed on your totem. It must be turned on and connected to Wi-Fi.'**
+  String get totemLinkIntro;
+
+  /// No description provided for @totemLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Link totem'**
+  String get totemLink;
+
+  /// No description provided for @totemUnlink.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink totem'**
+  String get totemUnlink;
+
+  /// No description provided for @totemOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get totemOnline;
+
+  /// No description provided for @totemOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get totemOffline;
+
+  /// No description provided for @totemStateIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Idle'**
+  String get totemStateIdle;
+
+  /// No description provided for @totemStateLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get totemStateLoading;
+
+  /// No description provided for @totemStatePlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing'**
+  String get totemStatePlaying;
+
+  /// No description provided for @totemStatePaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get totemStatePaused;
+
+  /// No description provided for @totemStateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get totemStateError;
+
+  /// No description provided for @totemStateUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get totemStateUnknown;
+
+  /// No description provided for @totemNowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing on the totem'**
+  String get totemNowPlaying;
+
+  /// No description provided for @totemVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get totemVolume;
 }
 
 class _AppLocalizationsDelegate

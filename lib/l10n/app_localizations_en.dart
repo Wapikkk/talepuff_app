@@ -963,4 +963,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playOnTotemSoon => 'Playing on the totem is coming soon!';
+
+  @override
+  String get msgTotemInvalidId =>
+      'That doesn’t look like a totem ID. Use letters, numbers and dashes, like totem-001.';
+
+  @override
+  String get msgTotemNotVisible =>
+      'We can’t see this totem. Make sure it is on and connected to Wi-Fi.';
+
+  @override
+  String get msgTotemTaken =>
+      'This totem is already linked to another account.';
+
+  @override
+  String get msgTotemNotPaired => 'Link a totem first in Settings.';
+
+  @override
+  String get msgTotemOffline =>
+      'Your totem is offline. Turn it on and try again.';
+
+  @override
+  String get msgTotemUnreachable =>
+      'We can’t reach the totem right now. Please try again.';
+
+  @override
+  String get msgTotemUnavailable =>
+      'The totem feature isn’t set up on the server yet.';
+
+  @override
+  String get msgStoryNoVoice =>
+      'This story has no voice yet, so the totem can’t play it.';
+
+  @override
+  String get msgTotemLinked => 'Totem linked!';
+
+  @override
+  String get msgTotemUnlinked => 'Totem unlinked.';
+
+  @override
+  String get msgTotemSent => 'Sent to the totem.';
+
+  @override
+  String get totem => 'Totem';
+
+  @override
+  String get totemNotLinked => 'Not linked';
+
+  @override
+  String totemLinkedTo(String id) {
+    return 'Linked to $id';
+  }
+
+  @override
+  String get totemId => 'Totem ID';
+
+  @override
+  String get totemLinkIntro =>
+      'Enter the ID printed on your totem. It must be turned on and connected to Wi-Fi.';
+
+  @override
+  String get totemLink => 'Link totem';
+
+  @override
+  String get totemUnlink => 'Unlink totem';
+
+  @override
+  String get totemOnline => 'Online';
+
+  @override
+  String get totemOffline => 'Offline';
+
+  @override
+  String get totemStateIdle => 'Idle';
+
+  @override
+  String get totemStateLoading => 'Loading';
+
+  @override
+  String get totemStatePlaying => 'Playing';
+
+  @override
+  String get totemStatePaused => 'Paused';
+
+  @override
+  String get totemStateError => 'Error';
+
+  @override
+  String get totemStateUnknown => 'Unknown';
+
+  @override
+  String get totemNowPlaying => 'Now playing on the totem';
+
+  @override
+  String get totemVolume => 'Volume';
 }

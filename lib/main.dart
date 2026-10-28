@@ -61,6 +61,10 @@ import 'ui/views/story/story_detail_view.dart';
 import 'ui/views/settings/server_address_view.dart';
 import 'core/server_address.dart';
 import 'data/repositories/story_repository.dart';
+import 'data/repositories/totem_repository.dart';
+import 'data/services/totem_service.dart';
+import 'ui/view_models/totem/totem_view_model.dart';
+import 'ui/views/settings/totem_view.dart';
 import 'data/services/server_check_service.dart';
 import 'data/services/story_service.dart';
 
@@ -93,6 +97,10 @@ void main() async {
         Provider<ServerChecker>.value(value: ServerCheckService()),
         Provider<AppInfo>.value(value: appInfo),
         Provider<StoryRepository>.value(value: StoryRepository(api: StoryService(client: httpClient))),
+        Provider<TotemRepository>.value(value: TotemRepository(api: TotemService(client: httpClient))),
+        ChangeNotifierProvider(
+          create: (context) => TotemViewModel(repository: context.read<TotemRepository>()),
+        ),
         Provider<ProfilePhotoRepository>.value(
           value: ProfilePhotoRepository(api: ProfilePhotoService(client: httpClient)),
         ),
@@ -164,6 +172,7 @@ class MyApp extends StatelessWidget {
         '/feedback': (context) => const FeedbackView(),
         '/legal': (context) => const LegalView(),
         '/server_address': (context) => const ServerAddressView(),
+        '/totem': (context) => const TotemView(),
         '/story': (context) => const StoryView(),
         '/story_detail': (context) => const StoryDetailView(),
         '/create_story': (context) => const CreateStoryView(),

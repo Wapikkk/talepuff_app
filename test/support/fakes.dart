@@ -17,6 +17,10 @@ import 'package:talepuff_app/data/services/feedback_service.dart';
 import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/session_store.dart';
+import 'package:talepuff_app/data/models/totem.dart';
+import 'package:talepuff_app/data/repositories/totem_repository.dart';
+import 'package:talepuff_app/data/services/totem_service.dart';
+import 'package:talepuff_app/ui/view_models/totem/totem_view_model.dart';
 
 class FakeGateway implements AuthGateway {
   FakeGateway({this.user});
@@ -413,3 +417,78 @@ class FakeStoryApi implements StoryApi {
 
 StoryRepository fakeStories([FakeStoryApi? api]) =>
     StoryRepository(api: api ?? FakeStoryApi());
+
+class FakeTotemApi implements TotemApi {
+  TotemInfo current = const TotemInfo();
+  TotemApiException? infoError;
+  TotemApiException? error; // dilempar oleh pair/unpair/play/command
+  final calls = <String>[];
+
+  @override
+  Future<TotemInfo> info() async {
+    if (infoError != null) throw infoError!;
+    return current;
+  }
+
+  @override
+  Future<void> pair(String deviceId) async {
+    if (error != null) throw error!;
+    calls.add('pair:$deviceId');
+    current = TotemInfo(paired: true, deviceId: deviceId, status: const TotemStatus(online: true, state: 'idle'));
+  }
+
+  @override
+  Future<void> unpair() async {
+    if (error != null) throw error!;
+    calls.add('unpair');
+    current = const TotemInfo();
+  }
+
+  @override
+  Future<void> play(int storyId, {int? volume}) async {
+    if (error != null) throw error!;
+    calls.add('play:$storyId');
+    current = TotemInfo(
+      paired: true,
+      deviceId: current.deviceId,
+      status: TotemStatus(online: true, state: 'playing', storyId: storyId, position: 3, duration: 36, volume: 40),
+    );
+  }
+
+  @override
+  Future<void> command(String action, {int? value}) async {
+    if (error != null) throw error!;
+    calls.add(value == null ? action : '$action:$value');
+    final status = current.status;
+    final next = switch (action) {
+      'pause' => 'paused',
+      'resume' => 'playing',
+      'stop' => 'idle',
+      _ => status.state,
+    };
+    current = TotemInfo(
+      paired: true,
+      deviceId: current.deviceId,
+      status: TotemStatus(
+        online: true,
+        state: next,
+        storyId: next == 'idle' ? null : status.storyId,
+        position: status.position,
+        duration: status.duration,
+        volume: action == 'volume' ? value ?? 0 : status.volume,
+      ),
+    );
+  }
+}
+
+TotemInfo pairedTotem({String state = 'idle', bool online = true, int? storyId, int volume = 40}) => TotemInfo(
+      paired: true,
+      deviceId: 'totem-001',
+      status: TotemStatus(online: online, state: state, storyId: storyId, position: 5, duration: 36, volume: volume),
+    );
+
+/// Interval polling dibuat sangat panjang agar tes tidak bergantung pada waktu.
+TotemViewModel fakeTotemViewModel([FakeTotemApi? api]) => TotemViewModel(
+      repository: TotemRepository(api: api ?? FakeTotemApi()),
+      pollInterval: const Duration(hours: 1),
+    );
