@@ -6,7 +6,10 @@ import '../../../core/app_colors.dart';
 import '../../../core/relative_time.dart';
 import '../../../data/models/account_result.dart';
 import '../../../data/repositories/story_repository.dart';
+import '../../view_models/phone_player/phone_player_view_model.dart';
 import '../../view_models/story/story_detail_view_model.dart';
+import '../../widgets/story/phone_controls.dart';
+import 'story_detail_args.dart';
 import '../../totem_flow.dart';
 import '../../widgets/story/totem_controls.dart';
 import '../../widgets/shared/top_banner.dart';
@@ -20,15 +23,27 @@ class StoryDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final storyId = ModalRoute.of(context)?.settings.arguments;
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+    final int? storyId = switch (arguments) {
+      int id => id,
+      StoryDetailArgs args => args.id,
+      _ => null,
+    };
+    final autoPlay = arguments is StoryDetailArgs && arguments.autoPlay;
 
     return ChangeNotifierProvider(
       create: (context) {
         final viewModel = StoryDetailViewModel(repository: context.read<StoryRepository>());
-        if (storyId is int) viewModel.load(storyId);
+        final phone = context.read<PhonePlayerViewModel>();
+        if (storyId != null) {
+          viewModel.load(storyId).then((_) {
+            final story = viewModel.story;
+            if (autoPlay && story != null) phone.play(story);
+          });
+        }
         return viewModel;
       },
-      child: const _StoryDetailBody(),
+      child: const _StopPhoneOnExit(child: _StoryDetailBody()),
     );
   }
 }
@@ -137,6 +152,25 @@ class _StoryDetailBody extends StatelessWidget {
           width: double.infinity,
           height: 50,
           child: ElevatedButton.icon(
+            key: const Key('play-on-phone'),
+            onPressed: () => context.read<PhonePlayerViewModel>().play(story),
+            icon: const Icon(Icons.play_circle_fill, color: Colors.white),
+            label: Text(
+              l10n.playOnPhone,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, fontFamily: AppAssets.fontFamily),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.btnSave,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            ),
+          ),
+        ),
+        PhoneControls(storyId: story.id, sentences: story.sentences),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
             key: const Key('play-on-totem'),
             onPressed: () => TotemFlow.playStory(context, story.id),
             icon: const Icon(Icons.speaker, color: Colors.white),
@@ -144,8 +178,8 @@ class _StoryDetailBody extends StatelessWidget {
               l10n.playOnTotem,
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16, fontFamily: AppAssets.fontFamily),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.btnSave,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.white54, width: 2),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
             ),
           ),
@@ -174,4 +208,33 @@ class _StoryDetailBody extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Menghentikan pemutaran di HP saat layar cerita ditutup, supaya suara tidak jalan terus di layar lain.
+class _StopPhoneOnExit extends StatefulWidget {
+  final Widget child;
+  const _StopPhoneOnExit({required this.child});
+
+  @override
+  State<_StopPhoneOnExit> createState() => _StopPhoneOnExitState();
+}
+
+class _StopPhoneOnExitState extends State<_StopPhoneOnExit> {
+  // Dibaca di initState: saat dispose(), context sudah nonaktif dan tidak aman dipakai mencari provider.
+  late final PhonePlayerViewModel _phone;
+
+  @override
+  void initState() {
+    super.initState();
+    _phone = context.read<PhonePlayerViewModel>();
+  }
+
+  @override
+  void dispose() {
+    Future.microtask(_phone.stop);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

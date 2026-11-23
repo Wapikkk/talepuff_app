@@ -60,6 +60,7 @@ class Harness {
           ChangeNotifierProvider.value(value: childInfo),
           ChangeNotifierProvider.value(value: navbar),
           ChangeNotifierProvider(create: (_) => fakeTotemViewModel(totemApi)),
+          ChangeNotifierProvider(create: (_) => fakePhonePlayer()),
         ],
         child: MaterialApp(localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, locale: testLocale, 
           home: const StoryView(),

@@ -6,6 +6,8 @@ import '../../../data/models/app_message.dart';
 import '../../../data/repositories/story_repository.dart';
 import '../../totem_flow.dart';
 import '../../view_models/parents/parent_view_model.dart';
+import '../../view_models/totem/totem_view_model.dart';
+import '../story/story_detail_args.dart';
 import '../../view_models/parents/child_info_view_model.dart';
 import '../../widgets/home/create_new_story_btn.dart';
 import '../../widgets/home/play_last_story_btn.dart';
@@ -42,7 +44,15 @@ class _HomeViewState extends State<HomeView> {
       if (!mounted) return;
       switch (result) {
         case LatestStoryFound(:final story):
-          await TotemFlow.playStory(context, story.id, title: story.title.isEmpty ? l10n.untitledStory : story.title);
+          // Dengan totem tertaut, ceritanya diputar di totem; tanpa totem, diputar di HP ini.
+          final totem = context.read<TotemViewModel>();
+          if (!totem.isLoaded) await totem.refresh();
+          if (!mounted) return;
+          if (totem.isPaired) {
+            await TotemFlow.playStory(context, story.id, title: story.title.isEmpty ? l10n.untitledStory : story.title);
+          } else {
+            await Navigator.pushNamed(context, '/story_detail', arguments: StoryDetailArgs(story.id, autoPlay: true));
+          }
         case LatestStoryNone():
           TopBanner.show(overlay, l10n.appMessage(AppMessage.noPlayableStory), type: TopBannerType.info);
         case LatestStoryFailed(:final message):

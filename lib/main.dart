@@ -66,6 +66,8 @@ import 'data/services/stats_service.dart';
 import 'ui/view_models/stats/stats_view_model.dart';
 import 'data/services/totem_service.dart';
 import 'ui/view_models/totem/totem_view_model.dart';
+import 'data/services/audio_player_port.dart';
+import 'ui/view_models/phone_player/phone_player_view_model.dart';
 import 'ui/views/settings/totem_view.dart';
 import 'data/services/server_check_service.dart';
 import 'data/services/story_service.dart';
@@ -103,6 +105,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => StatsViewModel(repository: context.read<StatsRepository>()),
         ),
+        ChangeNotifierProvider(create: (_) => PhonePlayerViewModel(player: AudioplayersPort())),
         Provider<TotemRepository>.value(value: TotemRepository(api: TotemService(client: httpClient))),
         ChangeNotifierProvider(
           create: (context) => TotemViewModel(repository: context.read<TotemRepository>()),

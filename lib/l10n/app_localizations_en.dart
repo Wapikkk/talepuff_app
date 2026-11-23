@@ -984,8 +984,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The totem feature isn’t set up on the server yet.';
 
   @override
-  String get msgStoryNoVoice =>
-      'This story has no voice yet, so the totem can’t play it.';
+  String get msgStoryNoVoice => 'This story has no voice yet.';
 
   @override
   String get msgTotemLinked => 'Totem linked!';
@@ -1072,4 +1071,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsEmpty => 'Nothing yet this week. Play a story on the totem!';
+
+  @override
+  String get msgAudioPlaybackFailed =>
+      'We can’t play this story right now. Check your connection and try again.';
+
+  @override
+  String get msgPlaybackUnavailable =>
+      'Listening on the phone isn’t set up on the server yet.';
+
+  @override
+  String get playOnPhone => 'Play on phone';
+
+  @override
+  String get phoneNowPlaying => 'Playing on this phone';
+
+  @override
+  String get phoneLoading => 'Getting the story ready...';
 }

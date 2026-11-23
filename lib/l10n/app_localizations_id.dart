@@ -981,8 +981,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get msgTotemUnavailable => 'Fitur totem belum disiapkan di server.';
 
   @override
-  String get msgStoryNoVoice =>
-      'Cerita ini belum punya suara, sehingga totem tidak dapat memutarnya.';
+  String get msgStoryNoVoice => 'Cerita ini belum punya suara.';
 
   @override
   String get msgTotemLinked => 'Totem terhubung!';
@@ -1071,4 +1070,21 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get statsEmpty => 'Belum ada minggu ini. Putar cerita di totem!';
+
+  @override
+  String get msgAudioPlaybackFailed =>
+      'Cerita ini tidak dapat diputar sekarang. Periksa koneksi Anda lalu coba lagi.';
+
+  @override
+  String get msgPlaybackUnavailable =>
+      'Fitur mendengarkan di HP belum disiapkan di server.';
+
+  @override
+  String get playOnPhone => 'Putar di HP';
+
+  @override
+  String get phoneNowPlaying => 'Diputar di HP ini';
+
+  @override
+  String get phoneLoading => 'Menyiapkan cerita...';
 }

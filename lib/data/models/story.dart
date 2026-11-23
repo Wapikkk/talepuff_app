@@ -120,6 +120,7 @@ class StoryDetail extends StorySummary {
   final String content;
   final String description;
   final List<StorySentence> sentences;
+  final String playbackUrl; // alamat audio yang bisa dijangkau HP; kosong bila belum bisa diputar di HP
 
   const StoryDetail({
     required super.id,
@@ -137,6 +138,7 @@ class StoryDetail extends StorySummary {
     required this.content,
     required this.description,
     this.sentences = const [],
+    this.playbackUrl = '',
   });
 
   factory StoryDetail.fromJson(Map<String, dynamic> json) {
@@ -157,6 +159,7 @@ class StoryDetail extends StorySummary {
       content: json['content']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       sentences: StorySentence.parseAll(json['sentences']),
+      playbackUrl: json['playback_url']?.toString() ?? '',
     );
   }
 
@@ -177,6 +180,7 @@ class StoryDetail extends StorySummary {
         content: content,
         description: description,
         sentences: sentences,
+        playbackUrl: playbackUrl,
       );
 }
 

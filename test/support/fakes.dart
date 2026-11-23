@@ -18,6 +18,8 @@ import 'package:talepuff_app/data/services/app_info.dart';
 import 'package:talepuff_app/data/services/auth_service.dart';
 import 'package:talepuff_app/data/services/session_store.dart';
 import 'package:talepuff_app/data/models/totem.dart';
+import 'package:talepuff_app/data/services/audio_player_port.dart';
+import 'package:talepuff_app/ui/view_models/phone_player/phone_player_view_model.dart';
 import 'package:talepuff_app/data/models/weekly_stats.dart';
 import 'package:talepuff_app/data/repositories/stats_repository.dart';
 import 'package:talepuff_app/data/services/stats_service.dart';
@@ -316,6 +318,8 @@ StoryDetail makeDetail(
   int id, {
   String content = 'First paragraph.\n\nSecond paragraph.',
   bool favorite = false,
+  String playbackUrl = '',
+  List<StorySentence> sentences = const [],
 }) {
   final base = makeStory(id, favorite: favorite);
   return StoryDetail(
@@ -326,13 +330,15 @@ StoryDetail makeDetail(
     mood: 'Calm, Brave',
     language: base.language,
     lengthMinutes: base.lengthMinutes,
-    audioUrl: '',
+    audioUrl: playbackUrl.isEmpty ? '' : 'http://localhost:8000/audio/story_1_Warm.wav',
     voiceTone: '',
     isFavorite: favorite,
     playCount: 0,
     createdAt: base.createdAt,
     content: content,
     description: 'a description',
+    sentences: sentences,
+    playbackUrl: playbackUrl,
   );
 }
 
@@ -531,3 +537,46 @@ class FakeStatsApi implements StatsApi {
 }
 
 StatsViewModel fakeStatsViewModel([FakeStatsApi? api]) => StatsViewModel(repository: StatsRepository(api: api ?? FakeStatsApi()));
+
+/// Pemutar audio tiruan: tes menggerakkan posisi dan durasi sendiri.
+class FakeAudioPlayer implements AudioPlayerPort {
+  final _positions = StreamController<Duration>.broadcast();
+  final _durations = StreamController<Duration>.broadcast();
+  final _completions = StreamController<void>.broadcast();
+  final calls = <String>[];
+  final loaded = <String>[];
+  Object? loadError;
+  Completer<void>? loadGate;
+
+  @override
+  Stream<Duration> get positions => _positions.stream;
+  @override
+  Stream<Duration> get durations => _durations.stream;
+  @override
+  Stream<void> get completions => _completions.stream;
+
+  void emitPosition(Duration position) => _positions.add(position);
+  void emitDuration(Duration duration) => _durations.add(duration);
+  void finish() => _completions.add(null);
+
+  @override
+  Future<void> load(String url) async {
+    calls.add('load');
+    await loadGate?.future;
+    if (loadError != null) throw loadError!;
+    loaded.add(url);
+  }
+
+  @override
+  Future<void> play() async => calls.add('play');
+  @override
+  Future<void> pause() async => calls.add('pause');
+  @override
+  Future<void> seek(Duration position) async => calls.add('seek:${position.inMilliseconds}');
+  @override
+  Future<void> stop() async => calls.add('stop');
+  @override
+  Future<void> dispose() async {}
+}
+
+PhonePlayerViewModel fakePhonePlayer([FakeAudioPlayer? player]) => PhonePlayerViewModel(player: player ?? FakeAudioPlayer());

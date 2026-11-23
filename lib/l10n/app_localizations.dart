@@ -1769,7 +1769,7 @@ abstract class AppLocalizations {
   /// No description provided for @msgStoryNoVoice.
   ///
   /// In en, this message translates to:
-  /// **'This story has no voice yet, so the totem can’t play it.'**
+  /// **'This story has no voice yet.'**
   String get msgStoryNoVoice;
 
   /// No description provided for @msgTotemLinked.
@@ -1927,6 +1927,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing yet this week. Play a story on the totem!'**
   String get statsEmpty;
+
+  /// No description provided for @msgAudioPlaybackFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We can’t play this story right now. Check your connection and try again.'**
+  String get msgAudioPlaybackFailed;
+
+  /// No description provided for @msgPlaybackUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening on the phone isn’t set up on the server yet.'**
+  String get msgPlaybackUnavailable;
+
+  /// No description provided for @playOnPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Play on phone'**
+  String get playOnPhone;
+
+  /// No description provided for @phoneNowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing on this phone'**
+  String get phoneNowPlaying;
+
+  /// No description provided for @phoneLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the story ready...'**
+  String get phoneLoading;
 }
 
 class _AppLocalizationsDelegate
