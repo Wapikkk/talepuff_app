@@ -31,7 +31,7 @@ extension AppMessageText on AppLocalizations {
         AppMessage.genericError => msgGenericError,
         AppMessage.totemInvalidId => msgTotemInvalidId,
         AppMessage.totemNotVisible => msgTotemNotVisible,
-        AppMessage.totemTaken => msgTotemTaken,
+        AppMessage.totemBusy => msgTotemBusy,
         AppMessage.totemNotPaired => msgTotemNotPaired,
         AppMessage.totemOffline => msgTotemOffline,
         AppMessage.totemUnreachable => msgTotemUnreachable,

@@ -120,7 +120,7 @@ void main() {
       final expectations = {
         'invalid_device_id': AppMessage.totemInvalidId,
         'totem_not_visible': AppMessage.totemNotVisible,
-        'totem_taken': AppMessage.totemTaken,
+        'totem_busy': AppMessage.totemBusy,
         'totem_not_paired': AppMessage.totemNotPaired,
         'totem_offline': AppMessage.totemOffline,
         'totem_unreachable': AppMessage.totemUnreachable,
@@ -205,6 +205,57 @@ void main() {
       vm.dispose();
     });
 
+    test('a paired app keeps the lease alive even when no totem screen is open, and stops once unpaired', () async {
+      var calls = 0;
+      final api = FakeTotemApi()..current = pairedTotem();
+      final vm = TotemViewModel(
+        repository: TotemRepository(api: _CountingApi(api, () => calls++)),
+        pollInterval: const Duration(hours: 1),
+        heartbeat: const Duration(milliseconds: 20),
+      );
+
+      await vm.refresh();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(calls, greaterThan(2), reason: 'it keeps contacting the backend while paired');
+
+      api.current = const TotemInfo();
+      await vm.refresh();
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      final stopped = calls;
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(calls, stopped, reason: 'not paired any more: nothing to keep alive');
+      vm.dispose();
+    });
+
+    test('no heartbeat is needed before a totem is linked', () async {
+      var calls = 0;
+      final vm = TotemViewModel(
+        repository: TotemRepository(api: _CountingApi(FakeTotemApi(), () => calls++)),
+        pollInterval: const Duration(hours: 1),
+        heartbeat: const Duration(milliseconds: 20),
+      );
+      await vm.refresh();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(calls, 1);
+      vm.dispose();
+    });
+
+    test('when another account took the totem over, a failed command brings the screen back in line', () async {
+      final api = FakeTotemApi()..current = pairedTotem();
+      final vm = TotemViewModel(repository: TotemRepository(api: api), heartbeat: null);
+      await vm.refresh();
+      expect(vm.isPaired, isTrue);
+
+      api
+        ..current = const TotemInfo() // backend: totem sekarang milik akun lain
+        ..error = const TotemApiException('x', statusCode: 404, code: 'totem_not_paired');
+      final result = await vm.pause();
+
+      expect(result, isA<AccountFailure>());
+      expect(vm.isPaired, isFalse);
+      vm.dispose();
+    });
+
     test('reset forgets the previous account\'s totem', () async {
       final api = FakeTotemApi()..current = pairedTotem();
       final vm = TotemViewModel(repository: TotemRepository(api: api));
@@ -251,7 +302,7 @@ void main() {
     });
 
     testWidgets('a rejected id shows the reason and stays on the form', (tester) async {
-      final api = FakeTotemApi()..error = const TotemApiException('x', statusCode: 409, code: 'totem_taken');
+      final api = FakeTotemApi()..error = const TotemApiException('x', statusCode: 409, code: 'totem_busy');
       await tester.pumpWidget(app(api));
       await settle(tester);
 
@@ -259,7 +310,7 @@ void main() {
       await tester.tap(find.text('Link totem'));
       await settle(tester);
 
-      expect(find.text('This totem is already linked to another account.'), findsOneWidget);
+      expect(find.text('This totem is being used by another device. Try again in a moment.'), findsOneWidget);
       expect(find.text('Link totem'), findsOneWidget);
       await tester.pump(const Duration(seconds: 4));
     });

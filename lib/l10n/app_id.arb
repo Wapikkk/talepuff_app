@@ -280,7 +280,7 @@
   "playOnTotemSoon": "Memutar di totem segera hadir!",
   "msgTotemInvalidId": "Itu bukan ID totem yang valid. Gunakan huruf, angka, dan tanda hubung, misalnya totem-001.",
   "msgTotemNotVisible": "Totem ini tidak terlihat. Pastikan totem menyala dan terhubung ke Wi-Fi.",
-  "msgTotemTaken": "Totem ini sudah terhubung ke akun lain.",
+  "msgTotemBusy": "Totem ini sedang dipakai perangkat lain. Coba lagi sebentar lagi.",
   "msgTotemNotPaired": "Hubungkan totem terlebih dahulu di Pengaturan.",
   "msgTotemOffline": "Totem Anda sedang offline. Nyalakan totem lalu coba lagi.",
   "msgTotemUnreachable": "Totem tidak dapat dijangkau saat ini. Silakan coba lagi.",
