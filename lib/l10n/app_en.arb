@@ -369,7 +369,7 @@
   "msgTotemOffline": "Your totem is offline. Turn it on and try again.",
   "msgTotemUnreachable": "We can’t reach the totem right now. Please try again.",
   "msgTotemUnavailable": "The totem feature isn’t set up on the server yet.",
-  "msgStoryNoVoice": "This story has no voice yet, so the totem can’t play it.",
+  "msgStoryNoVoice": "This story has no voice yet.",
   "msgTotemLinked": "Totem linked!",
   "msgTotemUnlinked": "Totem unlinked.",
   "msgTotemSent": "Sent to the totem.",
@@ -404,5 +404,10 @@
   "@statsPlays": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "statsEmpty": "Nothing yet this week. Play a story on the totem!"
+  "statsEmpty": "Nothing yet this week. Play a story on the totem!",
+  "msgAudioPlaybackFailed": "We can’t play this story right now. Check your connection and try again.",
+  "msgPlaybackUnavailable": "Listening on the phone isn’t set up on the server yet.",
+  "playOnPhone": "Play on phone",
+  "phoneNowPlaying": "Playing on this phone",
+  "phoneLoading": "Getting the story ready..."
 }

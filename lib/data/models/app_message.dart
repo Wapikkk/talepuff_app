@@ -113,4 +113,6 @@ enum AppMessage {
   totemUnlinked,
   totemSent,
   noPlayableStory,
+  audioPlaybackFailed,
+  playbackUnavailable,
 }

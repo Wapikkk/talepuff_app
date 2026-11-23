@@ -285,7 +285,7 @@
   "msgTotemOffline": "Totem Anda sedang offline. Nyalakan totem lalu coba lagi.",
   "msgTotemUnreachable": "Totem tidak dapat dijangkau saat ini. Silakan coba lagi.",
   "msgTotemUnavailable": "Fitur totem belum disiapkan di server.",
-  "msgStoryNoVoice": "Cerita ini belum punya suara, sehingga totem tidak dapat memutarnya.",
+  "msgStoryNoVoice": "Cerita ini belum punya suara.",
   "msgTotemLinked": "Totem terhubung!",
   "msgTotemUnlinked": "Totem diputuskan.",
   "msgTotemSent": "Dikirim ke totem.",
@@ -311,5 +311,10 @@
   "playingOnTotem": "Memutar “{title}” di totem.",
   "bedtimeNeedsTotem": "Hubungkan totem untuk mengatur cerita pengantar tidur.",
   "statsPlays": "{count} Diputar",
-  "statsEmpty": "Belum ada minggu ini. Putar cerita di totem!"
+  "statsEmpty": "Belum ada minggu ini. Putar cerita di totem!",
+  "msgAudioPlaybackFailed": "Cerita ini tidak dapat diputar sekarang. Periksa koneksi Anda lalu coba lagi.",
+  "msgPlaybackUnavailable": "Fitur mendengarkan di HP belum disiapkan di server.",
+  "playOnPhone": "Putar di HP",
+  "phoneNowPlaying": "Diputar di HP ini",
+  "phoneLoading": "Menyiapkan cerita..."
 }

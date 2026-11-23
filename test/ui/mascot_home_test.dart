@@ -12,6 +12,7 @@ import 'package:talepuff_app/ui/view_models/parents/child_info_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/parent_view_model.dart';
 import 'package:talepuff_app/ui/view_models/parents/update_settings_view_model.dart';
 import 'package:talepuff_app/ui/views/home/home_view.dart';
+import 'package:talepuff_app/ui/views/story/story_detail_args.dart';
 import 'package:talepuff_app/ui/views/settings/update_mascot_view.dart';
 import 'package:talepuff_app/ui/widgets/home/mascot.dart';
 import 'package:talepuff_app/ui/widgets/settings/account_settings.dart';
@@ -199,7 +200,13 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           locale: testLocale,
           home: const HomeView(),
-          routes: {'/totem': (_) => const Text('TOTEM', textDirection: TextDirection.ltr)},
+          routes: {
+            '/totem': (_) => const Text('TOTEM', textDirection: TextDirection.ltr),
+            '/story_detail': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments as StoryDetailArgs;
+              return Text('DETAIL:${args.id}:${args.autoPlay}', textDirection: TextDirection.ltr);
+            },
+          },
         ),
       ));
       await tester.pump();
@@ -249,15 +256,15 @@ void main() {
       await dismissBanner(tester);
     });
 
-    phoneTest('Play Last Story without a linked totem asks to link one', (tester) async {
+    phoneTest('Play Last Story without a linked totem opens the story and plays it on the phone', (tester) async {
       final totem = FakeTotemApi();
-      await pumpHome(tester, totem: totem, stories: storiesOf([makeStory(1, audioUrl: audio)]));
+      await pumpHome(tester, totem: totem, stories: storiesOf([makeStory(1, audioUrl: audio), makeStory(2)]));
 
       await tester.tap(find.text('Play Last Story'));
       await settle(tester);
 
-      expect(find.text('TOTEM'), findsOneWidget);
-      expect(totem.calls, isEmpty);
+      expect(find.text('DETAIL:1:true'), findsOneWidget, reason: 'the newest story that has a voice, set to play');
+      expect(totem.calls, isEmpty, reason: 'nothing is sent to a totem that is not linked');
       await dismissBanner(tester);
     });
 

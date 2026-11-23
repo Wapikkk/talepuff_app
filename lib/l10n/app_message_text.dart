@@ -41,6 +41,8 @@ extension AppMessageText on AppLocalizations {
         AppMessage.totemUnlinked => msgTotemUnlinked,
         AppMessage.totemSent => msgTotemSent,
         AppMessage.noPlayableStory => msgNoPlayableStory,
+        AppMessage.audioPlaybackFailed => msgAudioPlaybackFailed,
+        AppMessage.playbackUnavailable => msgPlaybackUnavailable,
         AppMessage.connectionLost => msgConnectionLost,
         AppMessage.noticeNameReplaced => msgNoticeNameReplaced,
         AppMessage.noticeBothReplaced => msgNoticeBothReplaced,
