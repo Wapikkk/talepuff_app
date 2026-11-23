@@ -962,7 +962,8 @@ class AppLocalizationsId extends AppLocalizations {
       'Totem ini tidak terlihat. Pastikan totem menyala dan terhubung ke Wi-Fi.';
 
   @override
-  String get msgTotemTaken => 'Totem ini sudah terhubung ke akun lain.';
+  String get msgTotemBusy =>
+      'Totem ini sedang dipakai perangkat lain. Coba lagi sebentar lagi.';
 
   @override
   String get msgTotemNotPaired =>

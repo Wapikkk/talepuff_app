@@ -1736,11 +1736,11 @@ abstract class AppLocalizations {
   /// **'We can’t see this totem. Make sure it is on and connected to Wi-Fi.'**
   String get msgTotemNotVisible;
 
-  /// No description provided for @msgTotemTaken.
+  /// No description provided for @msgTotemBusy.
   ///
   /// In en, this message translates to:
-  /// **'This totem is already linked to another account.'**
-  String get msgTotemTaken;
+  /// **'This totem is being used by another device. Try again in a moment.'**
+  String get msgTotemBusy;
 
   /// No description provided for @msgTotemNotPaired.
   ///

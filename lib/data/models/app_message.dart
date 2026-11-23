@@ -103,7 +103,7 @@ enum AppMessage {
   // Totem
   totemInvalidId,
   totemNotVisible,
-  totemTaken,
+  totemBusy,
   totemNotPaired,
   totemOffline,
   totemUnreachable,

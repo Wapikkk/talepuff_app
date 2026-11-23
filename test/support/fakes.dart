@@ -506,6 +506,7 @@ TotemInfo pairedTotem({String state = 'idle', bool online = true, int? storyId, 
 TotemViewModel fakeTotemViewModel([FakeTotemApi? api]) => TotemViewModel(
       repository: TotemRepository(api: api ?? FakeTotemApi()),
       pollInterval: const Duration(hours: 1),
+      heartbeat: null,
     );
 
 /// Tujuh hari berakhir 2026-10-28; [seconds] mengisi hari ke-i (0 = terlama).

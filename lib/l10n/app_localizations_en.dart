@@ -965,8 +965,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'We can’t see this totem. Make sure it is on and connected to Wi-Fi.';
 
   @override
-  String get msgTotemTaken =>
-      'This totem is already linked to another account.';
+  String get msgTotemBusy =>
+      'This totem is being used by another device. Try again in a moment.';
 
   @override
   String get msgTotemNotPaired => 'Link a totem first in Settings.';

@@ -12,15 +12,19 @@ class TotemViewModel extends ChangeNotifier {
     required TotemRepository repository,
     Duration pollInterval = const Duration(seconds: 2),
     DateTime Function() clock = DateTime.now,
+    Duration? heartbeat = const Duration(seconds: 45),
   })  : _repository = repository,
         _pollInterval = pollInterval,
-        _clock = clock;
+        _clock = clock,
+        _heartbeatInterval = heartbeat;
 
   static const int bufferLagMs = 800;
 
   final TotemRepository _repository;
   final Duration _pollInterval;
   final DateTime Function() _clock;
+  final Duration? _heartbeatInterval;
+  Timer? _heartbeat;
   DateTime? _statusAt;
 
   TotemInfo? _info;
@@ -67,6 +71,7 @@ class TotemViewModel extends ChangeNotifier {
         _info = info;
         _statusAt = _clock();
         _error = null;
+        _syncHeartbeat();
       case TotemInfoFailed(:final message):
         _error = message;
     }
@@ -79,9 +84,25 @@ class TotemViewModel extends ChangeNotifier {
     return (reported + elapsed - bufferLagMs).clamp(0, status.duration > 0 ? status.duration * 1000 : 1 << 30);
   }
 
+  /// Totem hanya dikendalikan satu akun selama lease-nya hidup, dan lease diperpanjang oleh setiap permintaan
+  /// pemiliknya. Selama totem tertaut, aplikasi yang aktif tetap menghubungi backend walau tidak ada layar totem
+  /// yang terbuka; kalau aplikasi ditutup, lease habis dan totem bisa dipakai orang lain.
+  void _syncHeartbeat() {
+    final interval = _heartbeatInterval;
+    if (interval == null) return;
+    if (isPaired) {
+      _heartbeat ??= Timer.periodic(interval, (_) => refresh());
+    } else {
+      _heartbeat?.cancel();
+      _heartbeat = null;
+    }
+  }
+
   void reset() {
     _info = null;
     _error = null;
+    _heartbeat?.cancel();
+    _heartbeat = null;
     notifyListeners();
   }
 
@@ -102,7 +123,8 @@ class TotemViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await action();
-      if (result is AccountSuccess && !_disposed) await refresh();
+      // Juga saat gagal: mungkin totem sudah diambil alih akun lain, dan layar harus mengikuti kenyataannya.
+      if (!_disposed) await refresh();
       return result;
     } finally {
       _isBusy = false;
@@ -114,6 +136,7 @@ class TotemViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _timer?.cancel();
+    _heartbeat?.cancel();
     super.dispose();
   }
 }

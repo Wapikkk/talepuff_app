@@ -78,8 +78,8 @@ class TotemRepository {
         return AppMessage.totemInvalidId;
       case 'totem_not_visible':
         return AppMessage.totemNotVisible;
-      case 'totem_taken':
-        return AppMessage.totemTaken;
+      case 'totem_busy':
+        return AppMessage.totemBusy;
       case 'totem_not_paired':
         return AppMessage.totemNotPaired;
       case 'totem_offline':
