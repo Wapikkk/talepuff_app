@@ -9,7 +9,6 @@ import '../../../l10n/app_message_text.dart';
 import '../../view_models/parents/parent_view_model.dart';
 import '../../view_models/stats/stats_view_model.dart';
 
-/// Ringkasan tujuh hari terakhir: cerita dibuat, berapa kali diputar di totem, dan lama didengar.
 class UsageStatisticCard extends StatefulWidget {
   const UsageStatisticCard({super.key});
 

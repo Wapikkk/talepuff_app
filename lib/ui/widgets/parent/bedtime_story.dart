@@ -9,8 +9,6 @@ import '../../../l10n/app_message_text.dart';
 import '../../view_models/totem/totem_view_model.dart';
 import '../shared/top_banner.dart';
 
-/// Cerita pengantar tidur otomatis: totem memutar cerita terbaru pada jam yang dipilih.
-/// Jadwal disimpan di backend dan dijalankan di sana, jadi jalan walau HP tertutup.
 class BedtimeStory extends StatefulWidget {
   const BedtimeStory({super.key});
 
